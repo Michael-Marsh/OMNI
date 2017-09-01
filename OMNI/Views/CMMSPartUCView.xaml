@@ -1,0 +1,261 @@
+﻿<UserControl x:Class="OMNI.Views.CMMSPartUCView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:cvtr="clr-namespace:OMNI.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <cvtr:InvertedBooltoVisibility x:Key="InvertedBooltoVisConverter"/>
+        <cvtr:PartActionToVisibility x:Key="PartActionToVisConverter"/>
+        <cvtr:BoolValueSwitch x:Key="BoolInverterConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="695"/>
+            <ColumnDefinition Width="290"/>
+            <ColumnDefinition Width="430"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <!--    Column 0    -->
+        
+        <!--    Row 0   -->
+
+        <Label Visibility="{Binding WccoPart.RecordLockStatus, Converter={StaticResource BooltoVisConverter}}"
+               Foreground="Crimson"
+               FontWeight="Bold"
+               FontSize="18"
+               Content="(Read Only)"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center"/>
+
+        <StackPanel Grid.Row="0" Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}}">
+
+            <Label Foreground="Black"
+                   FontWeight="Bold"
+                   FontSize="24"
+                   Content="WCCO Part No."/>
+
+            <TextBox Text="{Binding SearchID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue={x:Static sys:String.Empty}}"
+                     FontSize="16"
+                     Width="150"
+                     Margin="5"
+                     TabIndex="0"
+                     ToolTip="Enter the WCCO Part Number to load."
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+        </StackPanel>
+
+        <!--    Row 1   -->
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}, ConverterParameter=0}">
+
+            <Label Content="Created By:"
+                   Foreground="GhostWhite"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <TextBox Text="{Binding WccoPart.Creator}"
+                     FontSize="16"
+                     Width="200"
+                     Margin="5"
+                     IsEnabled="False"/>
+
+            <Label Content="Creation Date"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <DatePicker SelectedDate="{Binding WccoPart.DateCreated}"
+                        IsEnabled="False"
+                        Margin="10,5,0,5"
+                        Width="150"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        FirstDayOfWeek="Monday"
+                        Focusable="False"
+                        ToolTip="Enter or Select the date."/>
+
+        </StackPanel>
+
+        <!--    Row 2   -->
+
+        <StackPanel Grid.Row="2" Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    IsEnabled="{Binding WccoPart.RecordLockStatus, Converter={StaticResource BoolInverterConverter}}"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}, ConverterParameter=0}">
+
+            <Label Content="Description"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <TextBox Text="{Binding WccoPart.CurrentRevision.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue={x:Static sys:String.Empty}}"
+                     FontSize="16"
+                     Width="540"
+                     Margin="2"
+                     TabIndex="0"
+                     ToolTip="WCCO part's description."
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+        </StackPanel>
+
+        <!--    Row 3   -->
+
+        <StackPanel Grid.Row="3" Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    IsEnabled="{Binding WccoPart.RecordLockStatus, Converter={StaticResource BoolInverterConverter}}"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}, ConverterParameter=0}">
+
+            <Label Content="Part Status"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <ComboBox ItemsSource="{Binding WccoPart.StatusList}"
+                      SelectedItem="{Binding WccoPart.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Margin="5"
+                      Width="190"
+                      ToolTip="Current part status."
+                      FontWeight="Bold"
+                      FontSize="16"
+                      TabIndex="1"
+                      Style="{DynamicResource RequiredComboBox}"/>
+
+            <Label Content="Defualt Location"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <ComboBox ItemsSource="{Binding WccoPart.LocationList}"
+                      SelectedItem="{Binding WccoPart.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Margin="5"
+                      Width="190"
+                      ToolTip="Part default location, used when receiving parts."
+                      FontWeight="Bold"
+                      FontSize="16"
+                      TabIndex="2"
+                      Style="{DynamicResource RequiredComboBox}"/>
+
+        </StackPanel>
+
+        <!--    Row 4   -->
+
+        <StackPanel Grid.Row="4" Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    IsEnabled="{Binding WccoPart.RecordLockStatus, Converter={StaticResource BoolInverterConverter}}"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}, ConverterParameter=0}">
+
+            <Label Content="Safety Stock"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <TextBox Text="{Binding WccoPart.CurrentRevision.SafetyStock, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue={x:Static sys:String.Empty}}"
+                     FontSize="16"
+                     Width="100"
+                     Margin="2"
+                     TabIndex="0"
+                     ToolTip="WCCO Part Safety Stock Levels."
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+            <Label Content="Quantity On Hand"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <TextBox Text="{Binding WccoPart.OnHand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue={x:Static sys:String.Empty}}"
+                     FontSize="16"
+                     Width="100"
+                     Margin="2"
+                     TabIndex="0"
+                     ToolTip="WCCO Part Quantity On Hand."
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+        </StackPanel>
+        
+        <!--    Column 2    -->
+
+        <StackPanel Grid.Column="1" Grid.RowSpan="4"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="top"
+                    Visibility="{Binding PartAction, Converter={StaticResource PartActionToVisConverter}, ConverterParameter=0}">
+
+            <Label Content="{Binding WccoPart.RecordLockBy}"
+                   ContentStringFormat="Locked By: {0}"
+                   Foreground="Black"
+                   FontWeight="Bold"
+                   FontSize="18">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding WccoPart.RecordLockBy}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+
+            <Label Content="Revision"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <ComboBox ItemsSource="{Binding WccoPart.RevisionList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedItem="{Binding WccoPart.CurrentRevision, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      DisplayMemberPath="RevisionID"
+                      IsSynchronizedWithCurrentItem="True"
+                      Margin="5"
+                      Width="190"
+                      ToolTip="Current WCCO part Revision."
+                      FontWeight="Bold"
+                      FontSize="16">
+                <ComboBox.Style>
+                    <Style TargetType="{x:Type ComboBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding WccoPart.RevisionList}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding WccoPart.RevisionList.Length}" Value="0">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Style>
+            </ComboBox>
+
+            <Label Content="{Binding WccoPart.CurrentRevision.RevisedBy}"
+                   ContentStringFormat="Revised By: {0}"
+                   Foreground="Black"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+        </StackPanel>
+
+    </Grid>
+</UserControl>

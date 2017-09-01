@@ -1,0 +1,43 @@
+﻿<Window x:Name="window" x:Class="OMNI.Views.UpdateSalesWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:viewmodel="clr-namespace:OMNI.ViewModels"
+        mc:Ignorable="d"
+        Title="Update Sales" Height="240" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/OMNI;component/Icons/Omni.ico" ShowInTaskbar="False" WindowStyle="ToolWindow">
+
+    <Window.DataContext>
+        <viewmodel:UpdateSalesWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid Style="{DynamicResource GridBackgroundStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Content="Select Month and Year to Update" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label.Effect>
+                <DropShadowEffect/>
+            </Label.Effect>
+        </Label>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <ComboBox ItemsSource="{Binding MonthList}" SelectedValue="{Binding SelectedMonth, Mode=TwoWay}" Text="{Binding SelectedInternalMonth}" Width="100" ToolTip="Select the Month" FontSize="14" Height="25" Cursor="Hand"/>
+            <ComboBox ItemsSource="{Binding YearList}" SelectedValue="{Binding SelectedYear, Mode=TwoWay}" Margin="5,0,0,0" Width="60" ToolTip="Select the Year" FontSize="14" Height="25" Cursor="Hand"/>
+        </StackPanel>
+        <Label Grid.Row="2" Content="Enter the Sales Amount" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label.Effect>
+                <DropShadowEffect/>
+            </Label.Effect>
+        </Label>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBox Text="{Binding SalesNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat=C0, TargetNullValue={x:Static sys:String.Empty}}" FontSize="16" Width="150" Margin="5" MaxLength="14"/>
+            <CheckBox Content="Firm" IsChecked="{Binding Validate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0" Style="{DynamicResource CheckBoxStyle}" IsTabStop="False"/>
+        </StackPanel>
+        <Button Grid.Row="4" Content="Update" Margin="5" Width="100" Command="{Binding UpdateCommand}" CommandParameter="{Binding ElementName=window, Mode=OneWay}" Style="{DynamicResource DashBoardButtonStyle}"/>
+    </Grid>
+</Window>

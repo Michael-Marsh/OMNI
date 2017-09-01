@@ -1,0 +1,115 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ViewModels="clr-namespace:OMNI.ViewModels" x:Class="OMNI.Views.OMNIManagementUCView"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="1500">
+    
+    <UserControl.DataContext>
+        <ViewModels:OMNIManagementUCViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding CommitChangesCommand}" Gesture="Ctrl+S"/>
+    </UserControl.InputBindings>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch">
+
+            <ComboBox ItemsSource="{Binding TableList}"
+                      SelectedValue="{Binding SelectedTable}"
+                      SelectedValuePath="TableName"
+                      DisplayMemberPath="TableName"
+                      Visibility="{Binding DeveloperView, Converter={StaticResource BooltoVisConverter}}"
+                      Margin="5"
+                      ToolTip="Select a table to load." 
+                      FontWeight="Bold" 
+                      FontSize="16"
+                      Width="150"
+                      Cursor="Hand" 
+                      TabIndex="7"/>
+
+            <Label Content="Filter"
+                   Foreground="GhostWhite"
+                   FontWeight="Bold"
+                   FontSize="18"/>
+
+            <TextBox x:Name="Input_Text"
+                     Text="{Binding SearchBox, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Width="200"
+                     ToolTip="Type to filter the table."
+                     AcceptsReturn="False"
+                     MaxLength="30"
+                     Margin="5"/>
+
+            <Label Content="Unsaved Changes"
+                   Foreground="Crimson"
+                   Margin="50,0,0,0"
+                   FontWeight="Bold"
+                   Visibility="{Binding Changes, Converter={StaticResource BooltoVisConverter}}"
+                   FontSize="18"/>
+
+            <Button Command="{Binding CommitChangesCommand}"
+                    Width="75"
+                    Margin="5"
+                    ToolTip="Save Changes&#10;(Ctrl+S)"
+                    Visibility="{Binding Changes, Converter={StaticResource BooltoVisConverter}}"
+                    Style="{DynamicResource DashBoardButtonStyle}">
+                <Image Source="/OMNI;component/Icons/Update.ico"
+                       Margin="2"/>
+            </Button>
+
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  Name="dgSource"
+                  ItemsSource="{Binding Table, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  AutoGenerateColumns="True"
+                  IsSynchronizedWithCurrentItem="True"
+                  SelectedItem="{Binding SelectedRow, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                  AlternatingRowBackground="DimGray"
+                  AlternationCount="1"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Top"
+                  IsReadOnly="False"
+                  GridLinesVisibility="Vertical"
+                  Style="{DynamicResource ActiveDataGrid}"
+                  ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}"
+                  CanUserResizeRows="{Binding DeveloperView}"
+                  CanUserAddRows="True"
+                  CanUserDeleteRows="True"
+                  SelectionUnit="CellOrRowHeader">
+
+            <DataGrid.CellStyle>
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="BorderThickness" Value="2"/>
+                            <Setter Property="BorderBrush" Value="#FF135185"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+            
+        </DataGrid>
+
+    </Grid>
+</UserControl>

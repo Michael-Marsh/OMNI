@@ -1,0 +1,458 @@
+﻿<UserControl x:Name="ParentUC" x:Class="OMNI.Views.ITTicketNoticeUCView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:Converters="clr-namespace:OMNI.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <Converters:VisibilityToNullableBoolean x:Key="nullBooltoVisConverter"/>
+        <Converters:CommaReplace x:Key="SpaceReplaceConverter"/>
+        <Converters:InvertedBooltoVisibility x:Key="InvertedBooltoVisConverter"/>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding NoteCommand}"
+                    Gesture="Ctrl+N"/>
+    </UserControl.InputBindings>
+
+    <ScrollViewer VerticalScrollBarVisibility="Hidden" 
+                  HorizontalScrollBarVisibility="Auto">
+
+        <Grid Height="{Binding ActualHeight, ElementName=ParentUC}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1170"/>
+                <ColumnDefinition Width="430"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Column="0" 
+                        Grid.Row="0"
+                        Orientation="Horizontal">
+
+                <ComboBox ItemsSource="{Binding TeamList}" 
+                          SelectedValue="{Binding SelectedTeamMember}"
+                          Visibility="{Binding Open, Converter={StaticResource BooltoVisConverter}}"
+                          SelectedValuePath="Name" 
+                          DisplayMemberPath="Name"
+                          Margin="5" Width="250" 
+                          ToolTip="Select a team member's schedule to view." 
+                          FontWeight="Bold" 
+                          FontSize="20"
+                          Cursor="Hand"
+                          TabIndex="0"/>
+
+                <Label Content="Schedule"
+                       Visibility="{Binding Open, Converter={StaticResource BooltoVisConverter}}"
+                       VerticalAlignment="Center" 
+                       Foreground="GhostWhite" 
+                       FontWeight="Bold"
+                       FontSize="18"/>
+
+                <Label Visibility="{Binding Unassigned, Converter={StaticResource BooltoVisConverter}}"
+                       Content="Unassigned Tickets"
+                       VerticalAlignment="Center" 
+                       Foreground="GhostWhite" 
+                       FontWeight="Bold" 
+                       FontSize="24"/>
+
+                <Label Content="All open submissions."
+                       Visibility="{Binding Open, Converter={StaticResource BooltoVisConverter}}"
+                       VerticalAlignment="Center" 
+                       Foreground="GhostWhite" 
+                       FontWeight="Bold" 
+                       FontSize="24"/>
+
+                <Label Content="Closed or Denied Work Orders (from the past 30 days)"
+                       Visibility="{Binding Closed, Converter={StaticResource BooltoVisConverter}}"
+                       VerticalAlignment="Center" 
+                       Foreground="GhostWhite" 
+                       FontWeight="Bold" 
+                       FontSize="24"/>
+
+                <Button Margin="5" Command="{Binding RefreshCommand}"
+                        ToolTip="Clear any groups and turn automatic updates on.&#10;(Ctrl+R)"
+                        Style="{DynamicResource DashBoardButtonStyle}"
+                        Visibility="{Binding IsLiveUpdateOn, Converter={StaticResource InvertedBooltoVisConverter}}">
+                    <Image Source="/OMNI;component/Icons/Refresh.ico"
+                           Margin="5"/>
+                </Button>
+
+            </StackPanel>
+
+            <DataGrid Grid.Column="0"
+                      Grid.Row="1" 
+                      x:Name="dgView"
+                      ItemsSource="{Binding OpenTicketsView}"
+                      SelectionMode="Single"
+                      SelectedItem="{Binding SelectedRow, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                      IsSynchronizedWithCurrentItem="True" 
+                      Background="Transparent"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      Style="{DynamicResource ActiveDataGrid}"
+                      ColumnHeaderStyle="{DynamicResource ActiveColumnHeader}"
+                      RowHeaderStyle="{DynamicResource ActiveRowHeader}"
+                      RowStyle="{DynamicResource ActiveRow}"
+                      CellStyle="{DynamicResource ActiveCell}">
+
+                <DataGrid.InputBindings>
+                    <KeyBinding Command="{Binding PrintCommand}"
+                                CommandParameter="{Binding TicketNumber}"
+                                Gesture="Ctrl+P"/>
+                    <KeyBinding Command="{Binding OpenCommand}"
+                                CommandParameter="{Binding TicketNumber}"
+                                Gesture="Alt+O"/>
+                    <KeyBinding Command="{Binding DenyCommand}"
+                                CommandParameter="{Binding TicketNumber}"
+                                Gesture="Alt+D"/>
+                    <KeyBinding Command="{Binding CompleteCommand}"
+                                CommandParameter="{Binding TicketNumber}"
+                                Gesture="Alt+C"/>
+                    <KeyBinding Command="{Binding EmailCommand}"
+                                CommandParameter="{Binding TicketNumber}"
+                                Gesture="Alt+E"/>
+                </DataGrid.InputBindings>
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Ticket #">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding TicketNumber}"/>
+                                    <Image Name="ConfidentialIcon"
+                                           ToolTip="Ticket contains confidential information."
+                                           Visibility="Hidden"
+                                           Source="/OMNI;component/Icons/Confidential.ico"/>
+                                    <Image Name="MachineDownIcon"
+                                           ToolTip="Immediate assistance has been requested."
+                                           Visibility="Hidden"
+                                           Source="/OMNI;component/Icons/Warning.ico"/>
+                                    <Image Name="RequestedDate"
+                                           ToolTip="Submitter has requested a completion date."
+                                           Visibility="Visible"
+                                           Source="/OMNI;component/Icons/TimeSensitive.ico"/>
+                                    <Image Name="ProjectTaskIcon"
+                                           ToolTip="Ticket is a project task."
+                                           Visibility="Hidden"
+                                           Source="/OMNI;component/Icons/Task.ico"/>
+                                </StackPanel>
+
+                                <DataTemplate.Triggers>
+
+                                    <DataTrigger Binding="{Binding Confidential}"
+                                                 Value="1">
+                                        <Setter TargetName="ConfidentialIcon" 
+                                                Property="Visibility" 
+                                                Value="Visible"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding IAR}"
+                                                 Value="1">
+                                        <Setter TargetName="MachineDownIcon"
+                                                Property="Visibility" 
+                                                Value="Visible"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding RequestCompletionDate}"
+                                                 Value="{x:Static sys:DateTime.MinValue}">
+                                        <Setter TargetName="RequestedDate"
+                                                Property="Visibility"
+                                                Value="Hidden"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding Type}"
+                                                 Value="Task">
+                                        <Setter TargetName="ProjectTaskIcon"
+                                                Property="Visibility" 
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Priority"
+                                        Binding="{Binding Priority}" 
+                                        Width="150"/>
+
+                    <DataGridTextColumn Header="Subject"
+                                        Binding="{Binding Subject}" 
+                                        Width="130"/>
+
+                    <DataGridTextColumn Header="Location"
+                                        Binding="{Binding Location}"
+                                        Width="230"/>
+
+                    <DataGridTextColumn Header="Status"
+                                        Binding="{Binding Status}"
+                                        Width="110"/>
+
+                    <DataGridTextColumn Header="Date"
+                                        Binding="{Binding SubmitDate, StringFormat=d}" 
+                                        Width="110"/>
+
+                    <DataGridTextColumn Header="Submitter"
+                                        Binding="{Binding Submitter}"/>
+
+                </DataGrid.Columns>
+
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF919191" Offset="0"/>
+                                    <GradientStop Color="#FF191919" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Grid.Background>
+
+                            <StackPanel Orientation="Vertical">
+
+                                <Label Content="{Binding SubmitDate}"
+                                           ContentStringFormat="Date Submitted: {0:d}" 
+                                           Foreground="WhiteSmoke" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+
+                                <Label Content="Details" 
+                                           Background="#FF135185" 
+                                           Foreground="WhiteSmoke" 
+                                           FontSize="18"
+                                           FontWeight="Bold"/>
+
+                                <TextBlock Text="{Binding Description}"
+                                           Foreground="WhiteSmoke"
+                                           FontWeight="Bold" 
+                                           FontSize="16"
+                                           TextWrapping="WrapWithOverflow"
+                                           MaxWidth="900"/>
+
+                                <StackPanel Orientation="Horizontal" 
+                                            Margin="0,10,0,0"
+                                            HorizontalAlignment="Center">
+
+                                    <Button Content="Open"
+                                            Command="{Binding DataContext.OpenCommand, ElementName=dgView, Mode=OneWay}"
+                                            CommandParameter="{Binding TicketNumber}" 
+                                            Height="35" 
+                                            Width="100"
+                                            Margin="5"
+                                            ToolTip="Open the HDT OMNI form.&#10;(Alt+O)"
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                    <Button Content="Deny" 
+                                            Command="{Binding DataContext.DenyCommand, ElementName=dgView, Mode=OneWay}"
+                                            Visibility="{Binding DataContext.CanDeny, ElementName=dgView, Converter={StaticResource BooltoVisConverter}}"
+                                            CommandParameter="{Binding TicketNumber}"
+                                            Height="35"
+                                            Width="100"
+                                            Margin="5"
+                                            ToolTip="Deny this ticket.&#10;A note will be required.&#10;(Alt+D)"
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                    <Button Content="E-mail"
+                                            Command="{Binding DataContext.EmailCommand, ElementName=dgView, Mode=OneWay}" 
+                                            CommandParameter="{Binding TicketNumber}" 
+                                            Height="35"
+                                            Width="100"
+                                            Margin="5"
+                                            ToolTip="e-mail the ticket submitter.&#10;(Alt+E)"
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                    <Button Content="Print" 
+                                            Command="{Binding DataContext.PrintCommand, ElementName=dgView, Mode=OneWay}" 
+                                            CommandParameter="{Binding TicketNumber}"
+                                            Height="35" 
+                                            Width="100"
+                                            IsEnabled="False"
+                                            ToolTip="" 
+                                            Margin="5" 
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                    <Button Content="Assign" 
+                                            Command="{Binding DataContext.AssignCommand, ElementName=dgView, Mode=OneWay}" 
+                                            CommandParameter="{Binding TicketNumber}"
+                                            Visibility="{Binding DataContext.CanAssign, ElementName=dgView, Converter={StaticResource BooltoVisConverter}}"
+                                            Height="35" 
+                                            Width="100" 
+                                            ToolTip="Assign this ticket to yourself.&#10;This action will refresh your current view.&#10;(Alt+T)"
+                                            Margin="5" 
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                    <Button Content="Complete" 
+                                            Command="{Binding DataContext.CompleteCommand, ElementName=dgView, Mode=OneWay}" 
+                                            CommandParameter="{Binding TicketNumber}"
+                                            Visibility="{Binding DataContext.CanComplete, ElementName=dgView, Converter={StaticResource BooltoVisConverter}}"
+                                            Height="35" 
+                                            Width="100" 
+                                            ToolTip="Mark the ticket as Completed.&#10;(Alt+C)"
+                                            Margin="5" 
+                                            Style="{DynamicResource DashBoardButtonStyle}"/>
+
+                                </StackPanel>
+                            </StackPanel>
+
+                        </Grid>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+
+                <DataGrid.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Name}" Foreground="WhiteSmoke" Margin="30,0,0,0" Width="100"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                        <GroupStyle.ContainerStyle>
+                            <Style TargetType="{x:Type GroupItem}">
+                                <Setter Property="Margin" Value="0,0,0,5"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type GroupItem}">
+                                            <Expander BorderBrush="Black" IsExpanded="True" Background="#FF135185" Foreground="Black" BorderThickness="1">
+                                                <Expander.Header>
+
+                                                    <StackPanel Orientation="Horizontal">
+
+                                                        <TextBlock VerticalAlignment="Center" 
+                                                                   FontWeight="Bold" 
+                                                                   FontSize="22" 
+                                                                   Foreground="WhiteSmoke"
+                                                                   Text="{Binding Name}"
+                                                                   Width="200"/>
+
+                                                        <TextBlock VerticalAlignment="Center" 
+                                                                   FontWeight="Bold"
+                                                                   FontSize="22"
+                                                                   Foreground="WhiteSmoke"
+                                                                   Text="Ticket Count: "/>
+
+                                                        <TextBlock FontWeight="Bold"
+                                                                   FontSize="22" 
+                                                                   Foreground="WhiteSmoke"
+                                                                   Text="{Binding ItemCount}" 
+                                                                   Width="500"/>
+
+                                                    </StackPanel>
+
+                                                </Expander.Header>
+                                                <ItemsPresenter/>
+                                            </Expander>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </GroupStyle.ContainerStyle>
+                    </GroupStyle>
+                </DataGrid.GroupStyle>
+
+            </DataGrid>
+
+            <StackPanel Grid.Column="2" Grid.RowSpan="3" Orientation="Vertical">
+
+                <DataGrid ItemsSource="{Binding AssignmentTable}"
+                          Visibility="{Binding IsAssigned, Converter={StaticResource BooltoVisConverter}}"
+                          IsSynchronizedWithCurrentItem="True" 
+                          CanUserAddRows="False"
+                          AlternatingRowBackground="#FFAEABAB" 
+                          AlternationCount="1" 
+                          RowHeaderWidth="0" 
+                          IsReadOnly="True" 
+                          VerticalAlignment="Top"
+                          FontSize="18" 
+                          HorizontalAlignment="Left" 
+                          AutoGenerateColumns="False" 
+                          CanUserDeleteRows="False" 
+                          CanUserReorderColumns="False"
+                          CanUserResizeColumns="False"
+                          CanUserSortColumns="False" 
+                          MaxHeight="600"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Assigned to" 
+                                            Binding="{Binding TeamMember}"
+                                            Width="270"/>
+
+
+                        <DataGridTextColumn Header="Date Assigned" 
+                                            Binding="{Binding AssignmentDate, StringFormat=d}" 
+                                            Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <DataGrid ItemsSource="{Binding NotesTable}"
+                          IsSynchronizedWithCurrentItem="True" 
+                          CanUserAddRows="False"
+                          RowHeaderWidth="0" 
+                          IsReadOnly="True" 
+                          VerticalAlignment="Top" 
+                          AlternatingRowBackground="#FFAEABAB" 
+                          AlternationCount="1" 
+                          FontSize="16" 
+                          HorizontalAlignment="Left" 
+                          AutoGenerateColumns="False" 
+                          CanUserDeleteRows="False" 
+                          CanUserReorderColumns="False"
+                          CanUserResizeColumns="False"
+                          CanUserSortColumns="False" 
+                          MaxHeight="600"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" 
+                                            Binding="{Binding Timestamp}"
+                                            Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping" Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Note"
+                                            Binding="{Binding Note}"
+                                            Width="200">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping" Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Name" 
+                                            Binding="{Binding Submitter}" 
+                                            Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping" Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Button Content="Add Note"
+                        Width="120" 
+                        Command="{Binding NoteCommand}"
+                        Style="{DynamicResource DashBoardButtonStyle}"/>
+
+            </StackPanel>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

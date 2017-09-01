@@ -1,0 +1,35 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OMNI.Views"
+        xmlns:Helpers="clr-namespace:OMNI.Helpers" x:Class="OMNI.Views.ExceptionWindowView"
+        mc:Ignorable="d"
+        Title="{Binding Title}" Height="auto" Width="600" Icon="/OMNI;component/Icons/Omni.ico" ResizeMode="NoResize" SizeToContent="Height" Topmost="True" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow" ShowInTaskbar="False">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConvert"/>
+        <Helpers:OkCommand x:Key="OkCommand"/>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Source={StaticResource OkCommand}}"
+                    CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ExceptionWindowView}}}"
+                    Gesture="Enter"/>
+    </Window.InputBindings>
+    
+    <Window.DataContext>
+        <Helpers:ExceptionWindow/>
+    </Window.DataContext>
+
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+            <Image Source="/OMNI;component/Icons/Error.ico" Height="50" Margin="20,5,0,0"/>
+            <TextBlock Text="{Binding Message}" VerticalAlignment="Center" TextWrapping="Wrap" Width="450" Margin="30,0,0,0"/>
+        </StackPanel>
+        <Expander Visibility="{Binding ShowDetails, Converter={StaticResource BooltoVisConvert}}" Header="Details" Margin="5,0,5,0" Background="Beige">
+            <TextBlock Text="{Binding Source}" TextWrapping="WrapWithOverflow"/>
+        </Expander>
+        <Button Content="OK" Width="75" Margin="0,5,0,5" Command="{Binding Source={StaticResource OkCommand}}" CommandParameter="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ExceptionWindowView}}}"/>
+    </StackPanel>
+</Window>

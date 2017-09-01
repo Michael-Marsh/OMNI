@@ -1,0 +1,38 @@
+﻿<Application x:Class="OMNI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:OMNI"
+             StartupUri="MainWindowView.xaml" ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/ButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/GridBackGroundStyle.xaml"/>
+                <ResourceDictionary Source="Styles/CheckBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/DashBoardButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/DataGridExcelStyle.xaml"/>
+                <ResourceDictionary Source="Styles/DataGridActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/TextBoxActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/TreeViewActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/ToggleButtonActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/DataGridStyle.xaml"/>
+                <ResourceDictionary Source="Styles/RequiredTextBoxActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/HeaderButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/RequiredComboBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/TabControlActiveStyle.xaml"/>
+                <ResourceDictionary Source="Styles/HeaderMenuStyle.xaml"/>
+                <ResourceDictionary Source="Styles/CountDataPointStyle.xaml"/>
+                <ResourceDictionary Source="Styles/CostDataPointStyle.xaml"/>
+                <ResourceDictionary Source="Styles/LinkRadioButtonStyle.xaml"/>
+                <ResourceDictionary Source="Styles/OptionalTextBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/OptionalComboBoxStyle.xaml"/>
+                <ResourceDictionary Source="Styles/LinkedTextBoxStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+    
+    <Application.MainWindow>
+        <local:MainWindowView/>
+    </Application.MainWindow>
+    
+</Application>

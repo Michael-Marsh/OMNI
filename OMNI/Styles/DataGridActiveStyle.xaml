@@ -1,0 +1,246 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converter="clr-namespace:OMNI.Converters">
+
+    <Style x:Key="ActiveDataGrid" TargetType="{x:Type DataGrid}">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserSortColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="RowHeight" Value="40"/>
+        <Setter Property="Width" Value="auto"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+    </Style>
+
+    <Style x:Key="ActiveColumnHeader" TargetType="{x:Type DataGridColumnHeader}">
+        <Setter Property="Height" Value="75"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter x:Name="HeaderContent" Property="Content" Value="{Binding}"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF135185"/>
+                    <GradientStop Color="#FF888B8B" Offset="0.65"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type DataGridColumnHeader}">
+                    <Border BorderBrush="DarkGray" BorderThickness="1" Background="{TemplateBinding Background}">
+                        <Grid>
+                            <TextBlock x:Name="HeaderName" Margin="10,0,10,0" Text="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Button x:Name="GroupButton"
+                                    Command="{Binding DataContext.GroupCommand, ElementName=dgView, Mode=OneWay}"
+                                    CommandParameter="{TemplateBinding Content}"
+                                    Content="Group"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Height="30"
+                                    Width="60"
+                                    Visibility="Collapsed"
+                                    Style="{DynamicResource DashBoardButtonStyle}">
+                                <Button.ToolTip>
+                                    <ToolTip Content="{TemplateBinding Content}"
+                                             ContentStringFormat="Group items by {0}.&#10;Automatic updating will be turned off."/>
+                                </Button.ToolTip>
+                            </Button>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+                                        <GradientStop Color="#FF135185"/>
+                                        <GradientStop Color="#FF888B8B" Offset="0.65"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="GroupButton" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="HeaderName" Property="VerticalAlignment" Value="Top"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ActiveRowHeader" TargetType="{x:Type DataGridRowHeader}">
+        <Style.Resources>
+            <converter:VisibilityToNullableBoolean x:Key="nullBooltoVisConverter"/>
+        </Style.Resources>
+        <Setter Property="Width" Value="25"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border>
+                        <Border.Background>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="#FF919191" Offset="0"/>
+                                <GradientStop Color="#FF191919" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <ToggleButton Name="RowHeaderToggleButton"
+                                      IsChecked="{Binding Path=DetailsVisibility, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}, Converter={StaticResource nullBooltoVisConverter}}">
+                            <ToggleButton.Style>
+                                <Style TargetType="{x:Type ToggleButton}">
+                                    <Setter Property="Background" Value="#FF135185"/>
+                                    <Setter Property="Content" Value="+"/>
+                                    <Setter Property="FontSize" Value="20"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Foreground" Value="WhiteSmoke"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="#FF919191" BorderThickness="0" Margin="1" Background="{TemplateBinding Background}">
+                                                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Content" Value="-"/>
+                                                        <Setter Property="VerticalAlignment" Value="Top"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ActiveRow" TargetType="{x:Type DataGridRow}">
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Style.Triggers>
+
+            <Trigger Property="DetailsVisibility" Value="Visible">
+                <Setter Property="IsSelected" Value="True"/>
+            </Trigger>
+            <Trigger Property="DetailsVisibility" Value="Collapsed">
+                <Setter Property="IsSelected" Value="False"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="DetailsVisibility" Value="Visible"/>
+            </Trigger>
+
+            <DataTrigger Binding="{Binding Status}" Value="Open">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FFB94F45" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="Critical">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FFF3321F" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="High">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FFE47112" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="Standard">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF29D129" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="Low">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF4747E4" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="On Hold">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF279297" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="PM">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF7A24A2" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Priority}" Value="--Unassigned--">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF79797A" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Closed">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="#FF68686C" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="ActiveCell" TargetType="{x:Type DataGridCell}">
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF919191" Offset="0"/>
+                            <GradientStop Color="#FF191919" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Foreground" Value="WhiteSmoke" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+</ResourceDictionary>

@@ -1,0 +1,87 @@
+﻿<Window x:Class="OMNI.Views.FormLinkWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Converters="clr-namespace:OMNI.Converters"
+        mc:Ignorable="d"
+        Title="Form Link" Height="190" Width="630" Icon="/OMNI;component/Icons/New DB.ico" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Topmost="True">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <Converters:InvertedBooltoVisibility x:Key="InvertedBooltoVisConverter"/>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding LinkSubmit}" Key="Enter"/>
+    </Window.InputBindings>
+
+    <Grid Style="{DynamicResource GridBackgroundStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+
+            <Label Content="Parent Form Type :"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="20"/>
+
+            <ComboBox ItemsSource="{Binding Path=FormType}"
+                      SelectedValue="{Binding SelectedFormType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      Margin="5"
+                      Width="200"
+                      ToolTip="Select the form type of the parent form."
+                      FontWeight="Bold"
+                      FontSize="16"
+                      Cursor="Hand"
+                      TabIndex="0"
+                      Style="{DynamicResource RequiredComboBox}"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+
+            <Label Content="Parent Form Number :"
+                   Foreground="WhiteSmoke"
+                   FontWeight="Bold"
+                   FontSize="20"/>
+
+            <TextBox Text="{Binding ParentFormNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="18"
+                     Width="200"
+                     Margin="5"
+                     TabIndex="1"
+                     AcceptsReturn="False"
+                     ToolTip="Enter the parent form number."
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+            <Label Content="Form does not exist"
+                   Foreground="#FFF76565"
+                   FontWeight="Bold"
+                   FontSize="18"
+                   Visibility="{Binding FormExists, Converter={StaticResource InvertedBooltoVisConverter}}"/>
+
+        </StackPanel>
+
+        <Button Grid.Row="2"
+                Content="Link"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="5"
+                Height="35"
+                FontSize="16"
+                Command="{Binding LinkSubmit}"
+                Style="{DynamicResource HeaderButtonStyle}"/>
+
+    </Grid>
+</Window>

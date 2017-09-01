@@ -1,0 +1,243 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:dv="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+             xmlns:vt="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+             x:Class="OMNI.Views.ParetoChartUCView"
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="600">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="190"/>
+            </Grid.ColumnDefinitions>
+            
+                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding Chart, Converter={StaticResource BooltoVisConverter}}">
+                <Label Content="Origin Workcenter:" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18"/>
+                <ComboBox ItemsSource="{Binding Path=WorkCenterList}" SelectedValue="{Binding SelectedWorkCenter}" SelectedValuePath="IDNumber" TextSearch.TextPath="IDNumber" Margin="5" MinWidth="200" MaxWidth="350" ToolTip="Select workcenter to review." FontWeight="Bold" FontSize="14" Cursor="Hand" IsEditable="False" TabIndex="0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}({0})  {1}">
+                                            <Binding Path="IDNumber"/>
+                                            <Binding Path="Name"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    
+                <Label Content="All Other Percent:"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold"
+                       FontSize="18"/>
+                    
+                <ComboBox ItemsSource="{Binding Path=ParetoPercentage}"
+                          SelectedValue="{Binding SelectedPercentage}"
+                          Width="50"
+                          Margin="5"
+                          ToolTip="The percentage that the 'All Others Column' is based off of."
+                          FontWeight="Bold"
+                          FontSize="14"
+                          Cursor="Hand"
+                          IsEditable="False"
+                          TabIndex="1"/>
+                    
+                <Label Content="%"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold"
+                       FontSize="18"/>
+            </StackPanel>
+
+                <dv:Chart Grid.Row="1" Grid.Column="0" Title="QIR Count" Foreground="Black" Visibility="{Binding Chart, Converter={StaticResource BooltoVisConverter}}">
+                    <dv:Chart.LegendStyle>
+                        <Style TargetType="{x:Type vt:Legend}">
+                            <Setter Property="Width" Value="0"/>
+                        </Style>
+                    </dv:Chart.LegendStyle>
+                    <dv:Chart.Axes>
+                        <dv:CategoryAxis Orientation="X">
+                            <dv:CategoryAxis.AxisLabelStyle>
+                                <Style TargetType="{x:Type dv:AxisLabel}">
+                                    <Setter Property="LayoutTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="-70"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="FontSize" Value="12"/>
+                                </Style>
+                            </dv:CategoryAxis.AxisLabelStyle>
+                        </dv:CategoryAxis>
+                    </dv:Chart.Axes>
+                    
+                <dv:ColumnSeries Title="NCM Count"
+                                 ItemsSource="{Binding X_AxisCount}"
+                                 DependentValuePath="Value"
+                                 IndependentValuePath="Key"
+                                 IsSelectionEnabled="True"
+                                 SelectedItem="{Binding SelectedCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 DataPointStyle="{DynamicResource CountDataPointStyle}">
+
+                    <dv:ColumnSeries.DependentRangeAxis>
+                        <dv:LinearAxis Title="Count" Orientation="Y" Minimum="0" Maximum="{Binding MaxCount}" Location="Left" ShowGridLines="True"/>
+                    </dv:ColumnSeries.DependentRangeAxis>
+                </dv:ColumnSeries>
+                    <dv:LineSeries Title="Cumulative Percentage" IndependentValueBinding="{Binding}" ItemsSource="{Binding Y_AxisCount}">
+                        <dv:LineSeries.DependentRangeAxis>
+                            <dv:LinearAxis Title="Percentage (%)" Orientation="Y" Minimum="0" Maximum="100" Location="Right"/>
+                        </dv:LineSeries.DependentRangeAxis>
+                        <dv:LineSeries.IndependentAxis>
+                            <dv:CategoryAxis Orientation="X"/>
+                        </dv:LineSeries.IndependentAxis>
+                    </dv:LineSeries>
+                </dv:Chart>
+
+            <DataGrid Grid.Row="1" Grid.Column="1"
+                      x:Name="CountDataGrid"
+                      ItemsSource="{Binding CountResultsTable}"
+                      IsReadOnly="True"
+                      MaxHeight="400"
+                      ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}"
+                      RowStyle="{DynamicResource RowStyle}"
+                      SelectedItem="{Binding SelectedQIRNumberCount}"
+                      SelectionUnit="FullRow"
+                      RowHeaderWidth="0"
+                      AlternatingRowBackground="DimGray"
+                      AutoGenerateColumns="False"
+                      AlternationCount="1"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="QIR Number"
+                                        Width="170"
+                                        Binding="{Binding QIRNumber}"/>
+                </DataGrid.Columns>
+                <DataGrid.Style>
+                    <Style TargetType="{x:Type DataGrid}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=CountDataGrid}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Style>
+            </DataGrid>
+
+            <dv:Chart Grid.Row="2" Grid.Column="0" Title="QIR Cost" Foreground="Black" Visibility="{Binding Chart, Converter={StaticResource BooltoVisConverter}}">
+                <dv:Chart.LegendStyle>
+                    <Style TargetType="{x:Type vt:Legend}">
+                        <Setter Property="Width" Value="0"/>
+                    </Style>
+                </dv:Chart.LegendStyle>
+                <dv:Chart.Axes>
+                    <dv:CategoryAxis Orientation="X">
+                        <dv:CategoryAxis.AxisLabelStyle>
+                            <Style TargetType="{x:Type dv:AxisLabel}">
+                                <Setter Property="LayoutTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="-70"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="FontSize" Value="12"/>
+                            </Style>
+                        </dv:CategoryAxis.AxisLabelStyle>
+                    </dv:CategoryAxis>
+                </dv:Chart.Axes>
+
+                <dv:ColumnSeries Title="NCM Cost"
+                                 ItemsSource="{Binding X_AxisCost}"
+                                 DependentValuePath="Value"
+                                 IndependentValuePath="Key"
+                                 IsSelectionEnabled="True"
+                                 SelectedItem="{Binding SelectedCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 DataPointStyle="{DynamicResource CostDataPointStyle}">
+
+                    <dv:ColumnSeries.DependentRangeAxis>
+                        <dv:LinearAxis Title="Cost ($)" Orientation="Y" Minimum="0" Maximum="{Binding MaxCost}" Location="Left" ShowGridLines="True"/>
+                    </dv:ColumnSeries.DependentRangeAxis>
+                </dv:ColumnSeries>
+                <dv:LineSeries Title="Cumulative Percentage" IndependentValueBinding="{Binding}" ItemsSource="{Binding Y_AxisCost}">
+                    <dv:LineSeries.DependentRangeAxis>
+                        <dv:LinearAxis Title="Percentage (%)" Orientation="Y" Minimum="0" Maximum="100" Location="Right"/>
+                    </dv:LineSeries.DependentRangeAxis>
+                    <dv:LineSeries.IndependentAxis>
+                        <dv:CategoryAxis Orientation="X"/>
+                    </dv:LineSeries.IndependentAxis>
+                </dv:LineSeries>
+            </dv:Chart>
+
+            <DataGrid Grid.Row="2" Grid.Column="1"
+                      x:Name="CostDataGrid"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      MaxHeight="400"
+                      ItemsSource="{Binding CostResultsTable}"
+                      IsReadOnly="True"
+                      ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}"
+                      RowStyle="{DynamicResource RowStyle}"
+                      SelectedItem="{Binding SelectedQIRNumberCost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      SelectionUnit="FullRow"
+                      RowHeaderWidth="0"
+                      AlternatingRowBackground="DimGray"
+                      AutoGenerateColumns="False"
+                      AlternationCount="1"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="QIR Number"
+                                        Width="170"
+                                        Binding="{Binding QIRNumber}"/>
+                </DataGrid.Columns>
+                <DataGrid.Style>
+                    <Style TargetType="{x:Type DataGrid}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ItemsSource, ElementName=CostDataGrid}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Style>
+            </DataGrid>
+
+            <StackPanel Grid.RowSpan="3" Grid.ColumnSpan="2" Visibility="{Binding NoChart, Converter={StaticResource BooltoVisConverter}}"  Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Label Content="No Data to Display!" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="32">
+                    <Label.Effect>
+                        <DropShadowEffect/>
+                    </Label.Effect>
+                </Label>
+                <Button Content="Display All" Margin="10" Width="150" FontSize="18" Command="{Binding AllCommand}" Style="{DynamicResource DashBoardButtonStyle}"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+
+</UserControl>

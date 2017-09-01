@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="OMNI.Views.CMMSPartManagementUCView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:OMNI.ViewModels"
+             xmlns:converter="clr-namespace:OMNI.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="1000" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <converter:FormCommandtoVisibility x:Key="FormCommandtoVisConverter"/>
+    </UserControl.Resources>
+    
+    <UserControl.DataContext>
+        <vm:CMMSPartManagementUCViewModel/>
+    </UserControl.DataContext>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu HorizontalAlignment="Left" Style="{DynamicResource HeaderMenuStyle}">
+            <MenuItem Header="WCCO Part"
+                      Style="{DynamicResource HeaderMenuItemStyle}">
+
+                <MenuItem Header="New"
+                          InputGestureText="Ctrl+N"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="WCCO_New"/>
+                <MenuItem Header="Open"
+                          InputGestureText="Ctrl+O"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="WCCO_Open"/>
+                <MenuItem Header="Save"
+                          InputGestureText="Ctrl+S"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="WCCO_Save"/>
+            </MenuItem>
+
+            <MenuItem Header="Vendor Part"
+                      Style="{DynamicResource HeaderMenuItemStyle}">
+
+                <MenuItem Header="New"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="VP_New"/>
+                <MenuItem Header="Open"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="VP_Open"/>
+                <MenuItem Header="Save"
+                          Command="{Binding PrimaryCommand}"
+                          CommandParameter="VP_Save"/>
+            </MenuItem>
+
+            <MenuItem Header="Vendor"
+                      Style="{DynamicResource HeaderMenuItemStyle}">
+
+                <MenuItem Header="New"/>
+                <MenuItem Header="Open"/>
+                <MenuItem Header="Save"/>
+            </MenuItem>
+
+            <MenuItem Header="Inventory"
+                      Style="{DynamicResource HeaderMenuItemStyle}">
+
+                <MenuItem Header="New Location"/>
+                <MenuItem Header="History"/>
+                <MenuItem Header="Move"/>
+                <MenuItem Header="Recieve"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid Name="UserControlGrid"
+              Grid.Row="1"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"/>
+
+    </Grid>
+
+</UserControl>

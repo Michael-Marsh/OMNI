@@ -1,0 +1,677 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Converters="clr-namespace:OMNI.Converters"
+             xmlns:ViewModels="clr-namespace:OMNI.ViewModels" x:Class="OMNI.Views.CMMSWorkOrderUCView"
+             xmlns:Commands="clr-namespace:OMNI.Commands"
+             mc:Ignorable="d" 
+             d:DesignHeight="890" d:DesignWidth="1275">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <Converters:CharacterCounter x:Key="CharCounter"/>
+        <Converters:BoolValueSwitch x:Key="BoolSwitch"/>
+        <Converters:InvertedBooltoVisibility x:Key="InvertedBooltoVisConverter"/>
+        <ViewModels:CMMSWorkOrderUCViewModel x:Key="cmmsDC"/>
+        <Commands:NewLinkCommand x:Key="NewLinkCommand"/>
+        <Commands:DeleteLinkCommand x:Key="DeleteLinkCommand"/>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding NoteCommand}" Gesture="Alt+S"/>
+        <KeyBinding Command="{Binding SubmitCommand}" Gesture="Enter"/>
+        <KeyBinding Command="{Binding AttachDocumentCommand}" Gesture="Alt+A"/>
+        <KeyBinding Command="{Binding DenyCommand}" Gesture="Alt+D"/>
+        <KeyBinding Command="{Binding PrintCommand}" Gesture="Ctrl+P"/>
+    </UserControl.InputBindings>
+
+    <UserControl.DataContext>
+        <ViewModels:CMMSWorkOrderUCViewModel/>
+    </UserControl.DataContext>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid AllowDrop="True" Drop="Grid_Drop" Background="Transparent">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="695"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="400"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.ColumnSpan="3" Grid.Row="0" Orientation="Horizontal">
+
+                <Button Name="PrimaryCommand"
+                        Content="{Binding CommandType}"
+                        Command="{Binding SubmitCommand}"
+                        Style="{DynamicResource HeaderButtonStyle}">
+                    <Button.ToolTip>
+                        <ToolTip Content="{Binding CommandType}"
+                                 ContentStringFormat="{}{0} Work Order.&#10;(Enter)"/>
+                    </Button.ToolTip>
+                </Button>
+
+                <Button Content="{Binding CompleteCommandType}"
+                        Command="{Binding CompleteCommand}"
+                        Style="{DynamicResource HeaderButtonStyle}">
+                    <Button.ToolTip>
+                        <ToolTip Content="{Binding CompleteCommandTT}"
+                                 ContentStringFormat="{}{0}&#10;(Alt+C)"/>
+                    </Button.ToolTip>
+                </Button>
+
+
+                <Button Content="Link File"
+                        Command="{Binding AttachDocumentCommand}"
+                        ToolTip="Link a document to this work order.&#10;(Alt+A)"
+                        Style="{DynamicResource HeaderButtonStyle}"/>
+
+                <Button Content="Add Note"
+                        ToolTip="Attach a note to this Work Order.&#10;All notes are automatically dated and signed by you.&#10;(Alt+S)"
+                        Command="{Binding NoteCommand}"
+                        Style="{DynamicResource HeaderButtonStyle}"/>
+
+                <Menu VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource HeaderMenuStyle}">
+                    <MenuItem Header="Link Form"
+                              Width="100"
+                              Height="30"
+                              ToolTip="Link this form to another form of any type."
+                              Style="{DynamicResource HeaderMenuItemStyle}">
+
+                        <MenuItem Header="New Link"
+                                  ToolTip="Create a new form link."
+                                  Command="{StaticResource NewLinkCommand}"
+                                  CommandParameter="{Binding WorkOrder}"/>
+                        <Separator/>
+                        <MenuItem Header="Delete Link"
+                                  ToolTip="Delete any links this form has."
+                                  Command="{StaticResource DeleteLinkCommand}"
+                                  CommandParameter="{Binding WorkOrder}"/>
+
+                    </MenuItem>
+                </Menu>
+
+                <Button Content="Deny"
+                        Command="{Binding DenyCommand}"
+                        ToolTip="Deny work order.&#10;A note will be required and this work order will be marked closed.&#10;(Alt+D)"
+                        Style="{DynamicResource HeaderButtonStyle}"/>
+
+                <Button Content="Print"
+                        Command="{Binding PrintCommand}"
+                        ToolTip="Print MR Form Rev D pdf.&#10;(Ctrl+P)"
+                        Style="{DynamicResource HeaderButtonStyle}"/>
+
+            </StackPanel>
+
+            <ListBox Grid.ColumnSpan="3" Grid.Row="1"
+                     HorizontalAlignment="Left"
+                     ItemsSource="{Binding WorkOrder.FormLinkList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontWeight="Bold"
+                     Cursor="Hand"
+                     Background="Transparent"
+                     BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+
+                        <StackPanel Orientation="Horizontal">
+
+                            <RadioButton Content="{Binding LinkIDNumber}"
+                                         IsChecked="{Binding LinkSelected}"
+                                         Style="{DynamicResource LinkRadioButton}"/>
+
+                        </StackPanel>
+
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+
+            <!--    Column 0    -->
+            <Grid Grid.Column="0" Grid.Row="2">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="250"/>
+                </Grid.RowDefinitions>
+
+                <!--    Row 0   -->
+                <StackPanel Grid.Row="0" 
+                            Orientation="Horizontal" 
+                            VerticalAlignment="Center" 
+                            HorizontalAlignment="Center">
+
+                    <Label Content="{Binding WorkOrder.IDNumber, Mode=OneWay}" 
+                           ContentStringFormat="Work Order Number: {0}" 
+                           Foreground="Black" FontWeight="Bold" 
+                           FontSize="24" 
+                           Visibility="{Binding SearchHide, Converter={StaticResource BooltoVisConverter}}"/>
+
+                    <Label Visibility="{Binding SearchMode, Converter={StaticResource BooltoVisConverter}}"
+                           Content="Work Order Number"
+                           Foreground="Black"
+                           FontWeight="Bold" 
+                           FontSize="24"/>
+
+                    <TextBox x:Name="SearchText"
+                             Visibility="{Binding SearchMode, Converter={StaticResource BooltoVisConverter}}" 
+                             Text="{Binding SearchIDNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16" 
+                             Width="150" 
+                             Margin="5"
+                             MaxLength="8"
+                             TabIndex="0" 
+                             ToolTip="Enter the Work Order to load."/>
+
+                </StackPanel>
+
+                <!--    Row 1   -->
+                <StackPanel Grid.Row="1" 
+                            Orientation="Horizontal"
+                            Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                    <Label Content="Submitted by:"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold" 
+                           FontSize="18"/>
+
+                    <TextBox Text="{Binding WorkOrder.Submitter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16" 
+                             Width="150"
+                             Margin="5" 
+                             IsEnabled="False"
+                             Style="{DynamicResource ActiveTextBox}"/>
+
+                    <Label Content="Submit Date" 
+                           Foreground="WhiteSmoke" 
+                           FontWeight="Bold" 
+                           FontSize="18"/>
+
+                    <DatePicker SelectedDate="{Binding WorkOrder.Date, Mode=OneWay}"
+                                IsEnabled="{Binding CanEdit}"
+                                Margin="10,0,0,0" 
+                                Width="170"
+                                Height="38" 
+                                FontSize="22" 
+                                FontWeight="Bold"
+                                FirstDayOfWeek="Monday"
+                                Focusable="False" 
+                                ToolTip="Submission Date is preloaded and protected, the calendar is present only as reference."/>
+
+                </StackPanel>
+
+                <!--    Row 2   -->
+                <StackPanel Grid.Row="2" 
+                            Orientation="Horizontal"
+                            Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                    <Label Content="WorkCenter"
+                           Foreground="WhiteSmoke" 
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <ComboBox ItemsSource="{Binding WorkCenterList}"
+                              SelectedItem="{Binding SelectedWorkCenter}"
+                              IsEnabled="{Binding CanEdit}"
+                              Margin="5" 
+                              Width="350" 
+                              ToolTip="Select which work center is affected."
+                              FontWeight="Bold"
+                              FontSize="16"
+                              Cursor="Hand" 
+                              TabIndex="1"
+                              Style="{DynamicResource RequiredComboBox}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}({0})  {1}">
+                                            <Binding Path="Group"/>
+                                            <Binding Path="Description"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <Label Content="{Binding GLAccount, Mode=OneWay}"
+                           ContentStringFormat="GL # {0}"
+                           Foreground="WhiteSmoke" 
+                           FontWeight="Bold"
+                           FontSize="18">
+                    </Label>
+
+                </StackPanel>
+
+                <!--    Row 3   -->
+                <StackPanel Grid.Row="3" 
+                            Orientation="Horizontal"
+                            Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                    <Label Content="Functions Improved:"
+                           Foreground="WhiteSmoke"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <CheckBox Content="Safety" 
+                              FontSize="18"
+                              Margin="10,0,0,0"
+                              HorizontalAlignment="Right" 
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding WorkOrder.Safety, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding CanEdit}"
+                              Style="{DynamicResource CheckBoxStyle}" 
+                              IsTabStop="False"/>
+
+                    <CheckBox Content="Quality" 
+                              FontSize="18"
+                              Margin="10,0,0,0"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding WorkOrder.Quality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding CanEdit}"
+                              Style="{DynamicResource CheckBoxStyle}" 
+                              IsTabStop="False"/>
+
+                    <CheckBox Content="Productivity" 
+                              FontSize="18"
+                              Margin="10,0,0,0"
+                              HorizontalAlignment="Right" 
+                              VerticalAlignment="Center"
+                              IsChecked="{Binding WorkOrder.Production, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding CanEdit}"
+                              Style="{DynamicResource CheckBoxStyle}"
+                              IsTabStop="False"/>
+
+                </StackPanel>
+
+                <!--    Row 4   -->
+                <StackPanel Grid.Row="4" 
+                            Orientation="Horizontal"
+                            Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                    <CheckBox IsChecked="{Binding IsDateRequested}"
+                              IsEnabled="{Binding CanEdit}"
+                              Content="Request a completion date."
+                              Foreground="WhiteSmoke"
+                              FontWeight="Bold"
+                              FontSize="18"
+                              ToolTip="Check to request a completion date.&#10;An explanation will be required."/>
+
+                    <DatePicker SelectedDate="{Binding WorkOrder.RequestDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Visibility="{Binding IsDateRequested, Converter={StaticResource BooltoVisConverter}}"
+                                IsEnabled="{Binding CanEdit}"
+                                Margin="20,0,0,0" 
+                                Width="170"
+                                Height="38" 
+                                FontSize="22" 
+                                FontWeight="Bold"
+                                FirstDayOfWeek="Monday"
+                                Focusable="False" 
+                                ToolTip="Request a completion date.&#10;Defaults to 1 week of lead time.&#10;Must be today's date or greater."/>
+                </StackPanel>
+
+                <!--    Row 5   -->
+                <Label Grid.Row="5"
+                       Visibility="{Binding IsFocused, Converter={StaticResource BooltoVisConverter}, ElementName=RequestedReason, Mode=OneWay}" 
+                       Content="{Binding Text, ConverterParameter={x:Reference RequestedReason}, Converter={StaticResource CharCounter}, ElementName=RequestedReason}"
+                       ContentStringFormat="Characters Left: {0}"
+                       Foreground="Black" 
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Top"
+                       FontWeight="Bold"/>
+
+                <StackPanel Grid.Row="5" 
+                            Orientation="Vertical"
+                            Visibility="{Binding IsDateRequested, Converter={StaticResource BooltoVisConverter}}">
+
+                    <Label Content="Requested Completion Date Explanation" 
+                           HorizontalAlignment="Center"
+                           Foreground="WhiteSmoke" 
+                           FontWeight="Bold" 
+                           FontSize="18"/>
+
+                    <TextBox x:Name="RequestedReason" 
+                             Text="{Binding WorkOrder.RequestedDateReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             Margin="5"
+                             VerticalScrollBarVisibility="Auto"
+                             SpellCheck.IsEnabled="True"
+                             Height="110"
+                             Width="670" 
+                             FontSize="16"
+                             MaxLength="255"
+                             TabIndex="5" 
+                             AcceptsReturn="True" 
+                             AcceptsTab="True" 
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Please explain why this work order should be completed by the date you requested.&#10;Statement must be at least 5 characters."
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                </StackPanel>
+
+                <!--    Row 6   -->
+                <Label Grid.Row="6"
+                       Visibility="{Binding IsFocused, Converter={StaticResource BooltoVisConverter}, ElementName=Description, Mode=OneWay}" 
+                       Content="{Binding Text, ConverterParameter={x:Reference Description}, Converter={StaticResource CharCounter}, ElementName=Description}"
+                       ContentStringFormat="Characters Left: {0}"
+                       Foreground="Black" 
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Top"
+                       FontWeight="Bold"/>
+
+                <StackPanel Grid.Row="6" 
+                            Orientation="Vertical"
+                            Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                    <Label Content="Describe Maintenance Needed" 
+                           HorizontalAlignment="Center"
+                           Foreground="WhiteSmoke" 
+                           FontWeight="Bold" 
+                           FontSize="18"/>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Margin="5"
+                                  Height="195"
+                                  Width="670">
+
+                        <TextBox x:Name="Description" 
+                             Text="{Binding WorkOrder.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding CanEdit}"
+                             SpellCheck.IsEnabled="True"
+                             FontSize="16"
+                             MaxLength="500"
+                             TabIndex="5" 
+                             AcceptsReturn="True" 
+                             AcceptsTab="True" 
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Enter the Problem / Maintenance needed reason.&#xA;Explain in as much detail as possible."
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                    </ScrollViewer>
+
+                </StackPanel>
+            </Grid>
+
+            <!--    Column 1   -->
+            <StackPanel Grid.Column ="1" Grid.Row="2" 
+                        Orientation="Vertical" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Top" 
+                        Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                <Label Content="Status" 
+                       Foreground="WhiteSmoke" 
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="{Binding WorkOrder.Status}"
+                       Foreground="Black"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="Date Assigned"
+                       Visibility="{Binding AssignView, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="{Binding WorkOrder.DateAssigned, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Visibility="{Binding AssignView, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="Black"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="Assign to"
+                       Visibility="{Binding CanAssign, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <ListBox ItemsSource="{Binding Path=CrewList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding CanAssign, Converter={StaticResource BooltoVisConverter}}"
+                         Margin="5"
+                         ToolTip="Select crew member(s)." 
+                         FontWeight="Bold" 
+                         Cursor="Hand"
+                         MaxHeight="450"
+                         Background="Transparent"
+                         TabIndex="6">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <CheckBox Content="{Binding FullName}"
+                                      IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, BindsDirectlyToSource=True, NotifyOnTargetUpdated=True, NotifyOnSourceUpdated=True}"
+                                      FontSize="18"
+                                      Style="{DynamicResource CheckBoxStyle}"/>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Label Content="Assigned to"
+                       Visibility="{Binding Assigned, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <ListBox ItemsSource="{Binding Path=CrewList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding Assigned, Converter={StaticResource BooltoVisConverter}}"
+                         Margin="5"
+                         FontWeight="Bold" 
+                         Cursor="Hand"
+                         MaxHeight="450"
+                         Background="Transparent"
+                         TabIndex="6">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <TextBlock Text="{Binding FullName}"
+                                       Visibility="{Binding Selected, Converter={StaticResource BooltoVisConverter}}"
+                                       FontSize="18"/>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Label Content="Priority"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold"
+                       FontSize="18"/>
+                
+                <Label Content="--Unassigned--"
+                       Visibility="{Binding PriorityView, Converter={StaticResource InvertedBooltoVisConverter}}"
+                       Foreground="Black"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <ComboBox ItemsSource="{Binding PriorityList}" 
+                          SelectedValue="{Binding SelectedPriority}" 
+                          SelectedValuePath="Description"
+                          DisplayMemberPath="Description"
+                          Visibility="{Binding PriorityView, Converter={StaticResource BooltoVisConverter}}"
+                          IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
+                          Margin="5"
+                          ToolTip="Select a priority level.&#10;Changes are not permanent until the form is saved." 
+                          FontWeight="Bold" 
+                          FontSize="16"
+                          Cursor="Hand" 
+                          TabIndex="7"/>
+
+                <CheckBox Content="Machine Down"
+                          FontSize="18"
+                          ToolTip="Only check this box if the machine is down.&#10;This function will automatically send emails to all the appropriate staff members."
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Center"
+                          IsChecked="{Binding WorkOrder.MachineDown, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
+                          Style="{DynamicResource CheckBoxStyle}" 
+                          IsTabStop="False"/>
+
+                <CheckBox Content="Lock Out/Tag Out"
+                          FontSize="18"
+                          ToolTip="Check if Lock out or Tag out was required."
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Center"
+                          IsChecked="{Binding WorkOrder.LockOut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
+                          Visibility="{Binding CanAssign, Converter={StaticResource BooltoVisConverter}}"
+                          Style="{DynamicResource CheckBoxStyle}" 
+                          IsTabStop="False"/>
+
+                <Label Content="{Binding FinishedStatus}"
+                       ContentStringFormat="Date {0}"
+                       Visibility="{Binding ClosedView, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="{Binding WorkOrder.DateComplete, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Visibility="{Binding ClosedView, Converter={StaticResource BooltoVisConverter}}"
+                       Foreground="Black"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="{Binding ActionTaken}" 
+                       Opacity="{Binding Fade}"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"
+                       Foreground="#FFC13E3E"
+                       FontWeight="Bold"
+                       FontSize="18"/>
+
+            </StackPanel>
+
+            <!--    Column 2   -->
+            <StackPanel Grid.Column="2" Grid.Row="2"
+                        Orientation="Vertical" 
+                        Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
+
+                <ListBox x:Name="DocumentCheckListBox"
+                         ItemsSource="{Binding Path=DocumentList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding CanEdit, Converter={StaticResource BooltoVisConverter}}"
+                         Margin="5" 
+                         FontWeight="Bold" 
+                         Cursor="Hand"
+                         MaxHeight="450"
+                         Background="Transparent"
+                         TabIndex="6">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <CheckBox IsChecked="{Binding Attached, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      Margin="0,5,0,0" 
+                                      HorizontalAlignment="Center" 
+                                      ToolTip="Check if you want to remove the attached document.">
+                                <CheckBox.Content>
+                                    <TextBlock ToolTip="Click to open document.">
+                                         <Hyperlink Command="{Binding DataContext.OpenDocumentCommand, ElementName=DocumentCheckListBox, Mode=OneWay}" CommandParameter="{Binding FilePath}">
+                                            <Hyperlink.Inlines>
+                                                <Run FontSize="18" Text="{Binding FileName}"/>
+                                            </Hyperlink.Inlines>
+                                         </Hyperlink>
+                                    </TextBlock>
+                                </CheckBox.Content>
+                            </CheckBox>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <ListBox x:Name="DocumentTextListBox"
+                         ItemsSource="{Binding Path=DocumentList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding CanEdit, Converter={StaticResource InvertedBooltoVisConverter}}"
+                         Margin="5" 
+                         FontWeight="Bold" 
+                         Cursor="Hand"
+                         MaxHeight="450"
+                         Background="Transparent"
+                         TabIndex="6">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+
+                            <TextBlock ToolTip="Click to open document.">
+                                 <Hyperlink Command="{Binding DataContext.OpenDocumentCommand, ElementName=DocumentTextListBox, Mode=OneWay}" CommandParameter="{Binding FilePath}">
+                                     <Hyperlink.Inlines>
+                                          <Run FontSize="18" Text="{Binding FileName}"/>
+                                     </Hyperlink.Inlines>
+                                 </Hyperlink>
+                            </TextBlock>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <DataGrid ItemsSource="{Binding NotesTable}" 
+                          IsSynchronizedWithCurrentItem="True" 
+                          CanUserAddRows="False" 
+                          RowHeaderWidth="0"
+                          IsReadOnly="True"
+                          VerticalAlignment="Top" 
+                          AlternatingRowBackground="#FFAEABAB"
+                          AlternationCount="1"
+                          FontSize="16" 
+                          HorizontalAlignment="Left" 
+                          AutoGenerateColumns="False"
+                          CanUserDeleteRows="False"
+                          CanUserReorderColumns="False" 
+                          CanUserResizeColumns="False" 
+                          CanUserSortColumns="False"
+                          MaxHeight="600" 
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Date" 
+                                            Binding="{Binding Timestamp}"
+                                            Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping"
+                                            Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Note"
+                                            Binding="{Binding Note}"
+                                            Width="200">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping"
+                                            Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Name" 
+                                            Binding="{Binding Submitter}"
+                                            Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style>
+                                    <Setter Property="TextBlock.TextWrapping" 
+                                            Value="WrapWithOverflow"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+            </StackPanel>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>
