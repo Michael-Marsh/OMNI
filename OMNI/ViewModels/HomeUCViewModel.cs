@@ -12,6 +12,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace OMNI.ViewModels
 {
@@ -119,6 +120,7 @@ namespace OMNI.ViewModels
             set { selectedTicketYear = value; UpdateHDT(); OnPropertyChanged(nameof(SelectedTicketYear)); }
         }
         public int MonthlySales { get; set; }
+        private bool salesUpdateInProgress;
         public bool SalesFirm { get; set; }
         public int TMInService { get; set; }
         public int TMOverDue { get; set; }
@@ -163,15 +165,11 @@ namespace OMNI.ViewModels
                     YearList.Add(i);
                 }
             }
-            if (QIRValues == null)
-            {
-                QIRValues = new QIRMetric();
-            }
+            UpdateSales();
             Loading = true;
             SelectedInternalMonth = SelectedIncomingMonth = SelectedWorkOrderMonth = SelectedTicketMonth = SelectedMonthSales = DateTime.Now.ToString("MMMM");
             SelectedInternalYear = SelectedIncomingYear = SelectedWorkOrderYear = SelectedTicketYear = SelectedYearSales = DateTime.Now.Year;
             Loading = false;
-            UpdateSales();
             //UpdateTapeMeasureMetrics();
         }
 
@@ -183,11 +181,34 @@ namespace OMNI.ViewModels
             if (!string.IsNullOrEmpty(SelectedMonthSales) && SelectedYearSales != 0)
             {
                 var i = OMNIDataBase.MonthlySalesAsync(SelectedMonthSales, SelectedYearSales).Result;
-                MonthlySales = i[0];
-                SalesFirm = Convert.ToBoolean(i[1]);
-                OnPropertyChanged(nameof(MonthlySales));
+                if (Convert.ToBoolean(i[1]))
+                {
+                    MonthlySales = i[0];
+                    OnPropertyChanged(nameof(MonthlySales));
+                    if (QIRValues == null)
+                    {
+                        QIRValues = new QIRMetric(MonthlySales);
+                    }
+                    OnPropertyChanged(nameof(QIRValues));
+                    SalesFirm = Convert.ToBoolean(i[1]);
+                }
+                else if (!salesUpdateInProgress)
+                {
+                    Task.Run(delegate
+                    {
+                        salesUpdateInProgress = true;
+                        MonthlySales = M2k.GetLiveSales($"{DateTime.Today.Month}-1-{DateTime.Today.Year}",DateTime.Today.ToString("MM-dd-yyyy"));
+                        OnPropertyChanged(nameof(MonthlySales));
+                        if (QIRValues == null)
+                        {
+                            QIRValues = new QIRMetric(MonthlySales);
+                        }
+                        OnPropertyChanged(nameof(QIRValues));
+                        salesUpdateInProgress = false;
+                    });
+                    SalesFirm = Convert.ToBoolean(i[1]);
+                }
                 OnPropertyChanged(nameof(SalesFirm));
-                //OnPropertyChanged(nameof(QIRValues));
             }
         }
 

@@ -570,5 +570,44 @@ namespace OMNI.Helpers
                 return null;
             }
         }
+
+        /// <summary>
+        /// Grab current sales from M2k
+        /// </summary>
+        /// <param name="startDate">Date to start the query</param>
+        /// <param name="endDate">Date to end the query</param>
+        /// <returns>current sales as int</returns>
+        public static int GetLiveSales(string startDate, string endDate)
+        {
+            using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, "query", "query", Properties.Settings.Default.WCCOManageAccount, "udcs"))
+            {
+                using (UniCommand udCmd = uSession.CreateUniCommand())
+                {
+                    udCmd.Command = $"LIST SA WITH Tran_Date GE '{startDate}' AND Tran_Date LE '{endDate}' AND Record_Type = 'SL' F7";
+                    udCmd.Execute();
+                    var cmdResponse = udCmd.Response.Replace("\r", "").Split('\n');
+                    var _sales = 0.00;
+                    foreach (var s in cmdResponse)
+                    {
+                        if (s.Contains("records"))
+                        {
+                            return Convert.ToInt32(_sales);
+                        }
+                        if (!s.Contains("SA") && !string.IsNullOrWhiteSpace(s))
+                        {
+                            if (s.Substring(s.Length - 1) == "-")
+                            {
+                                _sales -= Convert.ToDouble(s.Substring(s.LastIndexOf(' ') + 1).Trim('-'));
+                            }
+                            else
+                            {
+                                _sales += Convert.ToDouble(s.Substring(s.LastIndexOf(" ") + 1));
+                            }
+                        }
+                    }
+                }
+            }
+            return 0;
+        }
     }
 }
