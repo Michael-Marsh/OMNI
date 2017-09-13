@@ -92,7 +92,7 @@ namespace OMNI.ViewModels
         public int SelectedYearSales
         {
             get { return selectedYearSales; }
-            set { selectedYearSales = value; if (!Loading && selectedYearSales != value) { UpdateSales(SelectedMonthSales, value); } OnPropertyChanged(nameof(SelectedYearSales)); }
+            set { if (!Loading && selectedYearSales != value) { UpdateSales(SelectedMonthSales, value); } selectedYearSales = value; OnPropertyChanged(nameof(SelectedYearSales)); }
         }
         private string selectedWorkOrderMonth;
         public string SelectedWorkOrderMonth
