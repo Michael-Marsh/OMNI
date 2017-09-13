@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace OMNI.Helpers
 {
@@ -579,35 +580,21 @@ namespace OMNI.Helpers
         /// <returns>current sales as int</returns>
         public static int GetLiveSales(string startDate, string endDate)
         {
-            using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, "query", "query", Properties.Settings.Default.WCCOManageAccount, "udcs"))
+            try
             {
-                using (UniCommand udCmd = uSession.CreateUniCommand())
+                using (SqlConnection con = new SqlConnection("Server=SQL-HYPERV;Integrated Security=SSPI;Database=WCCO_MAIN;Connection Timeout=10"))
                 {
-                    udCmd.Command = $"LIST SA WITH Tran_Date GE '{startDate}' AND Tran_Date LE '{endDate}' AND Record_Type = 'SL' F7";
-                    udCmd.Execute();
-                    var cmdResponse = udCmd.Response.Replace("\r", "").Split('\n');
-                    var _sales = 0.00;
-                    foreach (var s in cmdResponse)
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand($"SELECT SUM([Sales]) FROM [dbo].[SA-INIT] WHERE [Inv_So_Date]>='{startDate}' AND [Inv_So_Date]<='{endDate}' AND [Record_Type]='SL'", con))
                     {
-                        if (s.Contains("records"))
-                        {
-                            return Convert.ToInt32(_sales);
-                        }
-                        if (!s.Contains("SA") && !string.IsNullOrWhiteSpace(s))
-                        {
-                            if (s.Substring(s.Length - 1) == "-")
-                            {
-                                _sales -= Convert.ToDouble(s.Substring(s.LastIndexOf(' ') + 1).Trim('-'));
-                            }
-                            else
-                            {
-                                _sales += Convert.ToDouble(s.Substring(s.LastIndexOf(" ") + 1));
-                            }
-                        }
+                        return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
             }
-            return 0;
+            catch (Exception)
+            {
+                return 0;
+            }
         }
     }
 }

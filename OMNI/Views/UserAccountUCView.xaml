@@ -14,10 +14,11 @@
     <Grid>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="350"/>
             <ColumnDefinition Width="360"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
@@ -70,7 +71,14 @@
         </StackPanel>
 
         <!--    Row 6   -->
-        <Button Grid.Column="1" Grid.Row="6" Content="Save" Width="100" Margin="5" HorizontalAlignment="Left" Command="{Binding SaveCommand}" Style="{DynamicResource DashBoardButtonStyle}"/>
+        <StackPanel Grid.Column="1" Grid.Row="6" Orientation="Horizontal" VerticalAlignment="Center">
+            <Label Content="Start Up Window" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18"/>
+            <ComboBox ItemsSource="{Binding StartUpList}"
+                      SelectedValue="{Binding SelectedStartUp}"/>
+        </StackPanel>
+
+        <!--    Row 7   -->
+        <Button Grid.Column="1" Grid.Row="7" Content="Save" Width="100" Margin="5" HorizontalAlignment="Left" Command="{Binding SaveCommand}" Style="{DynamicResource DashBoardButtonStyle}"/>
         
     </Grid>
 </UserControl>

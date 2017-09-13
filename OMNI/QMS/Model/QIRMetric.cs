@@ -34,34 +34,41 @@ namespace OMNI.QMS.Model
         /// </summary>
         public QIRMetric(int monthlySales)
         {
-            var _yearlySales = OMNIDataBase.YearlySalesAsync(DateTime.Today.Year).Result;
-            using (DataTable dt = new DataTable())
+            try
             {
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
+                var _yearlySales = OMNIDataBase.YearlySalesAsync(DateTime.Today.Year).Result + monthlySales;
+                using (DataTable dt = new DataTable())
                 {
-                    adapter.Fill(dt);
+                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
+                    {
+                        adapter.Fill(dt);
+                    }
+                    InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
+                    InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
+                    InternalPercentOfSalesYTD = _yearlySales != 0 ? (InternalCostYTD / _yearlySales).ToString("P3") : "No Sales";
+                    IncomingCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") > 0);
+                    IncomingCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID > 0"));
+                    IncomingPercentOfSalesYTD = _yearlySales != 0 ? (IncomingCostYTD / _yearlySales).ToString("P3") : "No Sales";
+                    var _filter = $"SupplierID = 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
+                    InternalCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
+                    InternalCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
+                    InternalPercentOfSalesMTD = monthlySales != 0 ? (InternalCostMTD / monthlySales).ToString("P3") : "No Sales";
+                    _filter = $"SupplierID > 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
+                    IncomingCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
+                    try
+                    {
+                        IncomingCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
+                    }
+                    catch (Exception)
+                    {
+                        IncomingCostMTD = 0;
+                    }
+                    IncomingPercentOfSalesMTD = monthlySales != 0 ? (IncomingCostMTD / monthlySales).ToString("P3") : "No Sales";
                 }
-                InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
-                InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
-                InternalPercentOfSalesYTD = _yearlySales != 0 ? (InternalCostYTD / _yearlySales).ToString("P3") : "No Sales";
-                IncomingCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") > 0);
-                IncomingCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID > 0"));
-                IncomingPercentOfSalesYTD = _yearlySales != 0 ? (IncomingCostYTD / _yearlySales).ToString("P3") : "No Sales";
-                var _filter = $"SupplierID = 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
-                InternalCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
-                InternalCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
-                InternalPercentOfSalesMTD = monthlySales != 0 ? (InternalCostMTD / monthlySales).ToString("P3") : "No Sales";
-                _filter = $"SupplierID > 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
-                IncomingCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
-                try
-                {
-                    IncomingCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
-                }
-                catch (Exception)
-                {
-                    IncomingCostMTD = 0;
-                }
-                IncomingPercentOfSalesMTD = monthlySales != 0 ? (IncomingCostMTD / monthlySales).ToString("P3") : "No Sales";
+            }
+            catch (Exception)
+            {
+                return;
             }
         }
     }
@@ -105,6 +112,51 @@ namespace OMNI.QMS.Model
                             break;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Update all the values in the QIR Metrics
+        /// </summary>
+        /// <param name="metric">Current QIRMetric object</param>
+        /// <param name="monthlySales">Live Monthly Sales</param>
+        public static void UpdateAllMetrics(this QIRMetric metric, int monthlySales)
+        {
+            try
+            {
+                var _yearlySales = OMNIDataBase.YearlySalesAsync(DateTime.Today.Year).Result + monthlySales;
+                using (DataTable dt = new DataTable())
+                {
+                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
+                    {
+                        adapter.Fill(dt);
+                    }
+                    metric.InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
+                    metric.InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
+                    metric.InternalPercentOfSalesYTD = _yearlySales != 0 ? (metric.InternalCostYTD / _yearlySales).ToString("P3") : "No Sales";
+                    metric.IncomingCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") > 0);
+                    metric.IncomingCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID > 0"));
+                    metric.IncomingPercentOfSalesYTD = _yearlySales != 0 ? (metric.IncomingCostYTD / _yearlySales).ToString("P3") : "No Sales";
+                    var _filter = $"SupplierID = 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
+                    metric.InternalCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
+                    metric.InternalCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
+                    metric.InternalPercentOfSalesMTD = monthlySales != 0 ? (metric.InternalCostMTD / monthlySales).ToString("P3") : "No Sales";
+                    _filter = $"SupplierID > 0 AND QIRDate >= #{DateTime.Today.Month}/01/{DateTime.Today.Year}# AND QIRDate <= #{DateTime.Today.Month}/{DateTime.Today.LastDayOfMonth()}/{DateTime.Today.Year}#";
+                    metric.IncomingCountMTD = Convert.ToInt32(dt.Compute("COUNT(SupplierID)", _filter));
+                    try
+                    {
+                        metric.IncomingCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", _filter));
+                    }
+                    catch (Exception)
+                    {
+                        metric.IncomingCostMTD = 0;
+                    }
+                    metric.IncomingPercentOfSalesMTD = monthlySales != 0 ? (metric.IncomingCostMTD / monthlySales).ToString("P3") : "No Sales";
+                }
+            }
+            catch (Exception)
+            {
+                return;
             }
         }
     }

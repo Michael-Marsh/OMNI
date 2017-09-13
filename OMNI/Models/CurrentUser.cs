@@ -58,6 +58,7 @@ namespace OMNI.Models
             get { return _noticeHistory; }
             set { _noticeHistory = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(NoticeHistory))); }
         }
+
         public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
 
         #endregion

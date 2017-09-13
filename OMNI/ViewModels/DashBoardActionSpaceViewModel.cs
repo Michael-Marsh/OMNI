@@ -3,6 +3,7 @@ using OMNI.CustomControls;
 using OMNI.Enumerations;
 using OMNI.Helpers;
 using OMNI.Models;
+using OMNI.Testing;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -108,8 +109,7 @@ namespace OMNI.ViewModels
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.UserSubmissions);
                         break;
                     case DashBoardAction.DevTesting:
-                        var test = M2k.GetLiveSales("8-1-17","8-31-17");
-                        System.Windows.MessageBox.Show(test.ToString());
+                        DirectorySwitch.ListTest();
                         break;
                     case DashBoardAction.SubmitECR:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewECR);

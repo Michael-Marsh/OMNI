@@ -49,6 +49,17 @@ namespace OMNI.ViewModels
         }
         public string UserPicture { get { return CurrentUser.GetPicture(); } }
 
+        private string selectedStartUp;
+        public string SelectedStartUp
+        {
+            get
+            { return selectedStartUp; }
+            set
+            {
+
+            }
+        }
+
         RelayCommand _save;
 
         #endregion
