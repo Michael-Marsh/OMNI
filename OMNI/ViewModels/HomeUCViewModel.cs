@@ -86,13 +86,13 @@ namespace OMNI.ViewModels
         public string SelectedMonthSales
         {
             get { return selectedMonthSales; }
-            set { selectedMonthSales = value; if (!Loading && selectedMonthSales != value) { UpdateSales(); } OnPropertyChanged(nameof(SelectedMonthSales)); }
+            set { if (!Loading && selectedMonthSales != value) { UpdateSales(value, SelectedYearSales); } selectedMonthSales = value; OnPropertyChanged(nameof(SelectedMonthSales)); }
         }
         private int selectedYearSales;
         public int SelectedYearSales
         {
             get { return selectedYearSales; }
-            set { selectedYearSales = value; if (!Loading) { UpdateSales(); } OnPropertyChanged(nameof(SelectedYearSales)); }
+            set { selectedYearSales = value; if (!Loading && selectedYearSales != value) { UpdateSales(SelectedMonthSales, value); } OnPropertyChanged(nameof(SelectedYearSales)); }
         }
         private string selectedWorkOrderMonth;
         public string SelectedWorkOrderMonth
@@ -167,25 +167,27 @@ namespace OMNI.ViewModels
             SelectedInternalMonth = SelectedIncomingMonth = SelectedWorkOrderMonth = SelectedTicketMonth = SelectedMonthSales = DateTime.Now.ToString("MMMM");
             SelectedInternalYear = SelectedIncomingYear = SelectedWorkOrderYear = SelectedTicketYear = SelectedYearSales = DateTime.Now.Year;
             Loading = false;
-            UpdateSales();
+            UpdateSales(SelectedMonthSales, SelectedYearSales);
         }
 
         /// <summary>
         /// Update selected sales
         /// </summary>
-        public void UpdateSales()
+        /// <param name="month">Selected Month</param>
+        /// <param name="year">Selected Year</param>
+        public void UpdateSales(string month, int year)
         {
-            if (!string.IsNullOrEmpty(SelectedMonthSales) && SelectedYearSales != 0)
+            if (!string.IsNullOrEmpty(month) && year != 0)
             {
-                var i = OMNIDataBase.MonthlySalesAsync(SelectedMonthSales, SelectedYearSales).Result;
+                var i = OMNIDataBase.MonthlySalesAsync(month, year).Result;
                 MonthlySales = Convert.ToBoolean(i[1]) ? i[0] : M2k.GetLiveSales($"{DateTime.Today.Month}-1-{DateTime.Today.Year}", DateTime.Today.ToString("MM-dd-yyyy"));
                 if (QIRValues == null)
                 {
                     QIRValues = new QIRMetric(MonthlySales);
+                    OnPropertyChanged(nameof(QIRValues));
                 }
                 SalesFirm = Convert.ToBoolean(i[1]);
                 OnPropertyChanged(nameof(MonthlySales));
-                OnPropertyChanged(nameof(QIRValues));
                 OnPropertyChanged(nameof(SalesFirm));
             }
         }
