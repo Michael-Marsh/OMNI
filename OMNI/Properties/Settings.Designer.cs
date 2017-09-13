@@ -286,5 +286,16 @@ namespace OMNI.Properties {
                 return ((string)(this["UsersPhotoDirectory"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-HYPERV;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Conne" +
+            "ction Timeout=10")]
+        public string omniMSSQLConnectionString {
+            get {
+                return ((string)(this["omniMSSQLConnectionString"]));
+            }
+        }
     }
 }

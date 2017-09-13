@@ -582,7 +582,7 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Server=SQL-HYPERV;Integrated Security=SSPI;Database=WCCO_MAIN;Connection Timeout=10"))
+                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
                 {
                     con.Open();
                     using (SqlCommand cmd = new SqlCommand($"SELECT SUM([Sales]) FROM [dbo].[SA-INIT] WHERE [Inv_So_Date]>='{startDate}' AND [Inv_So_Date]<='{endDate}' AND [Record_Type]='SL'", con))

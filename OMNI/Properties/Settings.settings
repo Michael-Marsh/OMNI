@@ -99,5 +99,12 @@
     <Setting Name="UsersPhotoDirectory" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\Document Center\Photo Library\Employees</Value>
     </Setting>
+    <Setting Name="omniMSSQLConnectionString" Type="(Connection string)" Scope="Application">
+      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;ConnectionString&gt;Server=SQL-HYPERV;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connection Timeout=10&lt;/ConnectionString&gt;
+&lt;/SerializableConnectionString&gt;</DesignTimeValue>
+      <Value Profile="(Default)">Server=SQL-HYPERV;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connection Timeout=10</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
