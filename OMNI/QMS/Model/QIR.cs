@@ -584,80 +584,71 @@ namespace OMNI.QMS.Model
         /// <returns>Transaction Success as bool.  true = accepted / false = rejected</returns>
         public static bool AttachPhoto(this QIR qir, object fileDrop = null)
         {
+            var _tempFile = new List<string>();
+            if (fileDrop == null)
+            {
+                var ofd = new OpenFileDialog { Filter = "Camera Photos (*.jpg)|*.jpg|Cell Phone Photos (*.jpeg)|*.jpeg", Title = "Select the photo to add.", Multiselect = true };
+                ofd.ShowDialog();
+                if (ofd.FileNames.Length == 0)
+                {
+                    return false;
+                }
+                foreach (var s in ofd.FileNames)
+                {
+                    _tempFile.Add(s);
+                }
+            }
+            else
+            {
+                foreach (var s in (string[])fileDrop)
+                {
+                    _tempFile.Add(s);
+                }
+            }
+            var wordApp = new Word.Application
+            {
+                Visible = false
+            };
+            object empty = Missing.Value;
+            var wordDoc = wordApp.Documents.Add(ref empty, ref empty, ref empty, ref empty);
             try
             {
-                var _tempFile = new List<string>();
-                if (fileDrop == null)
+                if (File.Exists($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx"))
                 {
-                    var ofd = new OpenFileDialog { Filter = "Camera Photos (*.jpg)|*.jpg|Cell Phone Photos (*.jpeg)|*.jpeg", Title = "Select the photo to add.", Multiselect = true };
-                    ofd.ShowDialog();
-                    if (ofd.FileNames.Length == 0)
+                    File.SetAttributes($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx", FileAttributes.Normal);
+                    wordDoc = wordApp.Documents.Open($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
+                    foreach (var _file in _tempFile)
                     {
-                        return false;
-                    }
-                    foreach (var s in ofd.FileNames)
-                    {
-                        _tempFile.Add(s);
+                        wordDoc.Application.Selection.InlineShapes.AddPicture(_file);
                     }
                 }
                 else
                 {
-                    foreach (var s in (string[])fileDrop)
+                    foreach (Word.Section section in wordDoc.Sections)
                     {
-                        _tempFile.Add(s);
-                    }
-                }
-                foreach (var _file in _tempFile)
-                {
-                    var wordApp = new Word.Application
-                    {
-                        Visible = false
-                    };
-                    object empty = Missing.Value;
-                    var wordDoc = wordApp.Documents.Add(ref empty, ref empty, ref empty, ref empty);
-                    if (File.Exists($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx"))
-                    {
-                        File.SetAttributes($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx", FileAttributes.Normal);
-                        wordDoc.Application.Documents.Open($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
-                        wordDoc.Application.Selection.InlineShapes.AddPicture(_file);
-                    }
-                    else
-                    {
-                        if (File.Exists($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx"))
+                        var header = section.Headers[Word.WdHeaderFooterIndex.wdHeaderFooterPrimary].Range;
+                        header.Fields.Add(header, Word.WdFieldType.wdFieldPage);
+                        header.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        header.Font.Size = 16;
+                        header.Font.Bold = 5;
+                        header.Font.Underline = Word.WdUnderline.wdUnderlineSingle;
+                        header.Text = $"Quality Incident Report No. {qir.IDNumber} Photos";
+                        var footer = section.Footers[Word.WdHeaderFooterIndex.wdHeaderFooterPrimary].Range;
+                        footer.Fields.Add(footer, Word.WdFieldType.wdFieldPage);
+                        footer.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                        footer.Font.Size = 12;
+                        footer.Text = $"Created by: {CurrentUser.FullName}              {DateTime.Now.ToLongDateString()}";
+                        foreach (var _file in _tempFile)
                         {
-                            File.SetAttributes($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx", FileAttributes.Normal);
-                            wordDoc.Application.Documents.Open($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
                             wordDoc.Application.Selection.InlineShapes.AddPicture(_file);
                         }
-                        else
-                        {
-                            foreach (Word.Section section in wordDoc.Sections)
-                            {
-                                var header = section.Headers[Word.WdHeaderFooterIndex.wdHeaderFooterPrimary].Range;
-                                header.Fields.Add(header, Word.WdFieldType.wdFieldPage);
-                                header.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                                header.Font.Size = 16;
-                                header.Font.Bold = 5;
-                                header.Font.Underline = Word.WdUnderline.wdUnderlineSingle;
-                                header.Text = $"Quality Incident Report No. {qir.IDNumber} Photos";
-                                var footer = section.Footers[Word.WdHeaderFooterIndex.wdHeaderFooterPrimary].Range;
-                                footer.Fields.Add(footer, Word.WdFieldType.wdFieldPage);
-                                footer.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
-                                footer.Font.Size = 12;
-                                footer.Text = $"Created by: {CurrentUser.FullName}              {DateTime.Now.ToLongDateString()}";
-                                wordDoc.Application.Selection.InlineShapes.AddPicture(_file);
-                            }
-                            wordDoc.SaveAs2($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
-                            wordDoc.Close(Word.WdSaveOptions.wdSaveChanges);
-                            Marshal.ReleaseComObject(wordDoc);
-                            wordDoc = null;
-                            wordApp.Quit(Word.WdSaveOptions.wdSaveChanges, ref empty, ref empty);
-                            Marshal.ReleaseComObject(wordApp);
-                            wordApp = null;
-                            GC.Collect();
-                        }
                     }
+                    wordDoc.SaveAs2($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
                 }
+                wordDoc.Close(Word.WdSaveOptions.wdSaveChanges);
+                wordDoc = null;
+                wordApp.Quit(Word.WdSaveOptions.wdSaveChanges, ref empty, ref empty);
+                wordApp = null;
                 qir.IsPhotosAttached = true;
                 return true;
             }
@@ -665,6 +656,19 @@ namespace OMNI.QMS.Model
             {
                 ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
                 return false;
+            }
+            finally
+            {
+                if (wordDoc != null)
+                {
+                    wordDoc.Close(Word.WdSaveOptions.wdDoNotSaveChanges);
+                    wordDoc = null;
+                }
+                if (wordApp != null)
+                {
+                    wordApp.Quit(Word.WdSaveOptions.wdDoNotSaveChanges);
+                    wordApp = null;
+                }
             }
         }
 

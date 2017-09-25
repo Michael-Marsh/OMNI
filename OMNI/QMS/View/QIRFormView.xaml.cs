@@ -20,13 +20,15 @@ namespace OMNI.QMS.View
             if (PrimaryCommand.Content.ToString() == "Update")
             {
                 var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                var _validateFile = true;
                 foreach (var file in files)
                 {
                     var ext = System.IO.Path.GetExtension(file);
-                    if (ext.Equals(".jpg", System.StringComparison.OrdinalIgnoreCase) || ext.Equals(".jpeg", System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        ((QIRFormViewModel)DataContext).Qir.AttachPhoto(e.Data.GetData("FileDrop"));
-                    }
+                    _validateFile = !ext.Equals(".jpg", System.StringComparison.OrdinalIgnoreCase) || !ext.Equals(".jpeg", System.StringComparison.OrdinalIgnoreCase);
+                }
+                if (_validateFile)
+                {
+                    ((QIRFormViewModel)DataContext).Qir.AttachPhoto(e.Data.GetData("FileDrop"));
                 }
             }
         }
