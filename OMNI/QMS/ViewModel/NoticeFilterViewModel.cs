@@ -1,58 +1,40 @@
-﻿using OMNI.QMS.Model;
+﻿using OMNI.Commands;
+using OMNI.QMS.Model;
 using OMNI.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace OMNI.QMS.ViewModel
 {
     public class NoticeFilterViewModel : ViewModelBase
     {
-        public List<string> FilterList { get; set; }
-        private string selectedFilter;
-        public string SelectedFilter
-        {
-            get { return selectedFilter; }
-            set
-            {
-                switch(value)
-                {
-                    case "Mark All Viewed":
-                        QIR.MarkAllViewed();
-                        value = "Default";
-                        break;
-                    default:
-                        value = "Default";
-                        break;
-                }
-                selectedFilter = value;
-                OnPropertyChanged(nameof(SelectedFilter));
-            }
-        }
-
+        RelayCommand _markAll;
         /// <summary>
         /// Notice Filter ViewModel Constructor
         /// </summary>
         public NoticeFilterViewModel()
         {
-            if (FilterList == null)
-            {
-                FilterList = GetFilterList();
-            }
-            SelectedFilter = null;
         }
 
-        public List<string> GetFilterList()
+        #region MarkAllICommand Implementation
+
+        public ICommand MarkAllICommand
         {
-            var _tempList = new List<string>
+            get
             {
-                "Default",
-                "Mark All Viewed",
-                "Detailed Search"
-            };
-            return _tempList;
+                if (_markAll == null)
+                {
+                    _markAll = new RelayCommand(MarkAllExecute);
+                }
+                return _markAll;
+            }
         }
+
+        private void MarkAllExecute(object parameter)
+        {
+            QIR.MarkAllViewed();
+            QIRNoticeViewModel.RefreshNotice = true;
+        }
+
+        #endregion
     }
 }

@@ -8,7 +8,6 @@ namespace OMNI.Testing
     {
         public static void RunMe()
         {
-            try
             {
                 var _tempList = new Dictionary<int, DateTime>();
                 using (MySqlCommand cmd = new MySqlCommand("SELECT `QIRNumber`, `revision_date` FROM omni.qir_revisions WHERE `QIRNumber`>1004053", App.ConAsync))
@@ -38,9 +37,6 @@ namespace OMNI.Testing
                         cmd.ExecuteNonQuery();
                     }
                 }
-            }
-            catch(Exception ex)
-            {
             }
         }
     }

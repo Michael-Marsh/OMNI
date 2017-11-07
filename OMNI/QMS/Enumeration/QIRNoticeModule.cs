@@ -5,6 +5,7 @@
         Open = 0,
         New = 1,
         Flagged = 2,
-        Default = 3
+        Default = 3,
+        CSI = 4
     }
 }

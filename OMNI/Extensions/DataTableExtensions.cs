@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -45,7 +44,6 @@ namespace OMNI.Extensions
         /// </summary>
         /// <param name="table">Source DataTable</param>
         /// <param name="query">Search string</param>
-        /// <param name="tableName">Table Name</param>
         /// <returns>Filtered DataView</returns>
         public static DataView SearchToDataView(this DataTable table, string query)
         {
@@ -124,31 +122,12 @@ namespace OMNI.Extensions
     /// </summary>
     public class OMNIDataTable
     {
-        #region Properties
-
-        private static int _progress;
-        public static int Progress
-        {
-            get { return _progress; }
-            set { _progress = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Progress))); }
-        }
-        private static bool _exporting;
-        public static bool Exporting
-        {
-            get { return _exporting; }
-            set { _exporting = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Exporting))); }
-        }
-
-        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
-
-        #endregion
-
         /// <summary>
         /// Export a DataTable to Excel
         /// </summary>
         /// <param name="table">DataTable to export</param>
         /// <param name="worksheetName">Name of the worksheet</param>
-        public static void ExportToExcel(DataTable table, string worksheetName)
+        /*public static void ExportToExcel(DataTable table, string worksheetName)
         {
             var _progress = 0;
             Exporting = true;
@@ -192,10 +171,6 @@ namespace OMNI.Extensions
                                 }
                             }
                             excelApp.Visible = true;
-                            Marshal.ReleaseComObject(workSheet);
-                            Marshal.ReleaseComObject(workbook);
-                            Marshal.ReleaseComObject(excelApp);
-                            GC.Collect();
                         });
                     bw.RunWorkerAsync();
                 }
@@ -203,7 +178,10 @@ namespace OMNI.Extensions
                 {
                     ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
                 }
+                finally
+                {
+                }
             }
-        }
+        }*/
     }
 }

@@ -48,6 +48,9 @@ namespace OMNI.HDT.ViewModel
         }
         public ICollectionView NoticeCollection { get; set; }
 
+        /// <summary>
+        /// ITNoticeViewModel
+        /// </summary>
         public ITNoticeViewModel()
         {
             if (NoticeDataTable == null)

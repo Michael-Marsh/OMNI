@@ -73,7 +73,7 @@ namespace OMNI.ViewModels
             CurrentGroup = "OverAll";
             if (NotesTable == null)
             {
-                NotesTable = new omniDataSet.cmmsworkordernotesDataTable();
+                NotesTable = new DataTable();
             }
             if (CrewList == null)
             {

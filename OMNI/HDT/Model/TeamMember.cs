@@ -65,5 +65,30 @@ namespace OMNI.HDT.Model
             }
             return _tempList;
         }
+
+        /// <summary>
+        /// Get a BindingList of all IT Team Members
+        /// </summary>
+        /// <param name="addAll">Add a team member named 'All'</param>
+        /// <returns>BindingList of ITTeamMember</ITTeamMember></returns>
+        public async static Task<BindingList<TeamMember>> GetBindingListAsync(bool addAll)
+        {
+            var _tempList = new BindingList<TeamMember>();
+            if (addAll)
+            {
+                _tempList.Add(new TeamMember { Name = "All", AssignDate = DateTime.MinValue });
+            }
+            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `ITTeam`=1", App.ConAsync))
+            {
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        _tempList.Add(new TeamMember { Name = reader.GetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
+                    }
+                }
+            }
+            return _tempList;
+        }
     }
 }

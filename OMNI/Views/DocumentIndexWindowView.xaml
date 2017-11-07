@@ -44,20 +44,6 @@
                     <TextBlock Text="Help" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
-            <CheckBox Name="DeleteFunction" Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}, Mode=OneWay}" IsChecked="{Binding Delete, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Delete" HorizontalAlignment="Center" Margin="10,0,0,0" VerticalAlignment="Center" Style="{DynamicResource CheckBoxStyle}"/>
-            <Button Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}, Mode=OneWay}" Command="{Binding AddCommand}" Width="110" Margin="5" Style="{DynamicResource DashBoardButtonStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/OMNI;component/Icons/New DB.ico" Margin="5"/>
-                    <TextBlock Text="Add" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-            <Button Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}, Mode=OneWay}" Command="{Binding RefreshCommand}" Width="110" Margin="5" Style="{DynamicResource DashBoardButtonStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/OMNI;component/Icons/Refresh.ico" Margin="5"/>
-                    <TextBlock Text="Refresh" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
-            <Label Visibility="{Binding IsChecked, ElementName=DeleteFunction, Converter={StaticResource BooltoVisConverter}}" Content="! Delete Function On !" Foreground="Crimson" FontWeight="Bold" FontSize="18"/>
         </StackPanel>
 
         <Expander Grid.Row="2" Header="Advanded Search" FontSize="12" FontWeight="Bold">

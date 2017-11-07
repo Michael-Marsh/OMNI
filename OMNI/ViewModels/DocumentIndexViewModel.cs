@@ -1,14 +1,12 @@
-﻿using Microsoft.Win32;
-using OMNI.Commands;
+﻿using OMNI.Commands;
 using OMNI.Helpers;
 using OMNI.Models;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using System.Windows.Input;
 
 namespace OMNI.ViewModels
@@ -31,14 +29,11 @@ namespace OMNI.ViewModels
             get { return _search; }
             set { Table.DefaultView.RowFilter = $"FileName LIKE '%{value}%'"; _search = value; }
         }
-        public omniDataSet.documentindexDataTable Table { get; set; }
-        public bool Delete { get; set; }
+        public DataTable Table { get; set; }
 
         RelayCommand _open;
         RelayCommand _help;
         RelayCommand _query;
-        RelayCommand _add;
-        RelayCommand _refresh;
 
         #endregion
 
@@ -47,10 +42,9 @@ namespace OMNI.ViewModels
         /// </summary>
         public DocumentIndexViewModel()
         {
-            Table = new omniDataSet.documentindexDataTable();
-            using (var documentindexTableAdapter = new omniDataSetTableAdapters.documentindexTableAdapter())
+            if (Table == null)
             {
-                documentindexTableAdapter.Fill(Table);
+                Table = OMNIDataBase.GetDocumentIndex();
             }
         }
 
@@ -77,37 +71,18 @@ namespace OMNI.ViewModels
         /// <param name="parameter">File to open</param>
         private void OpenExecute(object parameter)
         {
-            var file = parameter as string;
-            if (Delete && MessageBox.Show($"Do you want to permanently delete {file}?", "Delete Validation", MessageBoxButton.YesNo, MessageBoxImage.Stop) == MessageBoxResult.Yes)
+            var file = Directory.GetFiles(Properties.Settings.Default.DocumentLocation, $"{parameter}.*", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            try
             {
-                OMNIDataBase.RemoveDocumentAsync(file);
-                using (var documentindexTableAdapter = new omniDataSetTableAdapters.documentindexTableAdapter())
-                {
-                    Table.Clear();
-                    documentindexTableAdapter.Fill(Table);
-                }
-                OnPropertyChanged(nameof(Table));
+                Process.Start(file);
             }
-            else
+            catch (Win32Exception)
             {
-                var ext = string.Empty;
-                var extList = (from r in Table.AsEnumerable() where r.FileName == file select r.FileExtension).ToList();
-                foreach (string item in extList)
-                {
-                    ext = item;
-                }
-                try
-                {
-                    Process.Start($"{Properties.Settings.Default.DocumentLocation}{file}{ext}");
-                }
-                catch (Win32Exception)
-                {
-                    ExceptionWindow.Show("Unable to Locate File", "The file that you have tried to open does not exist or was entered incorrectly.\nPlease contact the Standards Manager for further assistance.");
-                }
-                catch (Exception ex)
-                {
-                    ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
-                }
+                ExceptionWindow.Show("Unable to Locate File", "The file that you have tried to open does not exist or was entered incorrectly.\nPlease contact the Standards Manager for further assistance.");
+            }
+            catch (Exception ex)
+            {
+                ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
             }
         }
 
@@ -163,7 +138,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Empty Object</param>
         private void QueryExecute(object parameter)
         {
-            List<string> wiList = M2k.WorkInstructions(PartNumber);
+            var wiList = M2k.WorkInstructions(PartNumber);
             if (wiList != null && wiList.Count > 0)
             {
                 var filter = "FileName IN (";
@@ -187,81 +162,6 @@ namespace OMNI.ViewModels
         private bool QueryCanExecute(object parameter) => string.IsNullOrEmpty(PartNumber)
                 ? false
                 : true;
-
-        /// <summary>
-        /// Add Document Command
-        /// </summary>
-        public ICommand AddCommand
-        {
-            get
-            {
-                if (_add == null)
-                {
-                    _add = new RelayCommand(AddExecute, AddCanExecute);
-                }
-                return _add;
-            }
-        }
-
-        /// <summary>
-        /// Add Document Command Execution
-        /// </summary>
-        /// <param name="parameter">Empty Object</param>
-        private void AddExecute(object parameter)
-        {
-            var fd = new OpenFileDialog
-            {
-                Filter = "PDF Files (*.pdf)|*.pdf|Microsoft Word Files (.doc)|*.doc|All Files (*.*)|*.*",
-                InitialDirectory = Properties.Settings.Default.DocumentLocation,
-                Title = "Select a document to add.",
-                DefaultExt = "*.pdf",
-                Multiselect = true
-            };
-            fd.ShowDialog();
-            var file = fd.SafeFileNames;
-            if (file.Length != 0)
-            {
-                OMNIDataBase.DocumentInsertAsync(file);
-            }
-            using (var documentindexTableAdapter = new omniDataSetTableAdapters.documentindexTableAdapter())
-            {
-                Table.Clear();
-                documentindexTableAdapter.Fill(Table);
-            }
-            OnPropertyChanged(nameof(Table));
-        }
-        private bool AddCanExecute(object parameter) => CurrentUser.Kaizen ? true : false;
-
-        /// <summary>
-        /// Refresh Document Index Database Command
-        /// </summary>
-        public ICommand RefreshCommand
-        {
-            get
-            {
-                if (_refresh == null)
-                {
-                    _refresh = new RelayCommand(RefreshExecute, RefreshCanExecute);
-                }
-                return _refresh;
-            }
-        }
-
-        /// <summary>
-        /// Refresh Document Index Database Command Execution
-        /// </summary>
-        /// <param name="parameter">Empty Object</param>
-        private void RefreshExecute(object parameter)
-        {
-            OMNIDataBase.RefreshDocumentIndexAsync();
-            using (var documentindexTableAdapter = new omniDataSetTableAdapters.documentindexTableAdapter())
-            {
-                Table.Clear();
-                documentindexTableAdapter.Fill(Table);
-            }
-            OnPropertyChanged(nameof(Table));
-        }
-        private bool RefreshCanExecute(object parameter) => CurrentUser.Kaizen ? true : false;
 
         #endregion
 

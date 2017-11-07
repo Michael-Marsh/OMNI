@@ -61,6 +61,8 @@ namespace OMNI.QMS.ViewModel
         public QIRNoticeModule CurrentFilter { get; set; }
         public DispatcherTimer ReadTimer { get; private set; }
         public DispatcherTimer UpdateTimer { get; private set; }
+        public static bool RefreshNotice { get; set; }
+        public bool SiteFilter { get { return CurrentUser.Site == "WCCO"; } }
 
         RelayCommand filter;
 
@@ -71,6 +73,7 @@ namespace OMNI.QMS.ViewModel
         /// </summary>
         public QIRNoticeViewModel()
         {
+            RefreshNotice = false;
             if (ReadTimer == null)
             {
                 ReadTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(CurrentUser.NoticeTimer) };
@@ -122,7 +125,37 @@ namespace OMNI.QMS.ViewModel
         /// <param name="e">UpdateTimer Event Args</param>
         private void UpdateTimer_Tick(object sender, EventArgs e)
         {
-            NoticeDataTable.UpdateNoticeTable();
+            if (RefreshNotice)
+            {
+                RefreshNoticeView();
+            }
+            else
+            {
+                NoticeDataTable.UpdateNoticeTable();
+            }
+        }
+
+        /// <summary>
+        /// Full refresh on the NoticeDataTable and the NoticeCollection
+        /// </summary>
+        private void RefreshNoticeView()
+        {
+            NoticeDataTable = null;
+            NoticeCollection = null;
+            NoticeDataTable = QIR.LoadNoticeAsync().Result;
+            if (NoticeDataTable != null)
+            {
+                NoticeDataTable.DefaultView.Sort = "QIRDate DESC";
+                NoticeDataTable.ColumnChanging += QIR.FlaggedColumnChanging;
+                if (NoticeCollection == null)
+                {
+                    NoticeCollection = CollectionViewSource.GetDefaultView(NoticeDataTable);
+                    NoticeCollection.GroupDescriptions.Add(new PropertyGroupDescription("QIRDate", new DateGroupConverter()));
+                    SelectedRow = (DataRowView)NoticeCollection.CurrentItem;
+                }
+            }
+            OnPropertyChanged(nameof(NoticeCollection));
+            RefreshNotice = false;
         }
 
         #region FilterICommand Implementation
@@ -157,6 +190,10 @@ namespace OMNI.QMS.ViewModel
                     NoticeDataTable.DefaultView.RowFilter = "Flagged = true";
                     UpdateTimer.Stop();
                     break;
+                case QIRNoticeModule.CSI:
+                    NoticeDataTable.DefaultView.RowFilter = "SupplierID = 1015";
+                    UpdateTimer.Stop();
+                    break;
                 case QIRNoticeModule.Default:
                     NoticeDataTable.DefaultView.RowFilter = "";
                     UpdateTimer.Start();
@@ -179,6 +216,7 @@ namespace OMNI.QMS.ViewModel
                 ReadTimer.Stop();
                 NoticeCollection = null;
                 NoticeDataTable?.Dispose();
+                NoticeDataTable = null;
             }
         }
     }

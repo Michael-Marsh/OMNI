@@ -12,7 +12,6 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -298,27 +297,29 @@ namespace OMNI.QMS.Model
         /// <summary>
         /// Load the QIR Notice into a DataTable
         /// </summary>
+        /// <param name="site">Optional: Site to filter the Notice data</param>
         /// <param name="update">Optional: Update call as a boolean</param>
         /// <returns>Filtered Notice DataTable</returns>
-        public async static Task<DataTable> LoadNoticeAsync(bool update = false)
+        public async static Task<DataTable> LoadNoticeAsync(string site = "", bool update = false)
         {
+            site = site == string.Empty ? CurrentUser.Site : site;
             var table = new DataTable();
             try
             {
-                var cmdString = $@"SELECT n.`{CurrentUser.IdNumber}`, r.`SupplierID`, q.* FROM `{App.Schema}`.`qir_master` q
-                                   LEFT JOIN `{App.Schema}`.`qir_notice` n ON q.`QIRNumber`=n.`QIRNumber`
-                                   LEFT JOIN `{App.Schema}`.`qir_revisions` r ON q.`QIRNumber`=r.`QIRNumber` AND q.`QIRDate`=r.`revision_date`";
+                var cmdString = $"SELECT n.`{CurrentUser.IdNumber}`, r.`SupplierID`, q.* FROM `{App.Schema}`.`qir_master` q ";
+                cmdString += $"LEFT JOIN `{App.Schema}`.`qir_notice` n ON q.`QIRNumber`=n.`QIRNumber` ";
+                cmdString += $"LEFT JOIN `{App.Schema}`.`qir_revisions` r ON q.`QIRNumber`=r.`QIRNumber` AND q.`QIRDate`=r.`revision_date`";
                 if (update)
                 {
                     cmdString += $" WHERE `QIRDate`>'{DateTime.Now.AddMinutes(-1).ToString("yyyy-MM-dd HH:mm")}'";
                 }
-                else
+                else if (site == "WCCO")
                 {
                     cmdString += $" WHERE(q.`Status`= 'Open' OR n.`{ CurrentUser.IdNumber}`= 1 OR n.`{ CurrentUser.IdNumber}` IS NULL) OR q.`QIRDate` BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}'";
                 }
-                if (CurrentUser.Site != "WCCO")
+                else
                 {
-                    cmdString += $" AND r.`SupplierID`={Properties.Settings.Default.CSISupplierNumber}";
+                    cmdString += $" WHERE((q.`Status`= 'Open' OR n.`{ CurrentUser.IdNumber}`= 1 OR n.`{ CurrentUser.IdNumber}` IS NULL) AND r.`SupplierID`=1015) OR q.`QIRDate` BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' AND r.`SupplierID`=1015";
                 }
                 using (var adapter = new MySqlDataAdapter(cmdString, App.ConAsync))
                 {
@@ -421,6 +422,31 @@ namespace OMNI.QMS.Model
                 cmd.ExecuteNonQuery();
             }
         }
+
+        /// <summary>
+        /// Get Metrics Table from OMNI Database
+        /// </summary>
+        /// <param name="startDate">Data retreival start date</param>
+        /// <param name="endDate">Data retreival end date</param>
+        /// <returns>Metrics Table as DataTable</returns>
+        public static DataTable GetTableData(DateTime startDate, DateTime endDate)
+        {
+            using (DataTable dt = new DataTable())
+            {
+                try
+                {
+                    using (MySqlDataAdapter da = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`qir_metrics_view` WHERE `QIRDate` BETWEEN '{startDate}' AND '{endDate}'", App.ConAsync))
+                    {
+                        da.Fill(dt);
+                    }
+                }
+                catch (Exception e)
+                {
+                    ExceptionWindow.Show("Unhandled Exception", e.Message, e);
+                }
+                return dt;
+            }
+        }
     }
 
     public static class QIRExtension
@@ -521,7 +547,7 @@ namespace OMNI.QMS.Model
         /// <param name="noticeTable">Current notice DataTable</param>
         public static void UpdateNoticeTable(this DataTable noticeTable)
         {
-            using (DataTable _tempTable = QIR.LoadNoticeAsync(true).Result)
+            using (DataTable _tempTable = QIR.LoadNoticeAsync(update:true).Result)
             {
                 if (_tempTable != null && _tempTable.Rows.Count > 0)
                 {

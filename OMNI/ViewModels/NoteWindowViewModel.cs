@@ -11,11 +11,11 @@ namespace OMNI.ViewModels
     {
         #region Properties
 
-        private static string note { get; set; }
+        private static string NoteText { get; set; }
         public string Note
         {
-            get { return note; }
-            set { note = value; OnPropertyChanged(nameof(Note)); }
+            get { return NoteText; }
+            set { NoteText = value; OnPropertyChanged(nameof(Note)); }
         }
         private static bool SaveNote { get; set; }
 
@@ -37,9 +37,9 @@ namespace OMNI.ViewModels
         /// <returns>Note</returns>
         public static string Show()
         {
-            note = null;
+            NoteText = null;
             new NoteWindowView().ShowDialog();
-            return note;
+            return NoteText;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace OMNI.ViewModels
         {
             if (!SaveNote)
             {
-                note = null;
+                NoteText = null;
             }
         }
 

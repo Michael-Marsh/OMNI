@@ -1,20 +1,18 @@
 ﻿using OMNI.Commands;
 using OMNI.CustomControls;
 using OMNI.Enumerations;
-using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.Models;
+using OMNI.Views;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
 
 namespace OMNI.ViewModels
 {
-    public class DashBoardDataBaseSpaceViewModel : OMNIDataTable, INotifyPropertyChanged, IDisposable
+    public class DashBoardDataBaseSpaceViewModel : ViewModelBase
     {
         #region Properies
-
-        public omniDataSet omniDS { get; set; }
 
         public bool QualityView { get { return CurrentUser.Quality; } }
         public bool CMMSView { get { return CurrentUser.CMMSAdmin || CurrentUser.CMMSCrew; } }
@@ -25,13 +23,26 @@ namespace OMNI.ViewModels
             get { return App.ConConnected; }
             set { value = App.ConConnected; OnPropertyChanged(nameof(DataBaseOnline)); }
         }
+        private static int _progress;
+        public static int Progress
+        {
+            get { return _progress; }
+            set { _progress = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Progress))); }
+        }
+        private static bool _exporting;
+        public static bool Exporting
+        {
+            get { return _exporting; }
+            set { _exporting = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Exporting))); }
+        }
+
+        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+
 
         RelayCommand _exportCommand;
         RelayCommand _home;
         RelayCommand _search;
         RelayCommand _edit;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -40,10 +51,6 @@ namespace OMNI.ViewModels
         /// </summary>
         public DashBoardDataBaseSpaceViewModel()
         {
-            if (omniDS == null)
-            {
-                omniDS = new omniDataSet();
-            }
             Exporting = false;
             Progress = 0;
             DataBaseOnline = false;
@@ -72,20 +79,9 @@ namespace OMNI.ViewModels
             switch (action)
             {
                 case "QIRMaster":
-                    using (var qirmasterviewTableAdapter = new omniDataSetTableAdapters.qir_master_viewTableAdapter())
-                    {
-                        qirmasterviewTableAdapter.Fill(omniDS.qir_master_view);
-                        var dt = omniDS.qir_master_view.Copy();
-                        ExportToExcel(dt, "QIR Master");
-                    }
+                    new DataExportFilter().Show();
                     break;
                 case "WOLog":
-                    using (var cmmsworkorderviewTableAdapter = new omniDataSetTableAdapters.cmmsworkorderviewTableAdapter())
-                    {
-                        cmmsworkorderviewTableAdapter.Fill(omniDS.cmmsworkorderview);
-                        var dt = omniDS.cmmsworkorderview.Copy();
-                        ExportToExcel(dt, "CMMS WO Log");
-                    }
                     break;
             }
         }
@@ -166,33 +162,10 @@ namespace OMNI.ViewModels
         }
         private bool SearchCanExecute(object parameter) => string.IsNullOrWhiteSpace(parameter as string) || (parameter as string).IndexOfAny(@"'<>()`~&%$#@[]*".ToCharArray()) >= 0 ? false : true;
 
-        /// <summary>
-        /// Reflects changes from the ViewModel properties to the View
-        /// </summary>
-        /// <param name="propertyName">Property Name</param>
-        protected void OnPropertyChanged(string propertyName)
-        {
-            var handler = PropertyChanged;
-            if (handler != null)
-            {
-                var e = new PropertyChangedEventArgs(propertyName);
-                handler(this, e);
-            }
-        }
-
-        /// <summary>
-        /// Object Disposal
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                omniDS.Dispose();
                 _exportCommand = _home = _search = null;
             }
         }

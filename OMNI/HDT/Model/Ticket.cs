@@ -71,6 +71,41 @@ namespace OMNI.HDT.Model
         {
             StatusList = GetStatusList();
             SubjectList = GetSubjectList();
+            try
+            {
+                var _tempPriority = string.Empty;
+                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_master` WHERE `TicketNumber`=@p1", App.ConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", idNumber);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            IDNumber = idNumber;
+                            Submitter = reader.GetString(nameof(Submitter));
+                            Date = reader.GetDateTime("SubmitDate");
+                            Location = reader.GetString(nameof(Location));
+                            Subject = reader.GetString(nameof(Subject));
+                            Type = (TicketType)Enum.Parse(typeof(TicketType), reader.GetString(nameof(Type)));
+                            RequestDate = reader.GetDateTime("RequestCompletionDate");
+                            RequestReason = reader.IsDBNull(7) ? string.Empty : reader.GetString("RequestCompletionReason");
+                            Description = reader.GetString(nameof(Description));
+                            IAR = reader.GetBoolean(nameof(IAR));
+                            Status = reader.GetString(nameof(Status));
+                            _tempPriority = reader.GetString(nameof(Priority));
+                            Confidential = reader.GetBoolean(nameof(Confidential));
+                            CompletionDate = reader.GetDateTime("DateCompleted");
+                            POC = reader.IsDBNull(14) ? string.Empty : reader.GetString(nameof(POC));
+                        }
+                    }
+                }
+                Priority = _tempPriority == "--Unassigned--" ? Priority.Create(6, "--Unassigned--") : Priority.Create(_tempPriority);
+                AssignedTo = TeamMember.GetBindingListAsync(false).Result;
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         /// <summary>

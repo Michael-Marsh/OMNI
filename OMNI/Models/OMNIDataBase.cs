@@ -383,63 +383,32 @@ namespace OMNI.Models
         }
 
         /// <summary>
-        /// Insert a document into the index
+        ///
         /// </summary>
-        /// <param name="files">File names to insert</param>
-        public async static void DocumentInsertAsync(string[] files)
+        /// <returns></returns>
+        public static DataTable GetDocumentIndex()
         {
-            var name = string.Empty;
-            var ext = string.Empty;
-            foreach (string item in files)
+            using (DataTable dt = new DataTable())
             {
-                if (!string.IsNullOrWhiteSpace(item))
+                using (var dataColumn = new DataColumn("FileName"))
                 {
-                    name = Path.GetFileNameWithoutExtension(item);
-                    ext = Path.GetExtension(item);
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`documentindex` (`FileName`, `FileExtension`) VALUES('{name}', '{ext}')", App.ConAsync))
-                    {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
+                    dt.Columns.Add(dataColumn);
                 }
-            }
-        }
-
-
-        /// <summary>
-        /// Remove a document from the document index
-        /// </summary>
-        /// <param name="fileName">File Name to delete</param>
-        public async static void RemoveDocumentAsync(string fileName)
-        {
-            using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.`documentindex` WHERE `FileName`='{fileName}'", App.ConAsync))
-            {
-                await cmd.ExecuteScalarAsync();
-            }
-            if (File.Exists($"{Properties.Settings.Default.DocumentLocation}{fileName}.*"))
-            {
-                File.Delete($"{Properties.Settings.Default.DocumentLocation}{fileName}.*");
-            }
-        }
-
-        /// <summary>
-        /// Refresh the document database using the document directory
-        /// </summary>
-        public async static void RefreshDocumentIndexAsync()
-        {
-            using (MySqlCommand cmd = new MySqlCommand($"TRUNCATE `{App.Schema}`.`documentindex`", App.ConAsync))
-            {
-                cmd.ExecuteNonQuery();
+                using (var dataColumn = new DataColumn("FileExtension"))
+                {
+                    dt.Columns.Add(dataColumn);
+                }
                 foreach (var file in Directory.EnumerateFiles(Properties.Settings.Default.DocumentLocation))
                 {
                     if (file.IndexOf("~") == -1 && !Path.GetExtension(file).Equals(".db"))
                     {
-                        cmd.CommandText = $"INSERT INTO `{App.Schema}`.`documentindex` (`FileName`, `FileExtension`) VALUES (@p1, @p2)";
-                        cmd.Parameters.AddWithValue("p1", Path.GetFileNameWithoutExtension(file));
-                        cmd.Parameters.AddWithValue("p2", Path.GetExtension(file));
-                        await cmd.ExecuteNonQueryAsync();
-                        cmd.Parameters.Clear();
+                        var _tempRow = dt.NewRow();
+                        _tempRow["FileName"] = Path.GetFileNameWithoutExtension(file);
+                        _tempRow["FileExtension"] = Path.GetExtension(file);
+                        dt.Rows.Add(_tempRow);
                     }
                 }
+                return dt;
             }
         }
 

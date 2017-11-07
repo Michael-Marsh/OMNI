@@ -1,6 +1,7 @@
 ﻿using OMNI.Commands;
 using OMNI.Extensions;
 using OMNI.Models;
+using OMNI.QMS.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,7 +20,6 @@ namespace OMNI.ViewModels
         #region Properties
 
         public DataTable Table { get; set; }
-        public omniDataSet OmniDS { get; set; }
         public string Header { get; set; }
         public List<object> FilterList { get; set; }
         public string Column { get; set; }
@@ -64,10 +64,6 @@ namespace OMNI.ViewModels
         /// <param name="tableName">Name of DataBase Table to Load</param>
         public DataBaseUCViewModel(string tableName, string filterQuery = null, string directFilter = null)
         {
-            if (OmniDS == null)
-            {
-                OmniDS = new omniDataSet();
-            }
             if (Table == null)
             {
                 Table = new DataTable();
@@ -113,25 +109,13 @@ namespace OMNI.ViewModels
             {
 
                 case "Cal Tape Review":
-                    using (var caltapemeasureviewTableAdapter = new omniDataSetTableAdapters.caltapemeasureviewTableAdapter())
-                    {
-                        caltapemeasureviewTableAdapter.Fill(OmniDS.caltapemeasureview);
-                    }
-                    Table = OmniDS.caltapemeasureview.Copy();
+                    //TODO: Add in calibration tape measure view
                     break;
                 case "QIR Master":
-                    using (var qirmasterTableAdapter = new omniDataSetTableAdapters.qir_masterTableAdapter())
-                    {
-                        qirmasterTableAdapter.Fill(OmniDS.qir_master);
-                    }
-                    Table = OmniDS.qir_master.Copy();
+                    Table = QIR.GetTableData(Convert.ToDateTime("10-1-17"),Convert.ToDateTime("11-1-17"));
                     break;
                 case "Work Order Log":
-                    using (var cmmsworkorderviewTableAdapter = new omniDataSetTableAdapters.cmmsworkorderviewTableAdapter())
-                    {
-                        cmmsworkorderviewTableAdapter.Fill(OmniDS.cmmsworkorderview);
-                    }
-                    Table = OmniDS.cmmsworkorderview.Copy();
+                    //TODO: Add in the work order log table
                     break;
             }
         }
@@ -226,7 +210,6 @@ namespace OMNI.ViewModels
                 _clearList = null;
                 _filter = null;
                 Table.Dispose();
-                OmniDS.Dispose();
                 FilterList = null;
             }
         }

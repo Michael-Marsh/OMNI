@@ -109,7 +109,10 @@
                                             <behaviors:ExpanderState GroupName="{Binding Name}"/>
                                         </i:Interaction.Behaviors>
                                         <Expander.Header>
-                                            <TextBlock x:Name="ExpanderName" HorizontalAlignment="Left" FontWeight="Bold" Foreground="WhiteSmoke" Text="{Binding Name, StringFormat=d}"/>
+                                            <Grid Width="250">
+                                                <TextBlock x:Name="ExpanderName" HorizontalAlignment="Left" FontWeight="Bold" Foreground="WhiteSmoke" Text="{Binding Name, StringFormat=d}"/>
+                                                <TextBlock x:Name="ItemCount" HorizontalAlignment="Right" FontWeight="Bold" Foreground="WhiteSmoke" Text="{Binding ItemCount}"/>
+                                            </Grid>
                                         </Expander.Header>
                                         <Expander.Style>
                                             <Style TargetType="{x:Type Expander}">
