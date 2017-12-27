@@ -85,12 +85,11 @@ namespace OMNI.ViewModels
             get { return CurrentUser.AccountName; }
             set { value = CurrentUser.AccountName; OnPropertyChanged(nameof(UserAccountName)); }
         }
-        public string TrainingMode { get; private set; }
+        public string TrainingMode { get { return App.TrainingStatus ? "Turn Training Off" : "Turn Training On"; } }
         public bool Training
         {
-            get { return TrainingStatus; }
+            get { return App.TrainingStatus; }
         }
-        public static bool TrainingStatus { get; set; }
         private bool _update;
         public bool UpdateAvailable
         {
@@ -130,9 +129,6 @@ namespace OMNI.ViewModels
             {
                 LoggedOut = true;
             }
-            App.Schema = MySqlSchema.omni;
-            TrainingMode = "Turn Training On";
-            TrainingStatus = false;
             if (MainWindowUpdateTick == null)
             {
                 MainWindowUpdateTick = new Action(MainWindowTick);
@@ -173,8 +169,8 @@ namespace OMNI.ViewModels
         {
             if (!sso)
             {
-                ((MainWindowView)MainWindowView.mainWindow).Password_pwbx.Clear();
-                ((MainWindowView)MainWindowView.mainWindow).UserName_tbx.Focus();
+                ((MainWindowView)MainWindowView.MainWindow).Password_pwbx.Clear();
+                ((MainWindowView)MainWindowView.MainWindow).UserName_tbx.Focus();
             }
             LoggedIn = LoggedOut = Quality = QualityNotice = Kaizen = CMMS = IT = Engineering = Admin = Developer = false;
             UserName = Password = UserAccountName = string.Empty;
@@ -261,12 +257,12 @@ namespace OMNI.ViewModels
                         {
                             DashBoardWindowView.DashBoardView.WindowState = WindowState.Maximized;
                             DashBoardWindowView.DashBoardView.Focus();
-                            MainWindowView.mainWindow.WindowState = WindowState.Minimized;
+                            MainWindowView.MainWindow.WindowState = WindowState.Minimized;
                         }
                         else
                         {
                             new DashBoardWindowView().Show();
-                            MainWindowView.mainWindow.WindowState = WindowState.Minimized;
+                            MainWindowView.MainWindow.WindowState = WindowState.Minimized;
                             UpdateTimer.Remove(MainWindowUpdateTick);
                         }
                     }
@@ -276,25 +272,19 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case "Turn Training On":
-                    App.Schema = MySqlSchema.omnitraining;
-                    TrainingMode = "Turn Training Off";
+                    App.TrainingStatus = true;
                     OnPropertyChanged(nameof(TrainingMode));
-                    TrainingStatus = true;
                     OnPropertyChanged(nameof(Training));
                     break;
                 case "Turn Training Off":
-                    App.Schema = MySqlSchema.omni;
-                    TrainingMode = "Turn Training On";
+                    App.TrainingStatus = false;
                     OnPropertyChanged(nameof(TrainingMode));
-                    TrainingStatus = false;
                     OnPropertyChanged(nameof(Training));
                     break;
                 case "LogOut":
                     CurrentUser.LogOut();
-                    App.Schema = MySqlSchema.omni;
-                    TrainingMode = "Turn Training On";
+                    App.TrainingStatus = false;
                     OnPropertyChanged(nameof(TrainingMode));
-                    TrainingStatus = false;
                     OnPropertyChanged(nameof(Training));
                     RefreshView();
                     break;
@@ -349,7 +339,7 @@ namespace OMNI.ViewModels
                 case "DocumentIndex":
                     if (!OMNIWindow<DocumentIndexWindowView>.IsOpen())
                     {
-                        new DocumentIndexWindowView().Show();
+                        new DocumentIndexWindowView { DataContext = new DocumentIndexViewModel() }.Show();
                     }
                     else
                     {

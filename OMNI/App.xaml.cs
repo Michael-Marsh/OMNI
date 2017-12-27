@@ -66,6 +66,17 @@ namespace OMNI
             set { _connected = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(ConConnected))); }
         }
 
+        public static bool _trainingStatus;
+        public static bool TrainingStatus
+        {
+            get { return _trainingStatus; }
+            set
+            {
+                Schema = value ? Enumerations.MySqlSchema.omnitraining : Enumerations.MySqlSchema.omni;
+                _trainingStatus = value;
+            }
+        }
+
         /// <summary>
         /// OMNI MySql Schema name to read and write to
         /// </summary>
@@ -162,6 +173,34 @@ namespace OMNI
             SystemEvents.PowerModeChanged += OnPowerChange;
             Helpers.UpdateTimer.IntializeUpdateTimer(new TimeSpan(0,0,10));
             ConAsync.StateChange += ConAsync_StateChangeAsync;
+        }
+
+        /// <summary>
+        /// Application On Startup method for running cmd input overrides
+        /// </summary>
+        /// <param name="e">start up events sent from the application.exe</param>
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            TrainingStatus = false;
+            foreach(string s in e.Args)
+            {
+                switch (s)
+                {
+                    case "/t":
+                        TrainingStatus = true;
+                        break;
+                    case "/m":
+                        Helpers.MapForm.TypePDF();
+                        Current.Shutdown();
+                        break;
+                    case "/hdtc":
+                        var ticketWin = new Views.TemplateWindowView { Title = "New Ticket" };
+                        ticketWin.TWindowGrid.Children.Add(new Views.ITFormUCView(Enumerations.FormCommand.Submit) as System.Windows.Controls.UserControl);
+                        ticketWin.ShowDialog();
+                        Current.Shutdown();
+                        break;
+                }
+            }
         }
 
         /// <summary>

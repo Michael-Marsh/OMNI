@@ -1,4 +1,9 @@
-﻿using System.Windows;
+﻿using OMNI.Helpers;
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace OMNI.Views
 {
@@ -10,12 +15,6 @@ namespace OMNI.Views
         public DataExportFilter()
         {
             InitializeComponent();
-            Loaded += delegate { StartDatePicker.Focus(); };
-        }
-
-        private void Window_LostFocus(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
     }
 }

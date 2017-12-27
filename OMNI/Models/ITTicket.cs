@@ -50,6 +50,9 @@ namespace OMNI.Models
 
         #endregion
 
+        /// <summary>
+        /// IT Ticket Constructor
+        /// </summary>
         public ITTicket()
         {
             if (AssignedTo == null)

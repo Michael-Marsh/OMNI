@@ -13,7 +13,7 @@ namespace OMNI
     {
         #region Properties
 
-        public static Window mainWindow { get; set; }
+        public static Window MainWindow { get; set; }
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace OMNI
             RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
             InitializeComponent();
             Loaded += delegate { UserName_tbx.Focus(); };
-            mainWindow = this;
+            MainWindow = this;
         }
 
         private void RelayPassword(object sender, RoutedEventArgs e)

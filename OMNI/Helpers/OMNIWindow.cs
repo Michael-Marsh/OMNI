@@ -34,5 +34,17 @@ namespace OMNI.Helpers
                 _temp.Topmost = false;
             }
         }
+
+        /// <summary>
+        /// Close any open window in OMNI
+        /// </summary>
+        public static void Close()
+        {
+            if (Application.Current.Windows.OfType<T>().Any())
+            {
+                var _temp = Application.Current.Windows.OfType<T>().First();
+                _temp.Close();
+            }
+        }
     }
 }

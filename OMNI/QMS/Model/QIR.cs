@@ -435,7 +435,7 @@ namespace OMNI.QMS.Model
             {
                 try
                 {
-                    using (MySqlDataAdapter da = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`qir_metrics_view` WHERE `QIRDate` BETWEEN '{startDate}' AND '{endDate}'", App.ConAsync))
+                    using (MySqlDataAdapter da = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`qir_metrics_view` WHERE `QIRDate` BETWEEN '{startDate.ToString("yyyy-MM-dd")}' AND '{endDate.AddDays(1).ToString("yyyy-MM-dd")}'", App.ConAsync))
                     {
                         da.Fill(dt);
                     }

@@ -29,17 +29,20 @@ namespace OMNI
         {
             using (System.Threading.Mutex oneApp = new System.Threading.Mutex(true, "OMNI31973310", out bool check))
             {
-                if (!check)
+                if (Environment.GetCommandLineArgs().Length == 1)
                 {
-                    var proc = Process.GetProcessesByName(nameof(OMNI)).FirstOrDefault();
-                    var mwhandle = proc.MainWindowHandle;
-                    SetForegroundWindow(mwhandle);
-                    ShowWindow(mwhandle, SW.Restore);
-                    ShowWindow(mwhandle, SW.Maximize);
-                    return;
+                    if (!check)
+                    {
+                        var proc = Process.GetProcessesByName(nameof(OMNI)).FirstOrDefault();
+                        var mwhandle = proc.MainWindowHandle;
+                        SetForegroundWindow(mwhandle);
+                        ShowWindow(mwhandle, SW.Restore);
+                        ShowWindow(mwhandle, SW.Maximize);
+                        return;
+                    }
+                    GC.KeepAlive(oneApp);
                 }
                 App.Main();
-                GC.KeepAlive(oneApp);
             }
         }
     }

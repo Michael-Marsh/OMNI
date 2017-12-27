@@ -1,6 +1,10 @@
 ﻿using iTextSharp.text.pdf;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml.Packaging;
 using Microsoft.Win32;
 using System;
+using System.IO;
+using System.Collections.Generic;
 
 namespace OMNI.Helpers
 {
@@ -16,23 +20,42 @@ namespace OMNI.Helpers
         {
             try
             {
-                var fields = string.Empty;
-                var ofd = new OpenFileDialog { Title = "Map pdf Form", Filter = "Adobe PDF (*pdf)|*.pdf", DefaultExt = "*.pdf", Multiselect = true };
+                var fieldList = new List<string>();
+                var ofd = new OpenFileDialog { Title = "Map pdf Form", Filter = "Adobe PDF|*.pdf", DefaultExt = "*.pdf", Multiselect = true };
                 ofd.ShowDialog();
                 foreach (string file in ofd.FileNames)
                 {
+                    fieldList.Clear();
                     using (PdfReader reader = new PdfReader(file))
                     {
                         var pdfField = reader.AcroFields;
-                        var builder = new System.Text.StringBuilder();
-                        builder.Append(fields);
                         foreach (var field in pdfField.Fields)
                         {
-                            builder.Append($"{field} FIELD VALUE: {pdfField.GetField(field.Key)} \n");
+                            fieldList.Add($"Key = {field.Key}");
+                            fieldList.Add($"Value = {pdfField.GetField(field.Key)}");
                         }
-                        fields = builder.ToString();
                     }
-                    //TODO: rebuild the field generator
+                    if (fieldList.Count > 0)
+                    {
+                        using (WordprocessingDocument _wpDoc = WordprocessingDocument.Create($"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}\\Mapped {Path.GetFileName(file)}.docx", DocumentFormat.OpenXml.WordprocessingDocumentType.Document))
+                        {
+                            var _wpMainDoc = _wpDoc.AddMainDocumentPart();
+                            _wpMainDoc.Document = new Document();
+                            var _wpDocBody = _wpMainDoc.Document.AppendChild(new Body());
+                            var _wpDocPara = _wpDocBody.AppendChild(new Paragraph());
+                            var _wpDocRun = _wpDocPara.AppendChild(new Run());
+                            foreach (var s in fieldList)
+                            {
+                                _wpDocRun.AppendChild(new Text(s));
+                                _wpDocRun.AppendChild(new Break());
+                            }
+                        }
+                        System.Diagnostics.Process.Start($"{Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory)}\\Mapped {Path.GetFileName(file)}.docx");
+                    }
+                    else
+                    {
+                        ExceptionWindow.Show("Unable to Map", "The form you have selected either does not have mappable fields or the fields that are with in the form are corrupt and unreadable.\nPlease Contact IT if you feel you have reached this message in error.");
+                    }
                 }
             }
             catch (Exception ex)

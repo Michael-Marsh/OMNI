@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>250</ApplicationRevision>
-    <ApplicationVersion>3.1.34.250</ApplicationVersion>
+    <ApplicationRevision>306</ApplicationRevision>
+    <ApplicationVersion>3.1.37.306</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -267,7 +267,7 @@
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Helpers\Document.cs" />
+    <Compile Include="Helpers\DocumentTools.cs" />
     <Compile Include="Helpers\OMNIWindow.cs" />
     <Compile Include="Helpers\EmailForm.cs" />
     <Compile Include="Helpers\ExceptionWindow.cs" />
@@ -325,6 +325,7 @@
     <Compile Include="Testing\DBMigration.cs" />
     <Compile Include="Testing\DirectorySwitch.cs" />
     <Compile Include="Testing\WorkOrder.cs" />
+    <Compile Include="Tools\ExceltoPR.cs" />
     <Compile Include="ViewModels\CalculatorsWindowViewModel.cs" />
     <Compile Include="ViewModels\CMMSNoticeAssignedUCViewModel.cs" />
     <Compile Include="ViewModels\CMMSNoticeClosedUCViewModel.cs" />
@@ -451,6 +452,9 @@
     </Compile>
     <Compile Include="Views\SlitterCalibrationUCView.xaml.cs">
       <DependentUpon>SlitterCalibrationUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplateWindowView.xaml.cs">
+      <DependentUpon>TemplateWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UpdateSalesWindowView.xaml.cs">
       <DependentUpon>UpdateSalesWindowView.xaml</DependentUpon>
@@ -630,6 +634,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SlitterCalibrationUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplateWindowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

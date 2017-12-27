@@ -41,7 +41,7 @@ namespace OMNI.QMS.Model
                 {
                     using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
                     {
-                        adapter.Fill(dt);
+                        adapter.FillAsync(dt).ConfigureAwait(false);
                     }
                     InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
                     InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
@@ -129,7 +129,7 @@ namespace OMNI.QMS.Model
                 {
                     using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
                     {
-                        adapter.Fill(dt);
+                        adapter.FillAsync(dt).ConfigureAwait(false);
                     }
                     metric.InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
                     metric.InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));

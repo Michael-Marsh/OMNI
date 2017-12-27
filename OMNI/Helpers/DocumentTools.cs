@@ -6,7 +6,7 @@ using System.Windows;
 
 namespace OMNI.Helpers
 {
-    public class Document
+    public class DocumentTools
     {
         public static void ExceltoPDF()
         {

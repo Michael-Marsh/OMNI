@@ -3,7 +3,6 @@ using OMNI.CustomControls;
 using OMNI.Enumerations;
 using OMNI.Helpers;
 using OMNI.Models;
-using OMNI.Testing;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -40,7 +39,7 @@ namespace OMNI.ViewModels
         /// </summary>
         public DashBoardActionSpaceViewModel()
         {
-            UpdateBoxValues();
+            //UpdateBoxValues();
             UpdateTimer.Add(UpdateBoxValues);
         }
 
@@ -109,7 +108,7 @@ namespace OMNI.ViewModels
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.UserSubmissions);
                         break;
                     case DashBoardAction.DevTesting:
-                        DirectorySwitch.ListTest();
+                        //Add in any method calls to test here
                         break;
                     case DashBoardAction.SubmitECR:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewECR);
