@@ -24,13 +24,14 @@ namespace OMNI.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            ((ViewModels.DashBoardActionSpaceViewModel)ActionSV.DataContext).Dispose();
             DashBoardView = null;
             if (CMMSPartManagementUCView.PartUserControl != null && CMMSPartManagementUCView.PartUserControl.Children.Count > 0 && CMMSPartManagementUCView.PartUserControl.Children[0].GetType() == typeof(CMMSPartUCView))
             {
                 ((ViewModels.CMMSPartUCViewModel)((CMMSPartUCView)CMMSPartManagementUCView.PartUserControl.Children[0]).DataContext).Dispose();
             }
             DashBoardTabControl.WorkSpace = null;
-            MainWindowView.mainWindow.WindowState = WindowState.Maximized;
+            MainWindowView.MainWindow.WindowState = WindowState.Maximized;
             Helpers.UpdateTimer.UpdateTimerTick += ViewModels.MainWindowViewModel.MainWindowUpdateTick;
         }
     }

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Export Filter" Height="250" Width="300" ScrollViewer.VerticalScrollBarVisibility="Disabled" UseLayoutRounding="True" Icon="/OMNI;component/Icons/Database.ico" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStartupLocation="CenterScreen" Opacity="0.8" WindowStyle="None" LostFocus="Window_LostFocus">
+        Title="Export Filter" Height="250" Width="320" ScrollViewer.VerticalScrollBarVisibility="Disabled" UseLayoutRounding="True" Icon="/OMNI;component/Icons/Database.ico" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStartupLocation="CenterScreen">
     <Grid Style="{DynamicResource GridBackgroundStyle}">
         <StackPanel Orientation="Vertical">
             <Label Content="Export Filter" FontSize="30" FontWeight="Bold" Foreground="WhiteSmoke"/>

@@ -141,13 +141,13 @@
 
             <!--    Slitter 1 Calibration Metrics  -->
 
-            <Label Visibility="Hidden" Grid.Row="1" Grid.Column="4" Content="Slitter 1 Counter" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label Grid.Row="1" Grid.Column="4" Content="Slitter 1 Counter" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
             </Label>
 
-            <Border Visibility="Hidden" Grid.Row="2" Grid.Column="4" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border Grid.Row="2" Grid.Column="4" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Cal No." Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
@@ -168,13 +168,13 @@
 
             <!--    Slitter 2 Calibration Metrics  -->
 
-            <Label Visibility="Hidden" Grid.Row="1" Grid.Column="5" Content="Slitter 2 Counter" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label Grid.Row="1" Grid.Column="5" Content="Slitter 2 Counter" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
             </Label>
 
-            <Border Visibility="Hidden" Grid.Row="2" Grid.Column="5" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border Grid.Row="2" Grid.Column="5" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Cal No." Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
@@ -195,13 +195,13 @@
 
             <!--    Instrument Metrics  -->
 
-            <Label Visibility="Hidden" Grid.Row="1" Grid.Column="6" Content="Instruments" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label Grid.Row="1" Grid.Column="6" Content="Instruments" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
             </Label>
 
-            <Border Visibility="Hidden" Grid.Row="2" Grid.Column="6" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border Grid.Row="2" Grid.Column="6" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBox Text="168" Width="50" FontSize="16" Background="LightGreen" BorderBrush="Transparent" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Focusable="False" Cursor="Arrow"/>
@@ -220,13 +220,13 @@
 
             <!--    Tape Measure Metrics  -->
 
-            <Label Visibility="Hidden" Grid.Row="1" Grid.Column="7" Content="Tape Measures" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
+            <Label Grid.Row="1" Grid.Column="7" Content="Tape Measures" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="18">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect>
             </Label>
 
-            <Border Visibility="Hidden" Grid.Row="2" Grid.Column="7" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border Grid.Row="2" Grid.Column="7" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBox Text="{Binding TMInService}" Width="50" FontSize="16" Background="LightGreen" BorderBrush="Transparent" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Focusable="False" Cursor="Arrow"/>

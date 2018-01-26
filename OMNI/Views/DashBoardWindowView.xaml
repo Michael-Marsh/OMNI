@@ -307,7 +307,8 @@
 
         <!--    Action Space     -->
 
-        <ScrollViewer Margin="0,80,0,0" 
+        <ScrollViewer Name="ActionSV"
+                      Margin="0,80,0,0" 
                       HorizontalAlignment="Left" 
                       VerticalAlignment="Stretch"
                       Width="210" 
