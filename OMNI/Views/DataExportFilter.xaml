@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Window x:Class="OMNI.Views.DataExportFilter"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -21,3 +22,28 @@
 
     </Grid>
 </Window>
+=======
+﻿<Window x:Class="OMNI.Views.DataExportFilter"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Export Filter" Height="250" Width="320" ScrollViewer.VerticalScrollBarVisibility="Disabled" UseLayoutRounding="True" Icon="/OMNI;component/Icons/Database.ico" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" WindowStartupLocation="CenterScreen">
+    <Grid Style="{DynamicResource GridBackgroundStyle}">
+        <StackPanel Orientation="Vertical">
+            <Label Content="Export Filter" FontSize="30" FontWeight="Bold" Foreground="WhiteSmoke"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+                <Label Content="Start Date:" FontSize="18" Foreground="WhiteSmoke"/>
+                <DatePicker Name="StartDatePicker" FontSize="18" IsTodayHighlighted="True" SelectedDate="{Binding StartDate}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label Content="End Date:" FontSize="18" Foreground="WhiteSmoke"/>
+                <DatePicker Name="EndDatePicker" FontSize="18" IsTodayHighlighted="True" SelectedDate="{Binding EndDate}"/>
+            </StackPanel>
+            <Button Style="{DynamicResource DashBoardButtonStyle}" Command="{Binding ExportCommand}" Content="Export" HorizontalAlignment="Center" Margin="10" Width="100" Height="35"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
+>>>>>>> origin/master

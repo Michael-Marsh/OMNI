@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<Window x:Class="OMNI.Views.DocumentIndexWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -67,3 +68,74 @@
         
     </Grid>
 </Window>
+=======
+﻿<Window x:Class="OMNI.Views.DocumentIndexWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Document Index" Height="550" Width="860" Icon="/OMNI;component/Icons/DocumentIndex.ico" ResizeMode="CanMinimize" SizeToContent="Height" WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+    </Window.Resources>
+
+    <Grid Style="{DynamicResource GridBackgroundStyle}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="435"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid Grid.Row="0" x:Name="dgIndex" ItemsSource="{Binding DocumentTable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsSynchronizedWithCurrentItem="True" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Top" ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}" CellStyle="{DynamicResource ActiveCell}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" RowBackground="Transparent" GridLinesVisibility="None" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="File Name" IsReadOnly="True" Width="824">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding FileName}" Command="{Binding DataContext.OpenCommand, ElementName=dgIndex, Mode=OneWay}" CommandParameter="{Binding FileName}" Height="45" Margin="2" FontSize="16" Style="{DynamicResource ButtonStyle}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Label Content="Search" Foreground="GhostWhite" FontWeight="Bold" FontSize="18"/>
+            <TextBox x:Name="Search" Text="{Binding Search, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontWeight="Bold" FontSize="16" Width="220" Margin="5" MaxLength="40" AcceptsReturn="False" ToolTip="Type to search." Style="{DynamicResource ActiveTextBox}"/>
+            <Button Width="100" Margin="5" Command="{Binding HelpCommand}" Style="{DynamicResource DashBoardButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/OMNI;component/Icons/About.ico" Margin="5"/>
+                    <TextBlock Text="Help" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+            <CheckBox Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}}"
+                      IsChecked="{Binding WCCOSite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      VerticalAlignment="Center"
+                      Margin="20,0,0,0"
+                      Content="WCCO"
+                      FontWeight="Bold"
+                      FontSize="20"/>
+            <CheckBox Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}}"
+                      IsChecked="{Binding CSISite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      VerticalAlignment="Center"
+                      Margin="10,0,0,0"
+                      Content="CSI"
+                      FontWeight="Bold"
+                      FontSize="20"/>
+        </StackPanel>
+
+        <Expander Grid.Row="2" Header="Advanded Search" FontSize="12" FontWeight="Bold">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Part Number" Foreground="GhostWhite" FontWeight="Bold" FontSize="18"/>
+                    <TextBox Text="{Binding PartNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Width="150" Margin="5" MaxLength="40" AcceptsReturn="False" ToolTip="Type to search." Style="{DynamicResource ActiveTextBox}"/>
+                    <Button Content="Query" Width="100" Margin="5" Command="{Binding QueryCommand}" Style="{DynamicResource DashBoardButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Expander>
+        
+    </Grid>
+</Window>
+>>>>>>> origin/master

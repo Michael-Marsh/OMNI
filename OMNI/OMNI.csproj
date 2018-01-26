@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -914,4 +915,922 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+=======
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74EEFAE3-53A3-41C2-B0FD-B4AC60DF5D3C}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OMNI</RootNamespace>
+    <AssemblyName>OMNI</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
+    <PublishUrl>\\manage2\server\OMNI\Pending Update\ClickOnce\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Unc</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>true</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <UpdateUrl>\\manage2\server\OMNI\Pending Update\ClickOnce\</UpdateUrl>
+    <TargetCulture>en</TargetCulture>
+    <ProductName>OMNI</ProductName>
+    <PublisherName>Michael Marsh</PublisherName>
+    <SuiteName>WCCO Belting</SuiteName>
+    <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
+    <ApplicationRevision>340</ApplicationRevision>
+    <ApplicationVersion>3.1.47.340</ApplicationVersion>
+    <UseApplicationTrust>true</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icons\Omni.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>EE0AE3B24A0FAC180387D33A809FD1F6F43E773E</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>OMNI_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <StartupObject>OMNI.AppStartup</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.5.5631.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.2.5\lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="itextsharp">
+      <HintPath>F:\OMNI\Application\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.pdfa">
+      <HintPath>F:\OMNI\Application\itextsharp.pdfa.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.xtra">
+      <HintPath>F:\OMNI\Application\itextsharp.xtra.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Word, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MySql.Data.Entity.EF6, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.Entity.6.9.9\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationFramework.Aero2" />
+    <Reference Include="Spire.License, Version=1.3.5.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.PDF.3.8.82\lib\net40\Spire.License.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Spire.Pdf, Version=3.8.82.5040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.PDF.3.8.82\lib\net40\Spire.Pdf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SpreadsheetLight">
+      <HintPath>F:\Users\MikeM\Code Aids\SpreadSheet Lite\SpreadsheetLight.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Printing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Windows.Controls.DataVisualization.Toolkit.4.0.0.0\lib\net40-Client\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="uodotnet">
+      <HintPath>F:\OMNI\Application\uodotnet.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="AppStartup.cs" />
+    <Compile Include="Behaviors\ExpanderState.cs" />
+    <Compile Include="CMMS\Model\WorkOrder.cs" />
+    <Compile Include="Commands\DeleteLinkCommand.cs" />
+    <Compile Include="Commands\FormHomeCommand.cs" />
+    <Compile Include="Commands\NewLinkCommand.cs" />
+    <Compile Include="Commands\PartSearchCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Commands\TabCloseCommand.cs" />
+    <Compile Include="Converters\BoolValueSwitch.cs" />
+    <Compile Include="Converters\CharacterCounter.cs" />
+    <Compile Include="Converters\DateGroupConverter.cs" />
+    <Compile Include="Converters\EnumtoItemsSource.cs" />
+    <Compile Include="Converters\EnumValuetoDescription.cs" />
+    <Compile Include="Converters\CommaReplace.cs" />
+    <Compile Include="Converters\FormCommandtoVisibility.cs" />
+    <Compile Include="Converters\InvertedBooltoVisibility.cs" />
+    <Compile Include="Converters\InvertedFormCommandtoVisibility.cs" />
+    <Compile Include="Converters\PartActionToVisibility.cs" />
+    <Compile Include="Converters\PriorityLeveltoVisibility.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="HDT\Enumeration\TicketType.cs" />
+    <Compile Include="HDT\Model\Project.cs" />
+    <Compile Include="HDT\Model\TeamMember.cs" />
+    <Compile Include="HDT\Model\Ticket.cs" />
+    <Compile Include="HDT\Model\TicketDocument.cs" />
+    <Compile Include="HDT\ViewModel\ITNoticeViewModel.cs" />
+    <Compile Include="HDT\ViewModel\TicketFormViewModel.cs" />
+    <Compile Include="HDT\View\ITNoticeDataView.xaml.cs">
+      <DependentUpon>ITNoticeDataView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="HDT\View\TicketFormView.xaml.cs">
+      <DependentUpon>TicketFormView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\DragIconInfo.cs" />
+    <Compile Include="QMS\Converter\QIRIDNumbertoVisibility.cs" />
+    <Compile Include="Converters\RequiredWidthCutoff.cs" />
+    <Compile Include="Converters\VisibilityToNullableBoolean.cs" />
+    <Compile Include="CustomControls\CommandComboBox.cs" />
+    <Compile Include="CustomControls\DashBoardTabControl.cs" />
+    <Compile Include="CustomControls\MultiItemDataGrid.cs" />
+    <Compile Include="Enumerations\CalType.cs" />
+    <Compile Include="Enumerations\CMMSActionGridView.cs" />
+    <Compile Include="Enumerations\CMMSPartAction.cs" />
+    <Compile Include="Enumerations\CMMSPartTransactionType.cs" />
+    <Compile Include="Enumerations\DashBoardAction.cs" />
+    <Compile Include="Enumerations\DashBoardDataBase.cs" />
+    <Compile Include="Enumerations\FormAction.cs" />
+    <Compile Include="Enumerations\FormCommand.cs" />
+    <Compile Include="Enumerations\ITNotice.cs" />
+    <Compile Include="Enumerations\MetricType.cs" />
+    <Compile Include="Enumerations\Module.cs" />
+    <Compile Include="Enumerations\Month.cs" />
+    <Compile Include="Enumerations\MySqlSchema.cs" />
+    <Compile Include="Enumerations\NotesModule.cs" />
+    <Compile Include="Enumerations\CMMSPartStatus.cs" />
+    <Compile Include="QMS\Enumeration\Filters.cs" />
+    <Compile Include="QMS\Enumeration\M2kDataQuery.cs" />
+    <Compile Include="QMS\Enumeration\QMSMetricType.cs" />
+    <Compile Include="QMS\Enumeration\NCMType.cs" />
+    <Compile Include="QMS\Enumeration\QIRNoticeModule.cs" />
+    <Compile Include="QMS\Enumeration\QIRStatus.cs" />
+    <Compile Include="Enumerations\CMMSStatus.cs" />
+    <Compile Include="Enumerations\RecordQuery.cs" />
+    <Compile Include="Enumerations\WorkCenterType.cs" />
+    <Compile Include="Extensions\DataTableExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\DocumentTools.cs" />
+    <Compile Include="Helpers\OMNIWindow.cs" />
+    <Compile Include="Helpers\EmailForm.cs" />
+    <Compile Include="Helpers\ExceptionWindow.cs" />
+    <Compile Include="Helpers\M2k.cs" />
+    <Compile Include="Helpers\MapForm.cs" />
+    <Compile Include="Helpers\PrintForm.cs" />
+    <Compile Include="Helpers\UpdateTimer.cs" />
+    <Compile Include="Models\Calibration.cs" />
+    <Compile Include="Models\CMMSPart.cs" />
+    <Compile Include="Models\CMMSPartLocation.cs" />
+    <Compile Include="Models\CMMSPartRevision.cs" />
+    <Compile Include="Models\CMMSVendor.cs" />
+    <Compile Include="Models\CMMSVendorPart.cs" />
+    <Compile Include="Models\CMMSWorkOrder.cs" />
+    <Compile Include="Models\CurrentUser.cs" />
+    <Compile Include="Models\ECR.cs" />
+    <Compile Include="Models\FormBase.cs" />
+    <Compile Include="Models\ITTicket.cs" />
+    <Compile Include="Models\OMNIDataBase.cs" />
+    <Compile Include="Models\OMNIException.cs" />
+    <Compile Include="Models\Priority.cs" />
+    <Compile Include="Models\Supplier.cs" />
+    <Compile Include="Models\Users.cs" />
+    <Compile Include="Models\WorkCenter.cs" />
+    <Compile Include="QMS\Enumeration\QIRType.cs" />
+    <Compile Include="QMS\Model\NCM.cs" />
+    <Compile Include="QMS\Model\QIR.cs" />
+    <Compile Include="QMS\Model\QIRChart.cs" />
+    <Compile Include="QMS\Model\QIRDisposition.cs" />
+    <Compile Include="QMS\Model\QIRMetric.cs" />
+    <Compile Include="QMS\Model\QIRRevision.cs" />
+    <Compile Include="QMS\ViewModel\NoticeFilterViewModel.cs" />
+    <Compile Include="QMS\ViewModel\QIRSearchViewModel.cs" />
+    <Compile Include="QMS\View\QIREZFormWindowView.xaml.cs">
+      <DependentUpon>QIREZFormWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\View\QIRFormView.xaml.cs">
+      <DependentUpon>QIRFormView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\ViewModel\QIRFormViewModel.cs" />
+    <Compile Include="QMS\ViewModel\QIRNoticeViewModel.cs" />
+    <Compile Include="QMS\View\QIRFormWindowView.xaml.cs">
+      <DependentUpon>QIRFormWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\View\QIRNoticeDataView.xaml.cs">
+      <DependentUpon>QIRNoticeDataView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\View\QIRNoticeFilterView.xaml.cs">
+      <DependentUpon>QIRNoticeFilterView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\View\QIRSearchWindowView.xaml.cs">
+      <DependentUpon>QIRSearchWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Testing\DataPacket.cs" />
+    <Compile Include="Testing\DBMigration.cs" />
+    <Compile Include="Testing\DirectorySwitch.cs" />
+    <Compile Include="Testing\WorkOrder.cs" />
+    <Compile Include="Tools\ExceltoPR.cs" />
+    <Compile Include="ViewModels\CalculatorsWindowViewModel.cs" />
+    <Compile Include="ViewModels\CMMSNoticeAssignedUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSNoticeClosedUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSNoticeOpenOrdersUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSNoticePendingUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSNoticeUCViewModelBase.cs" />
+    <Compile Include="ViewModels\CMMSPartManagementUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSPartUCViewModel.cs" />
+    <Compile Include="ViewModels\CMMSWorkOrderUCViewModel.cs" />
+    <Compile Include="ViewModels\DashBoardActionSpaceViewModel.cs" />
+    <Compile Include="ViewModels\DashBoardDataBaseSpaceViewModel.cs" />
+    <Compile Include="ViewModels\DataExportFilterViewModel.cs" />
+    <Compile Include="ViewModels\DocumentIndexViewModel.cs" />
+    <Compile Include="ViewModels\ECRFormUCViewModel.cs" />
+    <Compile Include="ViewModels\ExceptionLogViewModel.cs" />
+    <Compile Include="ViewModels\FormLinkWindowViewModel.cs" />
+    <Compile Include="ViewModels\HomeUCViewModel.cs" />
+    <Compile Include="ViewModels\DataBaseUCViewModel.cs" />
+    <Compile Include="ViewModels\ITFormUCViewModel.cs" />
+    <Compile Include="ViewModels\ITNoticeClosedUCViewModel.cs" />
+    <Compile Include="ViewModels\ITNoticeOpenUCViewModel.cs" />
+    <Compile Include="ViewModels\ITNoticeUnassignedUCViewModel.cs" />
+    <Compile Include="ViewModels\ITNoticeUCViewModelBase.cs" />
+    <Compile Include="ViewModels\ITProjectUCViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\OMNIManagementUCViewModel.cs" />
+    <Compile Include="ViewModels\NoteWindowViewModel.cs" />
+    <Compile Include="ViewModels\ParetoChartUCViewModel.cs" />
+    <Compile Include="ViewModels\PartSearchViewModel.cs" />
+    <Compile Include="ViewModels\PlateSearchViewModel.cs" />
+    <Compile Include="ViewModels\RegistrationWindowViewModel.cs" />
+    <Compile Include="ViewModels\ReviewImportViewModel.cs" />
+    <Compile Include="ViewModels\SlitterCalibrationUCViewModel.cs" />
+    <Compile Include="ViewModels\UpdateSalesWindowViewModel.cs" />
+    <Compile Include="ViewModels\UserAccountUCViewModel.cs" />
+    <Compile Include="ViewModels\FormSearchUCViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\DataExportFilter.xaml.cs">
+      <DependentUpon>DataExportFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DetailedSearchWindowView.xaml.cs">
+      <DependentUpon>DetailedSearchWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NoticeView.xaml.cs">
+      <DependentUpon>NoticeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CalculatorsWindowView.xaml.cs">
+      <DependentUpon>CalculatorsWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSInventoryUCView.xaml.cs">
+      <DependentUpon>CMMSInventoryUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSOpenOrdersUCView.xaml.cs">
+      <DependentUpon>CMMSOpenOrdersUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSPartManagementUCView.xaml.cs">
+      <DependentUpon>CMMSPartManagementUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSPartUCView.xaml.cs">
+      <DependentUpon>CMMSPartUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSVendorPartUCView.xaml.cs">
+      <DependentUpon>CMMSVendorPartUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSVendorUCView.xaml.cs">
+      <DependentUpon>CMMSVendorUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CMMSWorkOrderUCView.xaml.cs">
+      <DependentUpon>CMMSWorkOrderUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ECRFormUCView.xaml.cs">
+      <DependentUpon>ECRFormUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExceptionLogUCView.xaml.cs">
+      <DependentUpon>ExceptionLogUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DashBoardWindowView.xaml.cs">
+      <DependentUpon>DashBoardWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DataBaseUCView.xaml.cs">
+      <DependentUpon>DataBaseUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DocumentIndexWindowView.xaml.cs">
+      <DependentUpon>DocumentIndexWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExceptionWindowView.xaml.cs">
+      <DependentUpon>ExceptionWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FormLinkWindowView.xaml.cs">
+      <DependentUpon>FormLinkWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\HomeUCView.xaml.cs">
+      <DependentUpon>HomeUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ITFormUCView.xaml.cs">
+      <DependentUpon>ITFormUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ITProjectListUCView.xaml.cs">
+      <DependentUpon>ITProjectListUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ITTicketNoticeUCView.xaml.cs">
+      <DependentUpon>ITTicketNoticeUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OMNIManagementUCView.xaml.cs">
+      <DependentUpon>OMNIManagementUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NoteWindowView.xaml.cs">
+      <DependentUpon>NoteWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ParetoChartUCView.xaml.cs">
+      <DependentUpon>ParetoChartUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PartSearchWindowView.xaml.cs">
+      <DependentUpon>PartSearchWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PlateSearchWindowView.xaml.cs">
+      <DependentUpon>PlateSearchWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RegistrationWindowView.xaml.cs">
+      <DependentUpon>RegistrationWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ReviewImportWindowView.xaml.cs">
+      <DependentUpon>ReviewImportWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SlitterCalibrationUCView.xaml.cs">
+      <DependentUpon>SlitterCalibrationUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplateWindowView.xaml.cs">
+      <DependentUpon>TemplateWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UpdateSalesWindowView.xaml.cs">
+      <DependentUpon>UpdateSalesWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserAccountUCView.xaml.cs">
+      <DependentUpon>UserAccountUCView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FormSearchUCView.xaml.cs">
+      <DependentUpon>FormSearchUCView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="HDT\View\ITNoticeDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="HDT\View\TicketFormView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindowView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainWindowView.xaml.cs">
+      <DependentUpon>MainWindowView.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Resource Include="Styles\HeaderButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\HeaderMenuStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\CountDataPointStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\CostDataPointStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="QMS\View\QIREZFormWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QMS\View\QIRFormWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QMS\View\QIRNoticeDataView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QMS\View\QIRNoticeFilterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QMS\View\QIRSearchWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\LinkedTextBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\LinkRadioButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\OptionalComboBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\OptionalTextBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\RequiredComboBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Styles\TabControlActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="QMS\View\QIRFormView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DataExportFilter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DetailedSearchWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NoticeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CalculatorsWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSInventoryUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSPartManagementUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSPartUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSVendorPartUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSVendorUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FormLinkWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FormSearchUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\RequiredTextBoxActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSOpenOrdersUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\CMMSWorkOrderUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ITFormUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ITProjectListUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ITTicketNoticeUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OMNIManagementUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ParetoChartUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PlateSearchWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ReviewImportWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SlitterCalibrationUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TemplateWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UpdateSalesWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserAccountUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Styles\GridBackgroundStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\CheckBoxStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\DashBoardButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\DataGridExcelStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="Styles\DataGridActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Styles\TextBoxActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\DataGridStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\ToggleButtonActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Styles\TreeViewActiveStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="Views\ECRFormUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExceptionLogUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DashBoardWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DataBaseUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DocumentIndexWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\HomeUCView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NoteWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PartSearchWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RegistrationWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Resource Include="Styles\ButtonStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Page Include="Views\ExceptionWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\About.ico" />
+    <Resource Include="Icons\Admin.ico" />
+    <Resource Include="Icons\Calibration.ico" />
+    <Resource Include="Icons\Charts.ico" />
+    <Resource Include="Icons\CMMS.ico" />
+    <Resource Include="Icons\Config.ico" />
+    <Resource Include="Icons\CSC.ico" />
+    <Resource Include="Icons\DashBoard.ico" />
+    <Resource Include="Icons\Database.ico" />
+    <Resource Include="Icons\Delete.ico" />
+    <Resource Include="Icons\Deviation.ico" />
+    <Resource Include="Icons\DocumentIndex.ico" />
+    <Resource Include="Icons\ECR.ico" />
+    <Resource Include="Icons\Error.ico" />
+    <Resource Include="Icons\Excel.ico" />
+    <Resource Include="Icons\EZ.ico" />
+    <Resource Include="Icons\Filter.ico" />
+    <Resource Include="Icons\Good.ico" />
+    <Resource Include="Icons\Home.ico" />
+    <Resource Include="Icons\IPS.ico" />
+    <Resource Include="Icons\IT.ico" />
+    <Resource Include="Icons\Kaizen.ico" />
+    <Resource Include="Icons\Log In.ico" />
+    <Resource Include="Icons\Log Off.ico" />
+    <Resource Include="Icons\minitab.png" />
+    <Resource Include="Icons\MR.ico" />
+    <Resource Include="Icons\New DB.ico" />
+    <Resource Include="Icons\Omni.ico" />
+    <Resource Include="Icons\Open.ico" />
+    <Resource Include="Icons\PartSearch.ico" />
+    <Resource Include="Icons\QIR.ico" />
+    <Resource Include="Icons\QIRSearch.ico" />
+    <Resource Include="Icons\Refresh.ico" />
+    <Resource Include="Icons\Task.ico" />
+    <Resource Include="Icons\Save.ico" />
+    <Resource Include="Icons\Search.ico" />
+    <Resource Include="Icons\Settings.ico" />
+    <Resource Include="Icons\Undo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>5</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Excel">
+      <Guid>{00020813-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>7</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="Microsoft.Office.Interop.Outlook">
+      <Guid>{00062FFF-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>9</VersionMajor>
+      <VersionMinor>4</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="VBIDE">
+      <Guid>{0002E157-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>5</VersionMajor>
+      <VersionMinor>3</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\print.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Add.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Circle.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Reboot.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Update.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Notes.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Warning.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\TimeSensitive.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Adobe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Word.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Close.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\PlateSearch.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Confidential.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CMMS\ViewModel\" />
+    <Folder Include="CMMS\View\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+>>>>>>> origin/master
 </Project>
