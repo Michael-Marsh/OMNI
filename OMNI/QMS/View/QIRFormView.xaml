@@ -151,6 +151,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="40"/>
                 </Grid.RowDefinitions>
 
                 <!--    Row 0   -->
@@ -244,6 +245,12 @@
                              ToolTip="Enter the lot number."
                              Style="{DynamicResource LinkedTextBox}"/>
 
+                    <Label Content="*"
+                           Foreground="DarkRed"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           Padding="0"/>
+
                     <Label Content="Work Order #"
                            Foreground="GhostWhite"
                            FontWeight="Bold"
@@ -324,6 +331,12 @@
                             VerticalAlignment="Center"
                             Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
+                    <Label Content="*"
+                           Foreground="DarkRed"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           Padding="0"/>
+                    
                     <Label Content="Part #"
                            Foreground="GhostWhite"
                            FontWeight="Bold"
@@ -501,6 +514,12 @@
                         IsEnabled="{Binding ReadOnly}"
                         Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
+                    <Label Content="*"
+                           Foreground="DarkRed"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           Padding="0"/>
+                    
                     <Label Content="Found"
                        Foreground="GhostWhite"
                        FontWeight="Bold"
@@ -532,19 +551,25 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
+                    <Label Content="*"
+                           Foreground="DarkRed"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           Padding="0"/>
+
                     <Label Content="PIC"
-                       Foreground="GhostWhite"
-                       FontWeight="Bold"
-                       FontSize="18"/>
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="18"/>
 
                     <TextBox Text="{Binding Qir.PIC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="16"
-                         Width="170"
-                         Margin="5"
-                         TabIndex="5"
-                         AcceptsReturn="False"
-                         ToolTip="Enter the part number."
-                         Style="{DynamicResource OptionalTextBox}"/>
+                             FontSize="16"
+                             Width="170"
+                             Margin="5"
+                             TabIndex="5"
+                             AcceptsReturn="False"
+                             ToolTip="Enter the part number."
+                             Style="{DynamicResource OptionalTextBox}"/>
 
                 </StackPanel>
 
@@ -678,26 +703,26 @@
                 <!--    Row 10   -->
 
                 <StackPanel Grid.Row="10"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsEnabled="{Binding ReadOnly}"
-                        Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsEnabled="{Binding ReadOnly}"
+                            Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
                     <TextBox x:Name="Problem"
-                         Text="{Binding Qir.CurrentRevision.Problem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="5"
-                         SpellCheck.IsEnabled="True"
-                         VerticalScrollBarVisibility="Auto"
-                         FontSize="16"
-                         MinWidth="500"
-                         MaxWidth="600"
-                         MaxLength="500"
-                         TabIndex="8"
-                         AcceptsReturn="True"
-                         TextWrapping="WrapWithOverflow"
-                         ToolTip="Enter the Problem / Non-Conformance&#xA;Explain in as much detail as possible."
-                         Style="{DynamicResource ActiveTextBox}"/>
+                             Text="{Binding Qir.CurrentRevision.Problem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="5"
+                             SpellCheck.IsEnabled="True"
+                             VerticalScrollBarVisibility="Auto"
+                             FontSize="16"
+                             MinWidth="500"
+                             MaxWidth="600"
+                             MaxLength="500"
+                             TabIndex="8"
+                             AcceptsReturn="True"
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Enter the Problem / Non-Conformance&#xA;Explain in as much detail as possible."
+                             Style="{DynamicResource ActiveTextBox}"/>
 
 
 
@@ -706,98 +731,107 @@
                 <!--    Row 11   -->
 
                 <StackPanel Grid.Row="11"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsEnabled="{Binding ReadOnly}"
-                        Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsEnabled="{Binding ReadOnly}"
+                            Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
                     <Label Content="Cause of Non-Conformance"
-                       Foreground="GhostWhite"
-                       FontWeight="Bold"
-                       FontSize="18"/>
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="18"/>
 
                     <Label Visibility="{Binding IsFocused, Converter={StaticResource BoolToVisConverter}, ElementName=CauseReason, Mode=OneWay}"
-                       Content="{Binding Text, ConverterParameter={x:Reference CauseReason}, Converter={StaticResource CharCounterConverter}, ElementName=CauseReason}"
-                       ContentStringFormat="Characters Left: {0}"
-                       Foreground="Black"
-                       FontWeight="Bold"/>
+                           Content="{Binding Text, ConverterParameter={x:Reference CauseReason}, Converter={StaticResource CharCounterConverter}, ElementName=CauseReason}"
+                           ContentStringFormat="Characters Left: {0}"
+                           Foreground="Black"
+                           FontWeight="Bold"/>
 
                 </StackPanel>
 
                 <!--    Row 12   -->
 
                 <StackPanel Grid.Row="12"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsEnabled="{Binding ReadOnly}"
-                        Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsEnabled="{Binding ReadOnly}"
+                            Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
                     <TextBox x:Name="CauseReason"
-                         Text="{Binding Qir.CurrentRevision.CauseReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="5"
-                         SpellCheck.IsEnabled="True"
-                         VerticalScrollBarVisibility="Auto"
-                         FontSize="16"
-                         MinWidth="500"
-                         MaxWidth="600"
-                         MaxLength="500"
-                         TabIndex="9"
-                         AcceptsReturn="True"
-                         TextWrapping="WrapWithOverflow"
-                         ToolTip="Enter the cause reason and any addition information&#xA;Explain in as much detail as possible."
-                         Style="{DynamicResource ActiveTextBox}"/>
+                             Text="{Binding Qir.CurrentRevision.CauseReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="5"
+                             SpellCheck.IsEnabled="True"
+                             VerticalScrollBarVisibility="Auto"
+                             FontSize="16"
+                             MinWidth="500"
+                             MaxWidth="600"
+                             MaxLength="500"
+                             TabIndex="9"
+                             AcceptsReturn="True"
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Enter the cause reason and any addition information&#xA;Explain in as much detail as possible."
+                             Style="{DynamicResource ActiveTextBox}"/>
 
                 </StackPanel>
 
                 <!--    Row 13   -->
 
                 <StackPanel Grid.Row="13"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        IsEnabled="{Binding ReadOnly}"
-                        Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsEnabled="{Binding ReadOnly}"
+                            Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
                     <Label Content="Quality Status"
-                       Foreground="GhostWhite"
-                       FontWeight="Bold"
-                       FontSize="18"/>
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="18"/>
 
                     <Label Visibility="{Binding IsFocused, Converter={StaticResource BoolToVisConverter}, ElementName=DispoReason, Mode=OneWay}"
-                       Content="{Binding Text, ConverterParameter={x:Reference DispoReason}, Converter={StaticResource CharCounterConverter}, ElementName=DispoReason}"
-                       ContentStringFormat="Characters Left: {0}"
-                       Foreground="Black"
-                       FontWeight="Bold"/>
+                           Content="{Binding Text, ConverterParameter={x:Reference DispoReason}, Converter={StaticResource CharCounterConverter}, ElementName=DispoReason}"
+                           ContentStringFormat="Characters Left: {0}"
+                           Foreground="Black"
+                           FontWeight="Bold"/>
 
                 </StackPanel>
 
                 <!--    Row 14   -->
 
                 <StackPanel Grid.Row="14"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        IsEnabled="{Binding ReadOnly}"
-                        Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            IsEnabled="{Binding ReadOnly}"
+                            Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
 
                     <TextBox x:Name="DispoReason"
-                         Text="{Binding Qir.CurrentRevision.DispositionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="5"
-                         SpellCheck.IsEnabled="True"
-                         VerticalScrollBarVisibility="Auto"
-                         FontSize="16"
-                         MinWidth="500"
-                         MaxWidth="600"
-                         MaxLength="500"
-                         TabIndex="10"
-                         AcceptsReturn="True"
-                         TextWrapping="WrapWithOverflow"
-                         ToolTip="Enter the quality status (disposition)&#xA;Explain in as much detail as possible."
-                         Style="{DynamicResource ActiveTextBox}"/>
+                             Text="{Binding Qir.CurrentRevision.DispositionReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="5"
+                             SpellCheck.IsEnabled="True"
+                             VerticalScrollBarVisibility="Auto"
+                             FontSize="16"
+                             MinWidth="500"
+                             MaxWidth="600"
+                             MaxLength="500"
+                             TabIndex="10"
+                             AcceptsReturn="True"
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Enter the quality status (disposition)&#xA;Explain in as much detail as possible."
+                             Style="{DynamicResource ActiveTextBox}"/>
 
 
                 </StackPanel>
+
+                <!--    Row 15   -->
+
+                <Label Grid.Row="15"
+                       Content="* These fields are considered static and will update across all revisions."
+                       FontStyle="Italic"
+                       Foreground="DarkRed"
+                       FontWeight="Bold"
+                       FontSize="15"/>
 
             </Grid>
             <!--#endregion-->
@@ -806,18 +840,18 @@
             <!--#region Revision List-->
 
             <ListBox Grid.Column="1" Grid.Row="2"
-                 ItemsSource="{Binding Qir.RevisionList}"
-                 SelectedItem="{Binding Qir.CurrentRevision}"
-                 DisplayMemberPath="RevNumber"
-                 IsSynchronizedWithCurrentItem="True"
-                 Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}"
-                 Margin="5"
-                 FontWeight="Bold"
-                 FontSize="20"
-                 Cursor="Hand"
-                 Background="Transparent"
-                 HorizontalAlignment="Center"
-                 BorderBrush="Transparent"/>
+                     ItemsSource="{Binding Qir.RevisionList}"
+                     SelectedItem="{Binding Qir.CurrentRevision}"
+                     DisplayMemberPath="RevNumber"
+                     IsSynchronizedWithCurrentItem="True"
+                     Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}"
+                     Margin="5"
+                     FontWeight="Bold"
+                     FontSize="20"
+                     Cursor="Hand"
+                     Background="Transparent"
+                     HorizontalAlignment="Center"
+                     BorderBrush="Transparent"/>
 
             <!--#endregion-->
 
@@ -825,24 +859,24 @@
             <!--#region Notes Table-->
 
             <DataGrid Grid.Column="2" Grid.Row="2" ItemsSource="{Binding Qir.Notes}"
-                  IsSynchronizedWithCurrentItem="True"
-                  CanUserAddRows="False"
-                  RowHeaderWidth="0"
-                  IsReadOnly="True"
-                  VerticalAlignment="Top"
-                  AlternatingRowBackground="#FFAEABAB"
-                  AlternationCount="1"
-                  FontSize="16"
-                  HorizontalAlignment="Left"
-                  AutoGenerateColumns="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"
-                  CanUserResizeColumns="False"
-                  CanUserSortColumns="False"
-                  MaxHeight="600"
-                  VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
+                      IsSynchronizedWithCurrentItem="True"
+                      CanUserAddRows="False"
+                      RowHeaderWidth="0"
+                      IsReadOnly="True"
+                      VerticalAlignment="Top"
+                      AlternatingRowBackground="#FFAEABAB"
+                      AlternationCount="1"
+                      FontSize="16"
+                      HorizontalAlignment="Left"
+                      AutoGenerateColumns="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      CanUserResizeColumns="False"
+                      CanUserSortColumns="False"
+                      MaxHeight="600"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Visibility="{Binding Qir.IDNumber, Converter={StaticResource QIRIDNumbertoVisConverter}}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Date" Binding="{Binding Timestamp}" Width="100">
                         <DataGridTextColumn.ElementStyle>

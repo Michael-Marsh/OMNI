@@ -17,7 +17,10 @@ namespace OMNIforOutlook
         {
             try
             {
-                System.Diagnostics.Process.Start(Properties.Settings.Default.ProductionAppLocation, "/hdtc");
+                var sb = new StringBuilder();
+                sb.Append(Environment.GetFolderPath(Environment.SpecialFolder.Programs));
+                sb.Append("\\Michael Marsh\\WCCO Belting\\OMNI.appref-ms");
+                System.Diagnostics.Process.Start(sb.ToString(), "/hdtc");
             }
             catch (Exception)
             {

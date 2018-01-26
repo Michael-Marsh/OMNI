@@ -12,7 +12,7 @@ namespace OMNI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -71,9 +71,9 @@ namespace OMNI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\")]
-        public string DocumentLocation {
+        public string WCCODocumentLocation {
             get {
-                return ((string)(this["DocumentLocation"]));
+                return ((string)(this["WCCODocumentLocation"]));
             }
         }
         
@@ -290,11 +290,20 @@ namespace OMNI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-HYPERV;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Conne" +
-            "ction Timeout=10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connect" +
+            "ion Timeout=5")]
         public string omniMSSQLConnectionString {
             get {
                 return ((string)(this["omniMSSQLConnectionString"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.16.4\\FileStorage\\Published Documents\\")]
+        public string CSIDocumentLocation {
+            get {
+                return ((string)(this["CSIDocumentLocation"]));
             }
         }
     }

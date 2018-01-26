@@ -25,15 +25,6 @@ namespace OMNIforOutlook.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Pending Update\\ClickOnce\\OMNI.application")]
-        public string ProductionAppLocation {
-            get {
-                return ((string)(this["ProductionAppLocation"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Technology\\Source Control\\OMNI\\OMNI\\bin\\Debug\\OMNI.exe")]
         public string DebugAppLocation {
             get {

@@ -182,23 +182,35 @@ namespace OMNI
         protected override void OnStartup(StartupEventArgs e)
         {
             TrainingStatus = false;
-            foreach(string s in e.Args)
+            string[] startUpArgs = null;
+            try
             {
-                switch (s)
+                startUpArgs = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData ?? null;
+            }
+            catch (NullReferenceException)
+            {
+                startUpArgs = e.Args;
+            }
+            if (startUpArgs != null)
+            {
+                foreach (string s in startUpArgs)
                 {
-                    case "/t":
-                        TrainingStatus = true;
-                        break;
-                    case "/m":
-                        Helpers.MapForm.TypePDF();
-                        Current.Shutdown();
-                        break;
-                    case "/hdtc":
-                        var ticketWin = new Views.TemplateWindowView { Title = "New Ticket" };
-                        ticketWin.TWindowGrid.Children.Add(new Views.ITFormUCView(Enumerations.FormCommand.Submit) as System.Windows.Controls.UserControl);
-                        ticketWin.ShowDialog();
-                        Current.Shutdown();
-                        break;
+                    switch (s.Remove(0,1))
+                    {
+                        case "t":
+                            TrainingStatus = true;
+                            break;
+                        case "m":
+                            Helpers.MapForm.TypePDF();
+                            Current.Shutdown();
+                            break;
+                        case "hdtc":
+                            var ticketWin = new Views.TemplateWindowView { Title = "New Ticket" };
+                            ticketWin.TWindowGrid.Children.Add(new Views.ITFormUCView(Enumerations.FormCommand.Submit) as System.Windows.Controls.UserControl);
+                            ticketWin.ShowDialog();
+                            Current.Shutdown();
+                            break;
+                    }
                 }
             }
         }

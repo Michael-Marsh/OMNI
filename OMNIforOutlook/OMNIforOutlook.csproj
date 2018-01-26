@@ -25,7 +25,7 @@
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <RootNamespace>OMNIforOutlook</RootNamespace>
-    <AssemblyName>OMNIforOutlook</AssemblyName>
+    <AssemblyName>OMNI for Outlook</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <DefineConstants>VSTO40</DefineConstants>
     <IsWebBootstrapper>False</IsWebBootstrapper>
@@ -33,13 +33,13 @@
     <PublishUrl>\\manage2\server\OMNI\Outlook Application\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.2</ApplicationVersion>
-    <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
+    <ApplicationVersion>1.0.0.3</ApplicationVersion>
+    <AutoIncrementApplicationRevision>false</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>7</UpdateInterval>
+    <UpdateInterval>0</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
-    <ProductName>OMNIforOutlook</ProductName>
-    <PublisherName />
+    <ProductName>OMNI for Outlook</ProductName>
+    <PublisherName>Michael Marsh</PublisherName>
     <SupportUrl />
     <FriendlyName>OMNIforOutlook</FriendlyName>
     <OfficeApplicationDescription />
@@ -261,7 +261,7 @@
       <FlavorProperties GUID="{BAA0C2D2-18E2-41B9-852F-F413020CAA33}">
         <ProjectProperties HostName="Outlook" HostPackage="{29A7B9D7-A7F1-4328-8EF0-6B2D1A56B2C1}" OfficeVersion="15.0" VstxVersion="4.0" ApplicationType="Outlook" Language="cs" TemplatesPath="" DebugInfoExeName="#Software\Microsoft\Office\16.0\Outlook\InstallRoot\Path#outlook.exe" AddItemTemplatesGuid="{A58A78EB-1C92-4DDD-80CF-E8BD872ABFC4}" />
         <Host Name="Outlook" GeneratedCodeNamespace="OMNIforOutlook" PublishedHash="69C324AB27932AA2FBF2B7EA72250886FF164DE6" IconIndex="0">
-          <HostItem Name="ThisAddIn" Code="OMNIAddIn.cs" CanonicalName="AddIn" CanActivate="false" IconIndex="1" Blueprint="OMNIAddIn.Designer.xml" GeneratedCode="OMNIAddIn.Designer.cs" PublishedHash="70EF59D5AFBB3BF269E43FE3C2E653ED3807815C" />
+          <HostItem Name="ThisAddIn" Code="OMNIAddIn.cs" CanonicalName="AddIn" PublishedHash="70EF59D5AFBB3BF269E43FE3C2E653ED3807815C" CanActivate="false" IconIndex="1" Blueprint="OMNIAddIn.Designer.xml" GeneratedCode="OMNIAddIn.Designer.cs" />
         </Host>
       </FlavorProperties>
     </VisualStudio>

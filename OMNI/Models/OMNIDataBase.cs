@@ -383,36 +383,6 @@ namespace OMNI.Models
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        public static DataTable GetDocumentIndex()
-        {
-            using (DataTable dt = new DataTable())
-            {
-                using (var dataColumn = new DataColumn("FileName"))
-                {
-                    dt.Columns.Add(dataColumn);
-                }
-                using (var dataColumn = new DataColumn("FileExtension"))
-                {
-                    dt.Columns.Add(dataColumn);
-                }
-                foreach (var file in Directory.EnumerateFiles(Properties.Settings.Default.DocumentLocation))
-                {
-                    if (file.IndexOf("~") == -1 && !Path.GetExtension(file).Equals(".db"))
-                    {
-                        var _tempRow = dt.NewRow();
-                        _tempRow["FileName"] = Path.GetFileNameWithoutExtension(file);
-                        _tempRow["FileExtension"] = Path.GetExtension(file);
-                        dt.Rows.Add(_tempRow);
-                    }
-                }
-                return dt;
-            }
-        }
-
-        /// <summary>
         /// Retrieve the user domain name using the user ID number
         /// </summary>
         /// <param name="userID">User ID</param>

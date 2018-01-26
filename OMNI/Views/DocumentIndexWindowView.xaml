@@ -18,7 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0" x:Name="dgIndex" ItemsSource="{Binding Table}" IsSynchronizedWithCurrentItem="True" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Top" ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}" CellStyle="{DynamicResource ActiveCell}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" RowBackground="Transparent" GridLinesVisibility="None" HeadersVisibility="Column">
+        <DataGrid Grid.Row="0" x:Name="dgIndex" ItemsSource="{Binding DocumentTable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsSynchronizedWithCurrentItem="True" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Top" ColumnHeaderStyle="{DynamicResource ColumnHeaderStyle}" CellStyle="{DynamicResource ActiveCell}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" RowBackground="Transparent" GridLinesVisibility="None" HeadersVisibility="Column">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="File Name" IsReadOnly="True" Width="824">
                     <DataGridTemplateColumn.CellTemplate>
@@ -39,6 +39,20 @@
                     <TextBlock Text="Help" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
+            <CheckBox Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}}"
+                      IsChecked="{Binding WCCOSite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      VerticalAlignment="Center"
+                      Margin="20,0,0,0"
+                      Content="WCCO"
+                      FontWeight="Bold"
+                      FontSize="20"/>
+            <CheckBox Visibility="{Binding ModifyAccess, Converter={StaticResource BooltoVisConverter}}"
+                      IsChecked="{Binding CSISite, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                      VerticalAlignment="Center"
+                      Margin="10,0,0,0"
+                      Content="CSI"
+                      FontWeight="Bold"
+                      FontSize="20"/>
         </StackPanel>
 
         <Expander Grid.Row="2" Header="Advanded Search" FontSize="12" FontWeight="Bold">

@@ -8,6 +8,7 @@ using MySql.Data.MySqlClient;
 using OMNI.Models;
 using System.ComponentModel;
 using OMNI.HDT.Enumeration;
+using OMNI.Helpers;
 
 namespace OMNI.HDT.Model
 {
@@ -102,9 +103,10 @@ namespace OMNI.HDT.Model
                 Priority = _tempPriority == "--Unassigned--" ? Priority.Create(6, "--Unassigned--") : Priority.Create(_tempPriority);
                 AssignedTo = TeamMember.GetBindingListAsync(false).Result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                ExceptionWindow.Show("Unhandled Exception", ex.Message, ex.Source, "OMNI.HDT.Model.Ticket(int idNumber)");
+                OMNIException.SendtoLogAsync(ex.Source, ex.StackTrace, ex.Message, "OMNI.HDT.Model.Ticket(int idNumber)");
             }
         }
 

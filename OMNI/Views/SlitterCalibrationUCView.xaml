@@ -5,8 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:OMNI.ViewModels"
              xmlns:converter="clr-namespace:OMNI.Converters"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             mc:Ignorable="d">
 
     <UserControl.DataContext>
         <vm:SlitterCalibrationUCViewModel/>

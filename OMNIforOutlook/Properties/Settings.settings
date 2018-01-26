@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="OMNIforOutlook.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ProductionAppLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Pending Update\ClickOnce\OMNI.application</Value>
-    </Setting>
     <Setting Name="DebugAppLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\Technology\Source Control\OMNI\OMNI\bin\Debug\OMNI.exe</Value>
     </Setting>

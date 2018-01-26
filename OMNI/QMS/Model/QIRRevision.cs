@@ -96,7 +96,7 @@ namespace OMNI.QMS.Model
                                 Cause = reader.GetString(nameof(Cause)),
                                 SupplierID = !reader.IsDBNull(12) ? reader.GetInt32(nameof(SupplierID)) : 0,
                                 Disposition = new QIRDisposition { Description = reader.GetString(nameof(Disposition)), Status = dispoList[dispoList.FindIndex(o => o.Description == reader.GetString(nameof(Disposition)))].Status },
-                                Problem = !reader.IsDBNull(13) ? reader.GetString(nameof(Problem)) : string.Empty,
+                                Problem = !reader.IsDBNull(14) ? reader.GetString(nameof(Problem)) : string.Empty,
                                 CauseReason = !reader.IsDBNull(15) ? reader.GetString(nameof(CauseReason)) : string.Empty,
                                 DispositionReason = !reader.IsDBNull(16) ? reader.GetString(nameof(DispositionReason)) : string.Empty
                             });

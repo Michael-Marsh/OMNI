@@ -27,9 +27,25 @@ namespace OMNI.ViewModels
         public string Search
         {
             get { return _search; }
-            set { Table.DefaultView.RowFilter = $"FileName LIKE '%{value}%'"; _search = value; }
+            set { DocumentTable.DefaultView.RowFilter = $"FileName LIKE '%{value}%'"; _search = value; }
         }
-        public DataTable Table { get; set; }
+        public string DocumentFolder
+        {
+            get { return CSISite ? Properties.Settings.Default.CSIDocumentLocation : Properties.Settings.Default.WCCODocumentLocation; }
+        }
+        private bool _csiSite;
+        public bool CSISite
+        {
+            get { return _csiSite; }
+            set { _csiSite = value; _wccoSite = !value; OnPropertyChanged(nameof(CSISite)); OnPropertyChanged(nameof(WCCOSite)); DocumentTable = LoadDocumentTable(); OnPropertyChanged(nameof(DocumentTable)); }
+        }
+        private bool _wccoSite;
+        public bool WCCOSite
+        {
+            get { return _wccoSite; }
+            set { _wccoSite = value; _csiSite = !value; OnPropertyChanged(nameof(WCCOSite)); OnPropertyChanged(nameof(CSISite)); DocumentTable = LoadDocumentTable(); OnPropertyChanged(nameof(DocumentTable)); }
+        }
+        public DataTable DocumentTable { get; set; }
 
         RelayCommand _open;
         RelayCommand _help;
@@ -42,13 +58,51 @@ namespace OMNI.ViewModels
         /// </summary>
         public DocumentIndexViewModel()
         {
-            if (Table == null)
+            if (DocumentTable == null)
             {
-                Table = OMNIDataBase.GetDocumentIndex();
+                DocumentTable = LoadDocumentTable();
+            }
+            switch (Environment.UserDomainName)
+            {
+                case "AD":
+                    WCCOSite = true;
+                    break;
+                case "CSI":
+                    CSISite = true;
+                    break;
+                default:
+                    WCCOSite = true;
+                    break;
             }
         }
 
         #region View Command Interfaces
+
+        public DataTable LoadDocumentTable()
+        {
+            using (DataTable dt = new DataTable())
+            {
+                using (var dataColumn = new DataColumn("FileName"))
+                {
+                    dt.Columns.Add(dataColumn);
+                }
+                using (var dataColumn = new DataColumn("FileExtension"))
+                {
+                    dt.Columns.Add(dataColumn);
+                }
+                foreach (var file in Directory.EnumerateFiles(DocumentFolder))
+                {
+                    if (file.IndexOf("~") == -1 && !Path.GetExtension(file).Equals(".db"))
+                    {
+                        var _tempRow = dt.NewRow();
+                        _tempRow["FileName"] = Path.GetFileNameWithoutExtension(file);
+                        _tempRow["FileExtension"] = Path.GetExtension(file);
+                        dt.Rows.Add(_tempRow);
+                    }
+                }
+                return dt;
+            }
+        }
 
         /// <summary>
         /// Open Command
@@ -71,7 +125,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">File to open</param>
         private void OpenExecute(object parameter)
         {
-            var file = Directory.GetFiles(Properties.Settings.Default.DocumentLocation, $"{parameter}.*", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            var file = Directory.GetFiles(DocumentFolder, $"{parameter}.*", SearchOption.TopDirectoryOnly).FirstOrDefault();
             try
             {
                 Process.Start(file);
@@ -150,7 +204,7 @@ namespace OMNI.ViewModels
                 }
                 filter = builder.ToString();
                 filter += ")";
-                Table.DefaultView.RowFilter = filter;
+                DocumentTable.DefaultView.RowFilter = filter;
                 PartNumber = string.Empty;
                 OnPropertyChanged(nameof(PartNumber));
             }
@@ -173,7 +227,7 @@ namespace OMNI.ViewModels
         {
             if (disposing)
             {
-                Table.Dispose();
+                DocumentTable.Dispose();
                 _open = null;
                 _help = null;
                 _query = null;
