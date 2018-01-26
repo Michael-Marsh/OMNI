@@ -154,10 +154,16 @@ namespace OMNI.ViewModels
         {
             if (disposing)
             {
-                TableDataAdapter.Dispose();
-                TableDataAdapter = null;
-                TableCommandBuilder.Dispose();
-                TableCommandBuilder = null;
+                if (TableDataAdapter != null)
+                {
+                    TableDataAdapter.Dispose();
+                    TableDataAdapter = null;
+                }
+                if (TableCommandBuilder != null)
+                {
+                    TableCommandBuilder.Dispose();
+                    TableCommandBuilder = null;
+                }
             }
         }
     }

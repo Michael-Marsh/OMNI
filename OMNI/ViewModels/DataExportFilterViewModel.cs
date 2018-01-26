@@ -1,6 +1,7 @@
 ﻿using OMNI.Commands;
 using OMNI.Helpers;
 using OMNI.QMS.Model;
+using OMNI.Views;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -25,7 +26,8 @@ namespace OMNI.ViewModels
         /// </summary>
         public DataExportFilterViewModel()
         {
-
+            StartDate = DateTime.Today.AddMonths(-1);
+            EndDate = DateTime.Today;
         }
 
         #region Export ICommand Implementation
@@ -43,6 +45,7 @@ namespace OMNI.ViewModels
         }
         private void ExportExecute(object parameter)
         {
+            OMNIWindow<DataExportFilter>.Close();
             var _progress = 0;
             DashBoardDataBaseSpaceViewModel.Exporting = true;
             using (DataTable table = QIR.GetTableData(StartDate, EndDate))
@@ -70,7 +73,10 @@ namespace OMNI.ViewModels
                                 var workbook = excelApp.Workbooks;
                                 workbook.Add();
                                 Excel._Worksheet workSheet = excelApp.ActiveSheet;
-                                workSheet.Name = "QIR Master";
+                                workSheet.Name = "QIR Metrics";
+                                var _trange = workSheet.get_Range("A1", $"P{table.Rows.Count}");
+                                workSheet.ListObjects.AddEx(Excel.XlListObjectSourceType.xlSrcRange, _trange, Type.Missing, Excel.XlYesNoGuess.xlYes, Type.Missing).Name = "QM";
+                                workSheet.ListObjects["QM"].TableStyle = "TableStyleMedium16";
                                 for (int i = 0; i < table.Columns.Count; i++)
                                 {
                                     workSheet.Cells[1, (i + 1)] = table.Columns[i].ColumnName;
@@ -101,10 +107,7 @@ namespace OMNI.ViewModels
                 }
             }
         }
-        private bool ExportCanExecute(object parameter)
-        {
-            return true;
-        }
+        private bool ExportCanExecute(object parameter) => StartDate < EndDate;
 
         #endregion
     }

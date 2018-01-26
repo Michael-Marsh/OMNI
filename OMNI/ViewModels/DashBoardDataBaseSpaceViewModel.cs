@@ -16,7 +16,7 @@ namespace OMNI.ViewModels
 
         public bool QualityView { get { return CurrentUser.Quality; } }
         public bool CMMSView { get { return CurrentUser.CMMSAdmin || CurrentUser.CMMSCrew; } }
-        public bool Training { get { return MainWindowViewModel.TrainingStatus; } }
+        public bool Training { get { return App.TrainingStatus; } }
         public bool DeveloperView { get { return CurrentUser.Developer; } }
         public bool DataBaseOnline
         {
@@ -79,9 +79,10 @@ namespace OMNI.ViewModels
             switch (action)
             {
                 case "QIRMaster":
-                    new DataExportFilter().Show();
+                    new DataExportFilter { DataContext = new DataExportFilterViewModel() }.Show();
                     break;
                 case "WOLog":
+
                     break;
             }
         }
