@@ -109,5 +109,17 @@
     <Setting Name="CSIDocumentLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\192.168.16.4\FileStorage\Published Documents\</Value>
     </Setting>
+    <Setting Name="TravelCardDocument" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5125 - Travel Card.pdf</Value>
+    </Setting>
+    <Setting Name="ManageAccount" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">omniquery</Value>
+    </Setting>
+    <Setting Name="ReferenceCardDocument" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5127 - Reference Travel Card.pdf</Value>
+    </Setting>
+    <Setting Name="MoveFileLocation" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\\manage\Manage\ROI\WCCO.MAIN\BTI.TRANSACTIONS\</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

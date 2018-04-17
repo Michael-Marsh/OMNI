@@ -30,12 +30,9 @@ namespace OMNI.QMS.Model
             {
                 if (CurrentRevision.LotNumber == "N/A" && WONumber == "N/A" && !string.IsNullOrEmpty(value) && LoadM2kData)
                 {
-                    Task.Run(delegate
-                    {
-                        LoadM2kData = false;
-                        this.GetQIRFromM2k(value, M2kDataQuery.PartNumber);
-                        LoadM2kData = true;
-                    });
+                    LoadM2kData = false;
+                    this.GetQIRFromM2k(value, M2kDataQuery.PartNumber);
+                    LoadM2kData = true;
                 }
                 partNumber = value;
                 OnPropertyChanged(nameof(PartNumber));
@@ -49,12 +46,9 @@ namespace OMNI.QMS.Model
             {
                 if (!string.IsNullOrEmpty(value) && value != woNumber && value.Length == 6 && LoadM2kData)
                 {
-                    Task.Run(delegate
-                    {
-                        LoadM2kData = false;
-                        this.GetQIRFromM2k(value, M2kDataQuery.WONumber);
-                        LoadM2kData = true;
-                    });
+                    LoadM2kData = false;
+                    this.GetQIRFromM2k(value, M2kDataQuery.WONumber);
+                    LoadM2kData = true;
                 }
                 woNumber = value;
                 OnPropertyChanged(nameof(WONumber));
@@ -87,7 +81,6 @@ namespace OMNI.QMS.Model
         public List<Supplier> SupplierList { get { return Supplier.GetSupplierListAsync().Result; } }
         public List<QIRDisposition> DispositionList { get { return QIRDisposition.GetQIRDispositionListAsync().Result; } }
         public string PIC { get; set; }
-        public DataTable Notes { get; set; }
         public ObservableCollection<QIRRevision> RevisionList { get; set; }
         private QIRRevision currentRevision;
         public QIRRevision CurrentRevision
@@ -231,7 +224,7 @@ namespace OMNI.QMS.Model
                         }
                     }
                 }
-                Notes = this.GetNotesTableAsync().Result;
+                NotesTable = this.GetNotesTableAsync().Result;
                 IsPhotosAttached = true;
                 NCMCodeList = null;
                 LoadM2kData = true;
@@ -706,21 +699,20 @@ namespace OMNI.QMS.Model
         /// <param name="queryType">Query type</param>
         public static void GetQIRFromM2k(this QIR qir, string idNumber, M2kDataQuery queryType)
         {
-            var _qirData = new string[5];
             try
             {
                 switch (queryType)
                 {
                     case M2kDataQuery.LotNumber:
-                        _qirData = M2k.GetQIRDatafromLot(idNumber);
-                        if (_qirData != null)
+                        var _skew = new InventorySkew(idNumber);
+                        if (_skew != null)
                         {
-                            qir.PartNumber = _qirData[0];
-                            qir.CurrentRevision.DiamondNumber = _qirData[1];
-                            qir.MaterialCost = Convert.ToDouble(_qirData[2]);
-                            qir.UOM = _qirData[3];
-                            qir.WONumber = _qirData[4];
-                            qir.CurrentRevision.Origin = Convert.ToInt32(_qirData[5]);
+                            qir.PartNumber = _skew.PartNumber;
+                            qir.CurrentRevision.DiamondNumber = _skew.DiamondNumber;
+                            qir.MaterialCost = InventorySkew.GetMaterialCost(qir.PartNumber);
+                            qir.UOM = _skew.UOM;
+                            qir.WONumber = _skew.WorkOrderNumber;
+                            qir.CurrentRevision.Origin = _skew.WorkCenter.IDNumber;
                             if (qir.QIRFormType == QIRType.QIREZ)
                             {
                                 qir.Found = qir.CurrentRevision.Origin;
@@ -730,13 +722,13 @@ namespace OMNI.QMS.Model
                         }
                         break;
                     case M2kDataQuery.WONumber:
-                        _qirData = M2k.GetQIRDatafromWONumber(idNumber);
+                        var _qirData = InventorySkew.GetItemInformation(idNumber);
                         if (_qirData != null)
                         {
                             qir.PartNumber = _qirData[0];
-                            qir.MaterialCost = Convert.ToDouble(_qirData[1]);
-                            qir.UOM = _qirData[2];
-                            qir.CurrentRevision.Origin = Convert.ToInt32(_qirData[3]);
+                            qir.MaterialCost = InventorySkew.GetMaterialCost(qir.PartNumber);
+                            qir.UOM = InventorySkew.GetUOM(qir.PartNumber);
+                            qir.CurrentRevision.Origin = Convert.ToInt32(_qirData[1]);
                             if (string.IsNullOrEmpty(qir.CurrentRevision.LotNumber))
                             {
                                 qir.CurrentRevision.LotNumber = "N/A";
@@ -750,9 +742,8 @@ namespace OMNI.QMS.Model
                         }
                         break;
                     case M2kDataQuery.PartNumber:
-                        _qirData = M2k.GetQIRDatafromPartNumber(idNumber);
-                        qir.MaterialCost = Convert.ToDouble(_qirData[0]);
-                        qir.UOM = _qirData[1];
+                        qir.MaterialCost = InventorySkew.GetMaterialCost(idNumber);
+                        qir.UOM = InventorySkew.GetUOM(idNumber);
                         qir.Lost = null;
                         break;
                 }
@@ -761,6 +752,42 @@ namespace OMNI.QMS.Model
             {
                 return;
             }
+        }
+
+        /// <summary>
+        /// Load the QIR List for parsing multiple QIR's at once
+        /// </summary>
+        /// <param name="lotNbr">QIR Object ID Number to load</param>
+        public static void Load(this IList<QIR> _qirList, string lotNbr)
+        {
+            var _tempQIR = new List<int>();
+            try
+            {
+                using (MySqlCommand cmd = new MySqlCommand($"SELECT `QIRNumber` FROM `{App.Schema}`.`qir_metrics_view` WHERE `LotNumber`=@p1", App.ConAsync))
+                {
+                    cmd.Parameters.AddWithValue("@p1", lotNbr);
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                _tempQIR.Add(reader.GetInt32(0));
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+                foreach (int i in _tempQIR)
+                {
+                    _qirList.Add(new QIR(i, false));
+                }
+            }
+            catch (Exception)
+            { }
         }
     }
 }

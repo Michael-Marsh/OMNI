@@ -7,7 +7,6 @@ using OMNI.QMS.Model;
 using OMNI.ViewModels;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace OMNI.QMS.ViewModel
@@ -89,14 +88,11 @@ namespace OMNI.QMS.ViewModel
             get { return Qir.CurrentRevision?.LotNumber; }
             set
             {
-                if (!string.IsNullOrEmpty(value) && value != Qir.CurrentRevision.LotNumber && value.Length == 9 && Qir.LoadM2kData)
+                if (!string.IsNullOrEmpty(value) && Qir.LoadM2kData && value != "N/A")
                 {
-                    Task.Run(delegate
-                    {
-                        Qir.LoadM2kData = false;
-                        Qir.GetQIRFromM2k(value, M2kDataQuery.LotNumber);
-                        Qir.LoadM2kData = true;
-                    });
+                    Qir.LoadM2kData = false;
+                    Qir.GetQIRFromM2k(value, M2kDataQuery.LotNumber);
+                    Qir.LoadM2kData = true;
                 }
                 Qir.CurrentRevision.LotNumber = value;
                 OnPropertyChanged(nameof(Lot));
@@ -105,7 +101,6 @@ namespace OMNI.QMS.ViewModel
 
         RelayCommand _formCommand;
         RelayCommand _attachCommand;
-        RelayCommand _addNoteCommand;
         RelayCommand _printCommand;
         RelayCommand _emailCommmand;
         RelayCommand _viewPhotoCommand;
@@ -214,31 +209,6 @@ namespace OMNI.QMS.ViewModel
 
         #endregion
 
-        #region AddNoteICommand Implementation
-
-        public ICommand AddNoteICommand
-        {
-            get
-            {
-                if (_addNoteCommand == null)
-                {
-                    _addNoteCommand = new RelayCommand(AddNoteExecute, AddNoteCanExecute);
-                }
-                return _addNoteCommand;
-            }
-        }
-        private void AddNoteExecute(object parameter)
-        {
-            var _note = OMNIDataBase.AddNoteAsync("qir", Qir.IDNumber).Result;
-            if (!string.IsNullOrEmpty(_note))
-            {
-                Qir.Notes.Rows.Add(DateTime.Now, _note, CurrentUser.FullName);
-            }
-        }
-        private bool AddNoteCanExecute(object parameter) => Qir?.IDNumber != null && App.ConConnected;
-
-        #endregion
-
         #region PrintFormICommand Implementation
 
         public ICommand PrintFormICommand
@@ -334,7 +304,7 @@ namespace OMNI.QMS.ViewModel
             if (disposing)
             {
                 Qir = null;
-                _attachCommand = _emailCommmand = _formCommand =_printCommand =_addNoteCommand = null;
+                _attachCommand = _emailCommmand = _formCommand =_printCommand = null;
             }
         }
     }

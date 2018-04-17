@@ -74,7 +74,7 @@ namespace OMNI.ViewModels
             {
                 Searching = true;
                 AsyncText = "Searching...";
-                file = await M2k.PartSearchAsync(_tempPartNumber, company);
+                file = await M2k.SQLPartSearchAsync(_tempPartNumber, company);
             }
             AsyncText = "Loading...";
             try

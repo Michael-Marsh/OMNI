@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using OMNI.CustomControls;
 using OMNI.Enumerations;
+using OMNI.Helpers;
 using OMNI.QMS.Model;
 using OMNI.QMS.View;
 using OMNI.QMS.ViewModel;
@@ -29,10 +30,14 @@ namespace OMNI.Models
         public string Submitter { get; set; }
         public Module FormModule { get; set; }
         public BindingList<LinkedForms> FormLinkList { get; set; }
+        public DataTable NotesTable { get; set; }
         public static bool FormChangeInProgress { get; set; }
 
         #endregion
 
+        /// <summary>
+        /// Form Base Constructor
+        /// </summary>
         public FormBase()
         {
             if (FormLinkList == null)
@@ -412,20 +417,48 @@ namespace OMNI.Models
             {
                 using (DataTable _tempTable = new DataTable())
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT `Timestamp`, `Note`, `Submitter` FROM `{App.Schema}`.`{form.FormModule.ToString().ToLower()}_notes` WHERE `IDNumber`=@p1", App.ConAsync))
+                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `Timestamp`, `Note`, `Submitter` FROM `{App.Schema}`.`{form.FormModule.ToString().ToLower()}_notes` WHERE `IDNumber`=@p1", App.ConAsync))
                     {
-                        cmd.Parameters.AddWithValue("@p1", form.IDNumber);
-                        using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
-                        {
-                            await adapter.FillAsync(_tempTable).ConfigureAwait(false);
-                            return _tempTable;
-                        }
+                        adapter.SelectCommand.Parameters.AddWithValue("p1", form.IDNumber);
+                        await adapter.FillAsync(_tempTable).ConfigureAwait(false);
+                        return _tempTable;
                     }
                 }
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Add a note to any form
+        /// </summary>
+        /// <param name="form">FormBase Object</param>
+        public static void AddNote(this FormBase form)
+        {
+            var _note = NoteWindowViewModel.Show();
+            if (string.IsNullOrWhiteSpace(_note))
+            {
+                ExceptionWindow.Show("Blank Note", "A blank note was entered, submission has been canceled.\nIf you feel you reached this message in error please contact IT.");
+            }
+            else
+            {
+                try
+                {
+                    using (MySqlCommand cmd = new MySqlCommand($"INSERT `{App.Schema}`.`{form.FormModule}_notes` (IDNumber, Note, Submitter) VALUES(@p1, @p2, @p3)", App.ConAsync))
+                    {
+                        cmd.Parameters.AddWithValue("p1", form.IDNumber);
+                        cmd.Parameters.AddWithValue("p2", _note);
+                        cmd.Parameters.AddWithValue("p3", CurrentUser.FullName);
+                        cmd.ExecuteNonQuery();
+                    }
+                    form.NotesTable = form.GetNotesTableAsync().Result;
+                }
+                catch (Exception ex)
+                {
+                    ExceptionWindow.Show("Unhandled Excpetion", ex.Message, ex);
+                }
             }
         }
     }

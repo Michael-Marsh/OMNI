@@ -13,7 +13,7 @@ namespace OMNI.Commands
         {
             if (!string.IsNullOrEmpty(parameter?.ToString()))
             {
-                var file = M2k.PartSearchAsync(parameter.ToString(), "WCCO").Result;
+                var file = M2k.SQLPartSearchAsync(parameter.ToString(), "Wcco").Result;
                 try
                 {
                     if (file == "Invalid")
@@ -29,7 +29,7 @@ namespace OMNI.Commands
                 }
                 catch (Win32Exception)
                 {
-                    var eStatus = M2k.EngineeringStatus(parameter.ToString(), string.Empty);
+                    var eStatus = M2k.GetEngineeringStatus(parameter.ToString());
                     switch (eStatus)
                     {
                         case "C":

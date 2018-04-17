@@ -21,6 +21,19 @@ namespace OMNI.Models
 
         #endregion
 
+        public WorkCenter()
+        { }
+
+        public WorkCenter(int idNbr)
+        {
+            IDNumber = idNbr;
+            using (MySqlCommand cmd = new MySqlCommand($"SELECT `WorkCenterName` FROM `{App.Schema}`.`workcenter` WHERE `WorkCenterNumber` = @p1", App.ConAsync))
+            {
+                cmd.Parameters.AddWithValue("p1", idNbr);
+                Name = cmd.ExecuteScalar().ToString();
+            }
+        }
+
         /// <summary>
         /// List of WorkCenter Numbers and Names
         /// </summary>

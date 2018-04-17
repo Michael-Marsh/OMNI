@@ -12,7 +12,7 @@ namespace OMNI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.6.0.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -304,6 +304,42 @@ namespace OMNI.Properties {
         public string CSIDocumentLocation {
             get {
                 return ((string)(this["CSIDocumentLocation"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5125 - Travel Card.pdf")]
+        public string TravelCardDocument {
+            get {
+                return ((string)(this["TravelCardDocument"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("omniquery")]
+        public string ManageAccount {
+            get {
+                return ((string)(this["ManageAccount"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5127 - Reference Travel Card.pdf")]
+        public string ReferenceCardDocument {
+            get {
+                return ((string)(this["ReferenceCardDocument"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage\\Manage\\ROI\\WCCO.MAIN\\BTI.TRANSACTIONS\\")]
+        public string MoveFileLocation {
+            get {
+                return ((string)(this["MoveFileLocation"]));
             }
         }
     }
