@@ -74,6 +74,7 @@ namespace OMNI.Models
         public InventorySkew(string lotNbr)
         {
             LotNumber = lotNbr;
+            var _lotTrim = LotNumber.Length > 9 ? LotNumber.Substring(0, 9) : LotNumber;
             MoveStatus = string.Empty;
             try
             {
@@ -151,7 +152,7 @@ namespace OMNI.Models
                             }
                         }
                     }
-                    var _tempDiamond = $"'{lotNbr}|P*%';";
+                    var _tempDiamond = $"'{_lotTrim}|P*%';";
                     var _tempDmdList = new List<string>();
                     while (DiamondNumber == null)
                     {

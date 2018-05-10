@@ -280,13 +280,19 @@
 
                 <TextBox Text="{Binding Qir.CurrentRevision.MaterialLost, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,10,0"
-                         Width="200"
+                         Width="100"
                          FontWeight="Bold"
                          FontSize="22"
                          ToolTip="Enter the amount of material that was lost."
                          TabIndex="5"
                          MaxLength="5"
                          Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                <Label Content="{Binding Qir.UOM}"
+                       Margin="5,0,10,0"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold"
+                       FontSize="22"/>
 
             </StackPanel>
 
