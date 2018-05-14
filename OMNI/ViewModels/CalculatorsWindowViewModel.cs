@@ -39,6 +39,32 @@ namespace OMNI.ViewModels
         public double? SRDiam { get; set; }
         public double TestCtoC { get; set; }
 
+        //Blade To Slat Calc() Properties
+        private string specLength;
+        public string SpecLength
+        {
+            get { return specLength; }
+            set { specLength = value; OnPropertyChanged(nameof(SpecLength)); }
+        }
+        private string previousSpec;
+        public string PreviousSpec
+        {
+            get { return previousSpec; }
+            set { previousSpec = value; OnPropertyChanged(nameof(PreviousSpec)); }
+        }
+        private string btoSLength;
+        public string BtoSLength
+        {
+            get { return btoSLength; }
+            set { btoSLength = value; OnPropertyChanged(nameof(BtoSLength)); }
+        }
+        private string headLength;
+        public string HeadLength
+        {
+            get { return headLength; }
+            set { headLength = value; OnPropertyChanged(nameof(HeadLength)); }
+        }
+
         RelayCommand _calc;
 
         #endregion
@@ -131,6 +157,74 @@ namespace OMNI.ViewModels
             return ((beltLength - (Math.PI * 101.6)) / 2);
         }
 
+        /// <summary>
+        /// Calculate a Blade to  length for Cut-Offs based on a Spec Length
+        /// </summary>
+        public void BladeToSlatCalc()
+        {
+            using (BackgroundWorker bw = new BackgroundWorker())
+            {
+                if (!string.IsNullOrEmpty(SpecLength))
+                {
+                    try
+                    {
+                        BtoSLength = "Calculating...";
+                        PreviousSpec = SpecLength;
+                        SpecLength = string.Empty;
+                        bw.DoWork += new DoWorkEventHandler(
+                            delegate (object sender, DoWorkEventArgs e)
+                            {
+                                var descLength = Convert.ToDouble(PreviousSpec);
+                                if (descLength > 0)
+                                {
+                                    var cleatSpaceCount = Math.Truncate(descLength / 12);
+                                    if (((descLength - 12 * cleatSpaceCount) / 2) < 5.000)
+                                    {
+                                        cleatSpaceCount = cleatSpaceCount - 1;
+                                    }
+                                    HeadLength = cleatSpaceCount * 12 == descLength ? "6" : ((descLength - 12 * cleatSpaceCount) / 2).ToString();
+                                    if (!HeadLength.Equals("0.00") || !HeadLength.Equals(Convert.ToInt32(HeadLength).ToString()))
+                                    {
+                                        var _headerDouble = Convert.ToDouble(HeadLength);
+                                        var _headerInt = Math.Floor(Convert.ToDouble(HeadLength));
+                                        HeadLength =
+                                            _headerInt + .25 > _headerDouble
+                                                ? _headerInt.ToString()
+                                                : _headerInt + .25 < _headerDouble && _headerInt + .75 > _headerDouble
+                                                    ? (_headerInt + .5).ToString()
+                                                    : (_headerInt + 1).ToString();
+                                        if (HeadLength.Equals("12"))
+                                        {
+                                            HeadLength = "6";
+                                        }
+                                    }
+                                    HeadLength = Math.Round(Convert.ToDouble(HeadLength), 1).ToString();
+                                    BtoSLength = descLength < 156.00 ? Math.Round(descLength + 0.197 - Convert.ToDouble(HeadLength), 3).ToString() : Math.Round(descLength * 1.00125 - Convert.ToDouble(HeadLength), 3).ToString();
+                                    BtoSLength = string.Format("{0:f3}", Convert.ToDouble(BtoSLength));
+                                }
+                                else
+                                {
+                                    HeadLength = "Invalid";
+                                    BtoSLength = "Invalid";
+                                }
+                            });
+                        bw.RunWorkerAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
+                    }
+                }
+                else
+                {
+                    BtoSLength = "Invalid";
+                    HeadLength = "0.00";
+                    PreviousSpec = string.Empty;
+                    SpecLength = string.Empty;
+                }
+            }
+        }
+
         #region View Commands
 
         public ICommand CalcCommand
@@ -155,6 +249,9 @@ namespace OMNI.ViewModels
                 case 1:
                     TestCtoC = SBC();
                     OnPropertyChanged(nameof(TestCtoC));
+                    break;
+                case 2:
+                    BladeToSlatCalc();
                     break;
             }
         }

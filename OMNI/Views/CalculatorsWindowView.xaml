@@ -24,18 +24,26 @@
         </Grid.RowDefinitions>
 
         <TabControl x:Name="calcTabs" Grid.Row="0" Style="{DynamicResource ActiveTabControl}">
-            
+
             <TabItem Header="Head/Tail" Style="{DynamicResource ActiveTabItem}">
+                <Grid>
 
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label Content="**DO NOT USE HEAD/TAIL CALCULATOR ON BELTS THAT LIST A SPECIFIC HEAD/TAIL ON THE PRINT**"
+                           Foreground="Crimson"
+                           FontWeight="Bold"
+                           FontSize="15"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"/>
 
-                    <Label Content="Blade to Pin in Inches"
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                        <Label Content="Blade to Pin in Inches"
                            Foreground="GhostWhite"
                            FontWeight="Bold"
                            FontSize="24"
                            HorizontalAlignment="Center"/>
 
-                    <TextBox Text="{Binding BladeToPin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding BladeToPin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              FontSize="24"
                              FontWeight="Bold"
                              Width="150"
@@ -44,39 +52,40 @@
                              Margin="5"
                              Style="{DynamicResource RequiredActiveTextBox}"/>
 
-                    <Label Content="{Binding PreviousBP}"
+                        <Label Content="{Binding PreviousBP}"
                            ContentStringFormat="Head/Tail Length using {0} is"
                            Foreground="Black"
                            FontWeight="Bold"
                            FontSize="24">
-                        <Label.Style>
-                            <Style TargetType="{x:Type Label}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HeaderLength}" Value="0.00">
-                                        <Setter Property="Visibility" Value="Hidden"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Label.Style>
-                    </Label>
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HeaderLength}" Value="0.00">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
 
-                    <Label Content="{Binding HeaderLength}"
+                        <Label Content="{Binding HeaderLength}"
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            FontSize="24">
-                        <Label.Style>
-                            <Style TargetType="{x:Type Label}">
-                                <Setter Property="Foreground" Value="#FF135185"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HeaderLength}" Value="Invalid">
-                                        <Setter Property="Foreground" Value="Crimson"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Label.Style>
-                    </Label>
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Foreground" Value="#FF135185"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HeaderLength}" Value="Invalid">
+                                            <Setter Property="Foreground" Value="Crimson"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
 
-                </StackPanel>
+                    </StackPanel>
+                </Grid>
             </TabItem>
 
             <TabItem Header="SBC" Style="{DynamicResource ActiveTabItem}">
@@ -191,6 +200,98 @@
                     </Label>
 
                 </Grid>
+            </TabItem>
+
+            <TabItem Header="Blade To Slat" Style="{DynamicResource ActiveTabItem}">
+
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                    <Label Content="Spec Length in Inches"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Center"/>
+
+                    <TextBox Text="{Binding SpecLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             Width="150"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                    <Label Content="{Binding PreviousSpec}"
+                           ContentStringFormat="Head/Tail Length using {0} is"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding HeadLength}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="Invalid">
+                                        <Setter Property="Foreground" Value="Crimson"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding PreviousSpec}"
+                           ContentStringFormat="Blade To Slat Length using {0} is"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="Invalid">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding BtoSLength, StringFormat=0:D3}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="Invalid">
+                                        <Setter Property="Foreground" Value="Crimson"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                </StackPanel>
             </TabItem>
         </TabControl>
 

@@ -1,0 +1,308 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ViewModels="clr-namespace:OMNI.ViewModels" x:Class="OMNI.Views.CalculatorsWindowView"
+        mc:Ignorable="d"
+        Title="WCCO Calculators" MinHeight="400" MinWidth="450" Icon="/OMNI;component/Icons/Admin.ico" ResizeMode="CanResizeWithGrip">
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding CalcCommand}" CommandParameter="{Binding SelectedIndex, ElementName=calcTabs}" Gesture="Enter"/>
+    </Window.InputBindings>
+
+    <Window.DataContext>
+        <ViewModels:CalculatorsWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid Style="{DynamicResource ResourceKey=GridBackgroundStyle}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+
+        <TabControl x:Name="calcTabs" Grid.Row="0" Style="{DynamicResource ActiveTabControl}">
+            
+            <TabItem Header="Head/Tail" Style="{DynamicResource ActiveTabItem}">
+
+                <Grid>
+
+                    <Label Content="**DO NOT USE HEAD/TAIL CALCULATOR ON BELTS THAT LIST A SPECIFIC HEAD/TAIL ON THE PRINT**"
+                           Foreground="Crimson"
+                           FontWeight="Bold"
+                           FontSize="15"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"/>
+
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                        <Label Content="Blade to Pin in Inches"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Center"/>
+
+                        <TextBox Text="{Binding BladeToPin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             Width="150"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                        <Label Content="{Binding PreviousBP}"
+                           ContentStringFormat="Head/Tail Length using {0} is"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24">
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HeaderLength}" Value="0.00">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+
+                        <Label Content="{Binding HeaderLength}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="Foreground" Value="#FF135185"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HeaderLength}" Value="Invalid">
+                                            <Setter Property="Foreground" Value="Crimson"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Label.Style>
+                        </Label>
+
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="SBC" Style="{DynamicResource ActiveTabItem}">
+
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--        Column 0        -->
+                    
+                    <Label Grid.Row="0" Grid.Column="0"
+                           Content="Center to Center ="
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Right"/>
+                    
+                    <Label Grid.Row="1" Grid.Column="0"
+                           Content="Small Diameter ="
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Right"/>
+
+                    <Label Grid.Row="2" Grid.Column="0"
+                           Content="Large Diameter ="
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Right"/>
+
+                    <!--        Column 1        -->
+
+                    <TextBox Grid.Row="0" Grid.Column="1"
+                             Text="{Binding CtoC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{##.##}}"
+                             TabIndex="0"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                    <TextBox Grid.Row="1" Grid.Column="1"
+                             Text="{Binding SRDiam, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{##.##}}"
+                             TabIndex="1"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                    <TextBox Grid.Row="2" Grid.Column="1"
+                             Text="{Binding LRDiam, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{##.##}}"
+                             TabIndex="2"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+
+                    <!--        Column Span     -->
+
+                    <Label Grid.Row="3" Grid.ColumnSpan="2"
+                           Content="Test Stand Center to Center"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Center">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TestCtoC}" Value="0">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Grid.Row="4" Grid.ColumnSpan="2"
+                           Content="{Binding TestCtoC}"
+                           ContentStringFormat="{}{0:F4}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TestCtoC}" Value="0">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Blade To Slat" Style="{DynamicResource ActiveTabItem}">
+
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                    <Label Content="Spec Length in Inches"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="24"
+                           HorizontalAlignment="Center"/>
+
+                    <TextBox Text="{Binding SpecLength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="24"
+                             FontWeight="Bold"
+                             Width="150"
+                             MaxLength="10"
+                             AcceptsReturn="False"
+                             Margin="5"
+                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                    <Label Content="{Binding PreviousSpec}"
+                           ContentStringFormat="Head/Tail Length using {0} is"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding HeadLength}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="Invalid">
+                                        <Setter Property="Foreground" Value="Crimson"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HeadLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding PreviousSpec}"
+                           ContentStringFormat="Blade To Slat Length using {0} is"
+                           Foreground="Black"
+                           FontWeight="Bold"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="Invalid">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="0.00">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                    <Label Content="{Binding BtoSLength, StringFormat=0:D3}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           FontSize="24">
+                        <Label.Style>
+                            <Style TargetType="{x:Type Label}">
+                                <Setter Property="Foreground" Value="#FF135185"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding BtoSLength}" Value="Invalid">
+                                        <Setter Property="Foreground" Value="Crimson"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Label.Style>
+                    </Label>
+
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <Button Grid.Row="1"
+                Content="Calculate"
+                HorizontalAlignment="Center"
+                FontSize="18"
+                Command="{Binding CalcCommand}"
+                CommandParameter="{Binding SelectedIndex, ElementName=calcTabs}"
+                Style="{DynamicResource HeaderButtonStyle}"/>
+
+    </Grid>
+</Window>

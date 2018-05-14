@@ -119,7 +119,7 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`users` WHERE `DomainName`=@p1 OR `EmployeeNumber`=@p1", App.ConAsync))
+                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`users` WHERE `DomainName`=@p1", App.ConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", userName);
                     if (Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0)
