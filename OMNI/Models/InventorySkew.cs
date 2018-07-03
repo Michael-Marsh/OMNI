@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace OMNI.Models
 {
@@ -40,6 +41,7 @@ namespace OMNI.Models
         public int? MoveQuantity { get; set; }
         public string MoveFrom { get; set; }
         public string MoveTo { get; set; }
+        public string NonConfReason { get; set; }
 
         #endregion
 
@@ -166,7 +168,10 @@ namespace OMNI.Models
                             _tempDiamond = string.Empty;
                             foreach (string s in _tempDmdList)
                             {
-                                _tempDiamond += _tempDiamond == string.Empty ? $"'{s}|P*%'" : $" OR [Ls_ID] LIKE '{s}|P*%'";
+                                if (!_tempDiamond.Contains(s))
+                                {
+                                    _tempDiamond += _tempDiamond == string.Empty ? $"'{s}|P*%'" : $" OR [Ls_ID] LIKE '{s}|P*%'";
+                                }
                             }
                             cmdString += $"{_tempDiamond};";
                         }
@@ -174,6 +179,7 @@ namespace OMNI.Models
                         {
                             cmdString += _tempDiamond;
                         }
+                        _tempDmdList.Clear();
                         using (SqlCommand cmd = new SqlCommand(cmdString, con))
                         {
                             using (SqlDataReader reader = cmd.ExecuteReader())
@@ -345,6 +351,52 @@ namespace OMNI.Models
             catch (Exception)
             { return null; }
         }
+
+        /// <summary>
+        /// Gets the skew information from a part number for non-lot tracable sku's
+        /// </summary>
+        /// <param name="partNrb">Inputed part number</param>
+        /// <returns>new InventorySkew object</returns>
+        public static InventorySkew GetSkewFromPartNrb(string partNrb)
+        {
+            var _temp = new InventorySkew { OnHand = new Dictionary<string, int>() };
+            using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+            {
+                con.Open();
+                try
+                {
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT
+                                                                a.[Part_Number], a.[Description], a.[Um], CAST(b.[Qty_On_Hand] AS INT) 
+                                                            FROM
+                                                                [dbo].[IM-INIT] a
+                                                            RIGHT JOIN
+                                                                [dbo].[IPL-INIT] b ON b.[Part_Nbr] = a.[Part_Number]
+                                                            WHERE
+                                                                a.[Part_Number] = @p1;", con))
+                    {
+                        cmd.Parameters.AddWithValue("p1", partNrb);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while(reader.Read())
+                                {
+                                    _temp.PartNumber = partNrb;
+                                    _temp.Description = reader.IsDBNull(1) ? "" : reader.GetString(1);
+                                    _temp.UOM = reader.IsDBNull(2) ? "" : reader.GetString(2);
+                                    _temp.OnHand.Add("Total", Convert.ToInt32(reader.GetValue(3)));
+                                }
+                            }
+                        }
+                    }
+                    return _temp;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -371,13 +423,19 @@ namespace OMNI.Models
                             pdfField.SetField("Date Printed", DateTime.Today.ToString("MM/dd/yyyy"));
                             pdfField.SetField("P/N", _skew.PartNumber);
                             pdfField.SetField("Part No Bar", $"*{_skew.PartNumber}*");
-                            pdfField.SetField("Lot", _skew.LotNumber);
-                            pdfField.SetField("Lot Bar", $"*{_skew.LotNumber}*");
+                            if (!string.IsNullOrEmpty(_skew.LotNumber))
+                            {
+                                pdfField.SetField("Lot", _skew.LotNumber);
+                                pdfField.SetField("Lot Bar", $"*{_skew.LotNumber}*");
+                            }
                             pdfField.SetField("Description", _skew.Description);
-                            pdfField.SetField("D/N", _skew.DiamondNumber);
+                            if (!string.IsNullOrEmpty(_skew.DiamondNumber))
+                            {
+                                pdfField.SetField("D/N", _skew.DiamondNumber);
+                            }
                             pdfField.SetField("Qty", qty);
                             pdfField.SetField("UOM", _skew.UOM);
-                            if (_skew.QIRList.Count > 0)
+                            if (_skew.QIRList?.Count > 0)
                             {
                                 pdfField.SetField("QIR", _skew.QIRList[0].IDNumber.ToString());
                                 pdfField.SetField("QIR Bar", $"*{_skew.QIRList[0].IDNumber}*");
@@ -413,10 +471,16 @@ namespace OMNI.Models
                         {
                             var pdfField = stamp.AcroFields;
                             pdfField.SetField("P/N", _skew.PartNumber);
-                            pdfField.SetField("L/N", _skew.LotNumber);
-                            pdfField.SetField("D/N", _skew.DiamondNumber);
+                            if (!string.IsNullOrEmpty(_skew.LotNumber))
+                            {
+                                pdfField.SetField("L/N", _skew.LotNumber);
+                            }
+                            if (!string.IsNullOrEmpty(_skew.DiamondNumber))
+                            {
+                                pdfField.SetField("D/N", _skew.DiamondNumber);
+                            }
                             pdfField.SetField("Qty", qty);
-                            if (_skew.QIRList.Count > 0)
+                            if (_skew.QIRList?.Count > 0)
                             {
                                 pdfField.SetField("QIR", _skew.QIRList[0].IDNumber.ToString());
                             }
@@ -431,6 +495,42 @@ namespace OMNI.Models
 
                 }
             }
+        }
+
+        /// <summary>
+        /// Location transfer in the current ERP system
+        /// </summary>
+        /// <param name="_skew">Current inventory skew object</param>
+        /// <param name="from">Transfer From location</param>
+        /// <param name="to">Transfer to location</param>
+        /// <param name="qty">Quantity to transfer</param>
+        /// <param name="nonLot">Is the item being relocated non-lot traceable</param>
+        /// <returns>Suffix for the file that needs to be watched on the ERP server</returns>
+        public static int ErpMove(this InventorySkew _skew, string from, string to, int qty, bool nonLot)
+        {
+            var uId = new Random();
+            var suffix = uId.Next(128, 512);
+            if (!nonLot)
+            {
+                //String Format for lot tracable = false
+                //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
+                //Must meet this format in order to work with M2k
+
+                from = _skew.OnHand.Count > 1 ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
+                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~10~{_skew.LotNumber.ToUpper()}|P~99~COMPLETE";
+                File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+            }
+            else
+            {
+                //String Format for lot tracable = true
+                //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
+                //Must meet this format in order to work with M2k
+
+                from = _skew.OnHand.Count > 1 ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
+                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}|P~99~COMPLETE";
+                File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+            }
+            return suffix;
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿using OMNI.Helpers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace OMNI.Extensions
 {
@@ -115,73 +113,5 @@ namespace OMNI.Extensions
                 table.Rows.Add(row.ItemArray);
             }
         }
-    }
-
-    /// <summary>
-    /// OMNI DataTable Interaction Logic
-    /// </summary>
-    public class OMNIDataTable
-    {
-        /// <summary>
-        /// Export a DataTable to Excel
-        /// </summary>
-        /// <param name="table">DataTable to export</param>
-        /// <param name="worksheetName">Name of the worksheet</param>
-        /*public static void ExportToExcel(DataTable table, string worksheetName)
-        {
-            var _progress = 0;
-            Exporting = true;
-            var totalWork = table.Columns.Count * table.Rows.Count;
-            using (BackgroundWorker bw = new BackgroundWorker())
-            {
-                try
-                {
-                    bw.WorkerReportsProgress = true;
-                    bw.ProgressChanged += new ProgressChangedEventHandler(
-                        delegate (object sender, ProgressChangedEventArgs e)
-                        {
-                            Progress = e.ProgressPercentage;
-                        });
-                    bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
-                        delegate (object sender, RunWorkerCompletedEventArgs e)
-                        {
-                            Exporting = false;
-                        });
-                    bw.DoWork += new DoWorkEventHandler(
-                        delegate (object sender, DoWorkEventArgs e)
-                        {
-                            var excelApp = new Excel.Application();
-                            var workbook = excelApp.Workbooks;
-                            workbook.Add();
-                            Excel._Worksheet workSheet = excelApp.ActiveSheet;
-                            workSheet.Name = worksheetName;
-                            for (int i = 0; i < table.Columns.Count; i++)
-                            {
-                                workSheet.Cells[1, (i + 1)] = table.Columns[i].ColumnName;
-                                _progress++;
-                                bw.ReportProgress((int)Math.Round((_progress / (double)totalWork) * 100, 0));
-                            }
-                            for (int i = 0; i < table.Rows.Count; i++)
-                            {
-                                for (int j = 0; j < table.Columns.Count; j++)
-                                {
-                                    workSheet.Cells[(i + 2), (j + 1)] = table.Rows[i][j];
-                                    _progress++;
-                                    bw.ReportProgress((int)Math.Round((_progress / (double)totalWork) * 100, 0));
-                                }
-                            }
-                            excelApp.Visible = true;
-                        });
-                    bw.RunWorkerAsync();
-                }
-                catch (Exception ex)
-                {
-                    ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
-                }
-                finally
-                {
-                }
-            }
-        }*/
     }
 }

@@ -16,7 +16,10 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
         <cvtr:MultiOnHandToVisibility x:Key="OnHandToVisConverter"/>
+        <cvtr:InvertedBooltoVisibility x:Key="InvertedBoolToVisConverter"/>
         <cvtr:IntToVisibility x:Key="IntToVisConverter"/>
+        <cvtr:MultiBoolToVisibility x:Key="MultiBoolToVisConverter"/>
+        <cvtr:ReasonToVisibility x:Key="ReasonToVisConverter"/>
         <cmd:PartSearchCommand x:Key="PartSearchCommand"/>
     </Window.Resources>
 
@@ -30,6 +33,8 @@
             <RowDefinition Height="40"/>
             <RowDefinition Height="*" MaxHeight="195"/>
             <RowDefinition Height="60"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -37,12 +42,14 @@
             <ColumnDefinition Width="500"/>
         </Grid.ColumnDefinitions>
 
+        <!--#region Column 0-->
         <!--    Row 0   -->
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
             <Label Content="Lot Number"
                    Foreground="GhostWhite"
                    FontWeight="Bold"
-                   FontSize="18"/>
+                   FontSize="18"
+                   Visibility="{Binding LotType, Converter={StaticResource InvertedBoolToVisConverter}}"/>
 
             <TextBox Name="LotTextBox"
                      Text="{Binding LotNbr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -54,6 +61,7 @@
                      TabIndex="0"
                      AcceptsReturn="False"
                      ToolTip="Scan or Enter the lot number."
+                     Visibility="{Binding LotType, Converter={StaticResource InvertedBoolToVisConverter}}"
                      Style="{DynamicResource LinkedTextBox}"/>
 
             <Button Command="{Binding RefreshICommand}"
@@ -103,7 +111,7 @@
                    Foreground="GhostWhite"
                    FontWeight="Bold"
                    FontSize="18"
-                   Visibility="{Binding Skew.OnHand.Count, Converter={StaticResource OnHandToVisConverter}, FallbackValue=Hidden}"/>
+                   Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"/>
 
             <TextBox Text="{Binding FromLoc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      FontSize="16"
@@ -113,30 +121,46 @@
                      TabIndex="3"
                      AcceptsReturn="False"
                      ToolTip="Multiple Locations where detected, you must also enter in the from location."
-                     Visibility="{Binding Skew.OnHand.Count, Converter={StaticResource OnHandToVisConverter}, FallbackValue=Hidden}"
+                     Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"
                      Style="{DynamicResource RequiredActiveTextBox}"/>
 
         </StackPanel>
 
         <!--    Row 1   -->
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}">
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
             <Label Content="Part Number:"
                    Foreground="GhostWhite"
                    FontWeight="Bold"
-                   FontSize="18"/>
+                   FontSize="18">
+                <Label.Visibility>
+                    <MultiBinding Converter="{StaticResource MultiBoolToVisConverter}">
+                        <Binding Path="LotType" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                        <Binding Path="ValidLot" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                    </MultiBinding>
+                </Label.Visibility>
+            </Label>
 
-            <TextBox Text="{Binding Skew.PartNumber, Mode=OneWay}"
+            <TextBox Text="{Binding PartNbr, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      FontSize="18"
                      FontWeight="Bold"
                      Margin="5"
+                     Width="150"
                      BorderThickness="0"
-                     IsEnabled="False"
-                     Style="{DynamicResource ActiveTextBox}"/>
+                     IsEnabled="{Binding LotType}"
+                     Style="{DynamicResource ActiveTextBox}">
+                <TextBox.Visibility>
+                    <MultiBinding Converter="{StaticResource MultiBoolToVisConverter}">
+                        <Binding Path="LotType" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                        <Binding Path="ValidLot" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                    </MultiBinding>
+                </TextBox.Visibility>
+            </TextBox>
 
             <Button CommandParameter="{Binding Skew.PartNumber}"
                     Command="{StaticResource PartSearchCommand}"
                     Margin="5"
                     IsTabStop="False"
+                    Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}"
                     Style="{DynamicResource ResourceKey=DashBoardButtonStyle}">
                 <Image Source="/OMNI;component/Icons/PartSearch.ico"/>
             </Button>
@@ -144,7 +168,8 @@
             <Label Content="Description:"
                    Foreground="GhostWhite"
                    FontWeight="Bold"
-                   FontSize="18"/>
+                   FontSize="18"
+                   Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}"/>
 
             <TextBox Text="{Binding Skew.Description, Mode=OneWay}"
                      FontSize="18"
@@ -152,6 +177,7 @@
                      Margin="5"
                      BorderThickness="0"
                      IsEnabled="False"
+                     Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}"
                      Style="{DynamicResource ActiveTextBox}"/>
         </StackPanel>
         
@@ -238,14 +264,14 @@
                    FontSize="18"/>
 
             <ItemsControl ItemsSource="{Binding Path=Skew.OnHand, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="15,0,0,0"
-                     FontSize="18"
-                     FontWeight="Bold"
-                     Cursor="Hand"
-                     BorderThickness="0"
-                     Background="Transparent"
-                     Foreground="Black"
-                     Focusable="False">
+                          Margin="15,0,0,0"
+                          FontSize="18"
+                          FontWeight="Bold"
+                          Cursor="Hand"
+                          BorderThickness="0"
+                          Background="Transparent"
+                          Foreground="Black"
+                          Focusable="False">
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -312,6 +338,7 @@
 
             <Expander Header="ITEMS.LOT"
                       FontSize="18"
+                      Visibility="{Binding LotType, Converter={StaticResource InvertedBoolToVisConverter}}"
                       FontWeight="Bold"
                       Foreground="WhiteSmoke"
                       Focusable="False">
@@ -336,6 +363,7 @@
             <Expander Header="SHOW.LS"
                       FontSize="18"
                       FontWeight="Bold"
+                      Visibility="Collapsed"
                       Foreground="WhiteSmoke"
                       Margin="20,0,0,0"
                       IsTabStop="False">
@@ -348,6 +376,7 @@
 
             <Expander Header="LOT.IT.HIST"
                       FontSize="18"
+                      Visibility="Collapsed"
                       FontWeight="Bold"
                       Foreground="WhiteSmoke"
                       Margin="20,0,0,0"
@@ -400,6 +429,39 @@
                    Visibility="{Binding MoveProcess, Converter={StaticResource BoolToVisConverter}}"/>
 
         </StackPanel>
+        
+        <!--    Row 8   -->
+
+        <CheckBox Grid.Row="8" Grid.Column="0"
+                  x:Name="LotType"
+                  FontSize="18"
+                  Content="Non-Lot Traceable"
+                  IsChecked="{Binding LotType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Style="{DynamicResource CheckBoxStyle}"/>
+
+        <!--    Row 9   -->
+
+        <StackPanel Grid.Row="9" Grid.Column="0" Orientation="Horizontal">
+
+            <Label Content="Non-Conformance Reason"
+                   Foreground="GhostWhite"
+                   FontWeight="Bold"
+                   FontSize="18"
+                   Visibility="{Binding ToLoc, Converter={StaticResource ReasonToVisConverter}}"/>
+
+            <TextBox Text="{Binding NonReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Width="500"
+                     Margin="5"
+                     TabIndex="4"
+                     AcceptsReturn="False"
+                     ToolTip="Must be entered when moving anything into an 'N' location."
+                     Visibility="{Binding ToLoc, Converter={StaticResource ReasonToVisConverter}}"
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
+        </StackPanel>
+
+        <!--#endregion-->
 
         <ListBox Grid.RowSpan="7" Grid.Column="1" ItemsSource="{Binding Path=MoveHistory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  Visibility="{Binding MoveHistory.Count, Converter={StaticResource IntToVisConverter}}"

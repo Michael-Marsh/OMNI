@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>546</ApplicationRevision>
-    <ApplicationVersion>3.1.68.546</ApplicationVersion>
+    <ApplicationRevision>560</ApplicationRevision>
+    <ApplicationVersion>3.1.71.560</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -218,9 +218,11 @@
     <Compile Include="Converters\IntToVisibility.cs" />
     <Compile Include="Converters\InvertedBooltoVisibility.cs" />
     <Compile Include="Converters\InvertedFormCommandtoVisibility.cs" />
+    <Compile Include="Converters\MultiBoolToVisibility.cs" />
     <Compile Include="Converters\MultiOnHandToVisibility.cs" />
     <Compile Include="Converters\PartActionToVisibility.cs" />
     <Compile Include="Converters\PriorityLeveltoVisibility.cs" />
+    <Compile Include="Converters\ReasonToVisibility.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="HDT\Enumeration\TicketType.cs" />
     <Compile Include="HDT\Model\Project.cs" />

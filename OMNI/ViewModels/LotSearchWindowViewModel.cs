@@ -1,4 +1,5 @@
 ﻿using OMNI.Commands;
+using OMNI.Helpers;
 using OMNI.Models;
 using OMNI.QMS.View;
 using OMNI.QMS.ViewModel;
@@ -29,25 +30,47 @@ namespace OMNI.ViewModels
                 if (value.Length > 5)
                 {
                     Skew = new InventorySkew(value);
+                    PartNbr = Skew?.PartNumber;
                     OnPropertyChanged(nameof(Skew));
                     OnPropertyChanged(nameof(ValidLot));
                     OnPropertyChanged(nameof(ValidQIR));
+                    OnPropertyChanged(nameof(FromVisibility));
                 }
                 if (value.Length == 11)
                 {
                     value = lot = $"{prevLot}{value.Last()}";
                     Quantity = null;
-                    ToLoc = FromLoc = null;
+                    ToLoc = FromLoc = NonReason = null;
                     OnPropertyChanged(nameof(LotNbr));
                     OnPropertyChanged(nameof(Quantity));
                     OnPropertyChanged(nameof(ToLoc));
                     OnPropertyChanged(nameof(FromLoc));
+                    OnPropertyChanged(nameof(FromVisibility));
                 }
                 if (!string.IsNullOrEmpty(value))
                 {
                     prevLot = value.Last();
                 }
                 lot = value.ToUpper();
+                OnPropertyChanged(nameof(LotNbr));
+            }
+        }
+        private string partNbr;
+        public string PartNbr
+        {
+            get { return partNbr; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && value.Length > 5 && LotType)
+                {
+                    Skew = InventorySkew.GetSkewFromPartNrb(value);
+                    OnPropertyChanged(nameof(Skew));
+                    OnPropertyChanged(nameof(ValidLot));
+                    OnPropertyChanged(nameof(ValidQIR));
+                    OnPropertyChanged(nameof(FromVisibility));
+                }
+                partNbr = value;
+                OnPropertyChanged(nameof(PartNbr));
             }
         }
         public int? Quantity { get; set; }
@@ -55,7 +78,7 @@ namespace OMNI.ViewModels
         public string ToLoc
         {
             get { return toLoc; }
-            set { toLoc = value?.ToUpper(); OnPropertyChanged(nameof(ToLoc)); }
+            set { toLoc = value?.ToUpper(); NonReason = null; OnPropertyChanged(nameof(ToLoc)); }
         }
         string fromLoc;
         public string FromLoc
@@ -63,6 +86,7 @@ namespace OMNI.ViewModels
             get { return fromLoc; }
             set { fromLoc = value?.ToUpper(); OnPropertyChanged(nameof(FromLoc)); }
         }
+        public bool FromVisibility { get { return Skew?.OnHand?.Count > 1 || (LotType && ValidLot); } }
 
         public bool ValidLot { get { return Skew?.PartNumber != null; } }
         public bool ValidQIR { get { return Skew?.QIRList?.Count > 0; } }
@@ -71,6 +95,34 @@ namespace OMNI.ViewModels
         {
             get { return movePro; }
             set { movePro = value; OnPropertyChanged(nameof(MoveProcess)); }
+        }
+        private bool type;
+        public bool LotType
+        {
+            get { return type; }
+            set
+            {
+                type = value;
+                Skew = null;
+                PartNbr = LotNbr = string.Empty;
+                OnPropertyChanged(nameof(Skew));
+                OnPropertyChanged(nameof(ValidLot));
+                OnPropertyChanged(nameof(ValidQIR));
+                OnPropertyChanged(nameof(LotType));
+                Quantity = null;
+                ToLoc = FromLoc = NonReason = null;
+                OnPropertyChanged(nameof(Quantity));
+                OnPropertyChanged(nameof(ToLoc));
+                OnPropertyChanged(nameof(FromLoc));
+                OnPropertyChanged(nameof(FromVisibility));
+            }
+        }
+
+        private string nonR;
+        public string NonReason
+        {
+            get { return nonR; }
+            set { nonR = value; OnPropertyChanged(nameof(NonReason)); }
         }
 
         public BindingList<InventorySkew> MoveHistory { get; set; }
@@ -94,6 +146,7 @@ namespace OMNI.ViewModels
             FromLoc = string.Empty;
             uID = new Random();
             MoveHistory = new BindingList<InventorySkew>();
+            LotType = false;
         }
 
         #region Open QIR ICommand
@@ -187,34 +240,41 @@ namespace OMNI.ViewModels
         /// <summary>
         /// Unplanned Move Command Execution
         /// </summary>
-        /// <param name="parameter">Travel Card Type as String</param>
+        /// <param name="parameter"></param>
         private void MoveExecute(object parameter)
         {
-            //String Format
-            //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
-            //Must meet this format in order to work with M2k
-
-            FromLoc = Skew.OnHand.Count > 1 ? FromLoc.ToUpper() : Skew.OnHand.First().Key.ToUpper();
-            var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{Skew.PartNumber}~7~{FromLoc.ToUpper()}~8~{ToLoc}~9~{Quantity}~10~{Skew.LotNumber.ToUpper()}|P~99~COMPLETE";
-            var suffix = uID.Next(128, 512);
-            System.IO.File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+            var _suf = Skew.ErpMove(FromLoc, ToLoc, Convert.ToInt32(Quantity), LotType);
             Skew.MoveQuantity = Quantity;
-            Skew.MoveFrom = FromLoc.ToUpper();
-            Skew.MoveTo = ToLoc.ToUpper(); ;
+            Skew.MoveFrom = string.IsNullOrEmpty(FromLoc) ? Skew.OnHand.First().Key : FromLoc;
+            Skew.MoveTo = ToLoc.ToUpper();
+            Skew.NonConfReason = NonReason;
             MoveHistory.Add(Skew);
-            Task.Run(() => ProcessingMove(suffix, MoveHistory.Count - 1));
+            Task.Run(() => ProcessingMove(_suf, MoveHistory.Count - 1));
             Quantity = null;
-            ToLoc = FromLoc = null;
+            ToLoc = FromLoc = NonReason = null;
             OnPropertyChanged(nameof(Quantity));
             OnPropertyChanged(nameof(ToLoc));
             OnPropertyChanged(nameof(FromLoc));
         }
-        private bool MoveCanExecute(object parameter) =>
-            Quantity > 0 && !string.IsNullOrEmpty(ToLoc)
-                ? Skew.OnHand.Count > 1 && string.IsNullOrEmpty(FromLoc) 
-                    ? false
-                    : true
-                : false;
+        private bool MoveCanExecute(object parameter)
+        {
+            if (ValidLot && Quantity > 0 && !string.IsNullOrEmpty(ToLoc))
+            {
+                if (Skew.OnHand.Count > 1 || LotType)
+                {
+                    return !string.IsNullOrEmpty(FromLoc) && !string.IsNullOrEmpty(NonReason);
+                }
+                else if (ToLoc.ToUpper()[ToLoc.Length - 1] == 'N')
+                {
+                    return !string.IsNullOrEmpty(NonReason) && NonReason?.Length > 5;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         #endregion
 
@@ -253,14 +313,32 @@ namespace OMNI.ViewModels
         /// </summary>
         /// <param name="uID">Unique suffix to track</param>
         /// <param name="arrayNumber">The array location of the skew to process in the MoveHistory</param>
+        /// <param name="nonReason">Non-conforming reason</param>
         private void ProcessingMove(int uID, int arrayNumber)
         {
-            MoveHistory[arrayNumber].MoveStatus = "Processing";
+            MoveHistory[arrayNumber].MoveStatus = "In Que";
             OnPropertyChanged(nameof(MoveHistory));
             while (System.IO.File.Exists($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{uID}"))
             {
+                MoveHistory[arrayNumber].MoveStatus = "Processing";
+                OnPropertyChanged(nameof(MoveHistory));
             }
-            MoveHistory[arrayNumber].MoveStatus = "Complete";
+            MoveHistory[arrayNumber].MoveStatus = "Verifing Record";
+            OnPropertyChanged(nameof(MoveHistory));
+            System.Threading.Thread.Sleep(3000);
+            if (Skew.MoveFrom[Skew.MoveFrom.Length - 1] == 'N' && Skew.MoveTo[Skew.MoveTo.Length - 1] != 'N')
+            {
+                MoveHistory[arrayNumber].MoveStatus = "Removing N-Loc Reason";
+                OnPropertyChanged(nameof(MoveHistory));
+                M2k.DeleteRecord("LOT.MASTER", 42, $"{LotNbr}|P");
+            }
+            else if (Skew.MoveFrom[Skew.MoveFrom.Length - 1] != 'N' && Skew.MoveTo[Skew.MoveTo.Length - 1] == 'N')
+            {
+                MoveHistory[arrayNumber].MoveStatus = "Adding N-Loc Reason";
+                OnPropertyChanged(nameof(MoveHistory));
+                M2k.ModifyRecord("LOT.MASTER", 42, Skew.NonConfReason, $"{LotNbr}|P");
+            }
+            MoveHistory[arrayNumber].MoveStatus = "Writing Record";
             OnPropertyChanged(nameof(MoveHistory));
             if (MoveHistory[arrayNumber].LotNumber == LotNbr)
             {
@@ -270,6 +348,8 @@ namespace OMNI.ViewModels
                     LotNbr = MoveHistory[arrayNumber].LotNumber;
                 }
             }
+            MoveHistory[arrayNumber].MoveStatus = "Complete";
+            OnPropertyChanged(nameof(MoveHistory));
         }
     }
 }

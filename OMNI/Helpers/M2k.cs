@@ -1,4 +1,5 @@
 ﻿using IBMU2.UODOTNET;
+using OMNI.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -62,6 +63,67 @@ namespace OMNI.Helpers
             catch (Exception)
             {
                 return "O";
+            }
+        }
+
+        /// <summary>
+        /// Modify records in manage
+        /// !!WARNING!! DO NOT USE this method to modify business logic transactions like wip reciepts
+        /// The intent of this method is to modify single records that are stand alone in the M2k database i.e. N location reason
+        /// </summary>
+        /// <param name="fileName">Name of the file to modify</param>
+        /// <param name="attribute">Name of the attribute to modidy</param>
+        /// <param name="newValue">The new value to input into manage</param>
+        /// <param name="recordID">Record ID</param>
+        public static void ModifyRecord(string fileName, int attribute, string newValue, string recordID)
+        {
+            try
+            {
+                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.MAIN", "udcs"))
+                {
+                    using (UniFile uFile = uSession.CreateUniFile(fileName))
+                    {
+                        using (UniDynArray udArray = uFile.Read(recordID))
+                        {
+                            udArray.Insert(attribute, newValue);
+                            uFile.Write(recordID, udArray);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Delete records in manage
+        /// !!WARNING!! DO NOT USE this method to modify business logic transactions like wip reciepts
+        /// The intent of this method is to delete single records that are stand alone in the M2k database i.e. N location reason
+        /// </summary>
+        /// <param name="fileName">Name of the file</param>
+        /// <param name="attribute">Name of the attribute to modidy</param>
+        /// <param name="recordID">Record ID</param>
+        public static void DeleteRecord(string fileName, int attribute, string recordID)
+        {
+            try
+            {
+                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.MAIN", "udcs"))
+                {
+                    using (UniFile uFile = uSession.CreateUniFile(fileName))
+                    {
+                        using (UniDynArray udArray = uFile.Read(recordID))
+                        {
+                            udArray.Delete(attribute);
+                            uFile.Write(recordID, udArray);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
 
