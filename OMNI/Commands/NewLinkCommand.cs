@@ -13,7 +13,7 @@ namespace OMNI.Commands
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
-        public bool CanExecute(object parameter) => ((FormBase)parameter).IDNumber != null && !((FormBase)parameter).LinkExistsAsync().Result;
+        public bool CanExecute(object parameter) => ((FormBase)parameter).IDNumber != null && !((FormBase)parameter).LinkExists();
         public void Execute(object parameter)
         {
             var flwv = new FormLinkWindowView { DataContext = new FormLinkWindowViewModel(parameter) };

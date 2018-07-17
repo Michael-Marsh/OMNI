@@ -1,10 +1,11 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.ViewModels;
 using SpreadsheetLight;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -33,13 +34,13 @@ namespace OMNI.Models
         public static List<OMNIDataBase> GetTableNameList()
         {
             var _tempList = new List<OMNIDataBase>();
-            using (MySqlCommand cmd = new MySqlCommand($"SHOW TABLES FROM `{App.Schema}`", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"SELECT TABLE_NAME as 'Table' FROM {App.DataBase}.INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE';", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        _tempList.Add(new OMNIDataBase { TableName = reader.GetString(0) });
+                        _tempList.Add(new OMNIDataBase { TableName = reader.SafeGetString("Table") });
                     }
                 }
             }
@@ -76,7 +77,8 @@ namespace OMNI.Models
             }
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`qir_notice` SET `{CurrentUser.IdNumber}`={updateValue} WHERE `{_col}`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        UPDATE [qir_notice] SET [{CurrentUser.IdNumber}]={updateValue} WHERE [{_col}]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _val);
                     await cmd.ExecuteNonQueryAsync();
@@ -93,14 +95,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="tableName">Name of table</param>
         /// <returns>Row count as int</returns>
-        public async static Task<int> CountAsync(string tableName)
+        public static int RowCount(string tableName)
         {
             var count = 0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`{tableName}`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT(*) FROM [{tableName}]", App.SqlConAsync))
                 {
-                    count = Convert.ToInt16(await cmd.ExecuteScalarAsync());
+                    count = Convert.ToInt16(cmd.ExecuteScalar());
                 }
                 if (count == -1 || count == 0)
                 {
@@ -122,17 +125,18 @@ namespace OMNI.Models
         /// <param name="columnName">Column Name</param>
         /// <param name="whereClaus">Filter Option</param>
         /// <returns>Count of items</returns>
-        public async static Task<int?> CountWithValuesAsync(string tableName, string columnName, params string[] whereClaus)
+        public static int? CountWithValues(string tableName, string columnName, params string[] whereClaus)
         {
             try
             {
                 Count = 0;
                 foreach (string value in whereClaus)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`{tableName}` WHERE `{columnName}`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            SELECT COUNT(*) FROM [{tableName}] WHERE [{columnName}]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", value);
-                        Count += Convert.ToInt16(await cmd.ExecuteScalarAsync());
+                        Count += Convert.ToInt16(cmd.ExecuteScalar());
                     }
                 }
                 if (Count == -1 || Count == 0)
@@ -143,10 +147,6 @@ namespace OMNI.Models
             }
             catch (Exception)
             {
-                while (App.ConAsync.State == ConnectionState.Closed)
-                {
-                    await App.ConAsync.OpenAsync();
-                }
                 return null;
             }
         }
@@ -157,14 +157,15 @@ namespace OMNI.Models
         /// <param name="tableName">Table Name</param>
         /// <param name="columnName">Column Name</param>
         /// <returns>Count of null values</returns>
-        public async static Task<int?> CountNullValuesAsync(string tableName, string columnName)
+        public static int? CountNullValues(string tableName, string columnName)
         {
             try
             {
                 Count = 0;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`{tableName}` WHERE `{columnName}` IS NULL", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT(*) FROM [{tableName}] WHERE [{columnName}] IS NULL", App.SqlConAsync))
                 {
-                    Count += Convert.ToInt16(await cmd.ExecuteScalarAsync());
+                    Count += Convert.ToInt16(cmd.ExecuteScalar());
                 }
                 if (Count == -1 || Count == 0)
                 {
@@ -174,10 +175,6 @@ namespace OMNI.Models
             }
             catch (Exception)
             {
-                while (App.ConAsync.State == ConnectionState.Closed)
-                {
-                    await App.ConAsync.OpenAsync();
-                }
                 return null;
             }
         }
@@ -188,13 +185,14 @@ namespace OMNI.Models
         /// <param name="tableName">Table Name</param>
         /// <param name="whereClaus">Filter Option</param>
         /// <returns>Count of items</returns>
-        public async static Task<int?> CountWithComparisonAsync(string tableName, string whereClaus)
+        public static int? CountWithComparison(string tableName, string whereClaus)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`{tableName}` WHERE {whereClaus}", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT(*) FROM [{tableName}] WHERE {whereClaus}", App.SqlConAsync))
                 {
-                    Count = Convert.ToInt16(await cmd.ExecuteScalarAsync());
+                    Count = Convert.ToInt16(cmd.ExecuteScalar());
                 }
                 if (Count == -1 || Count == 0)
                 {
@@ -204,10 +202,6 @@ namespace OMNI.Models
             }
             catch (Exception)
             {
-                while (App.ConAsync.State == ConnectionState.Closed)
-                {
-                    await App.ConAsync.OpenAsync();
-                }
                 return null;
             }
         }
@@ -223,9 +217,10 @@ namespace OMNI.Models
             var totalCost = 0.0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `TotalCost` FROM `{App.Schema}`.`{tableName}` WHERE {whereClaus}", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [TotalCost] FROM [{tableName}] WHERE {whereClaus}", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
@@ -237,9 +232,9 @@ namespace OMNI.Models
             }
             catch (Exception)
             {
-                while (App.ConAsync.State == ConnectionState.Closed)
+                while (App.SqlConAsync.State == ConnectionState.Closed)
                 {
-                    await App.ConAsync.OpenAsync();
+                    await App.SqlConAsync.OpenAsync();
                 }
                 return totalCost;
             }
@@ -251,7 +246,7 @@ namespace OMNI.Models
         /// <param name="table">table to use</param>
         /// <param name="formNumber">The form number to add the note to</param>
         /// <returns>The note subject that was entered as string</returns>
-        public async static Task<string> AddNoteAsync(string table, int? formNumber)
+        public static string AddNote(string table, int? formNumber)
         {
             var _note = NoteWindowViewModel.Show();
             if (string.IsNullOrWhiteSpace(_note))
@@ -263,12 +258,14 @@ namespace OMNI.Models
             {
                 try
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT `{App.Schema}`.`{table}_notes` (IDNumber, Note, Submitter) VALUES(@p1, @p2, @p3)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            INSERT [{table}_notes] (IDNumber, Note, Submitter)
+                                                            VALUES(@p1, @p2, @p3)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", formNumber);
                         cmd.Parameters.AddWithValue("p2", _note);
                         cmd.Parameters.AddWithValue("p3", CurrentUser.FullName);
-                        await cmd.ExecuteNonQueryAsync();
+                        cmd.ExecuteNonQuery();
                     }
                     return _note;
                 }
@@ -287,15 +284,16 @@ namespace OMNI.Models
         /// <param name="columnName">Column Name</param>
         /// <param name="whereClaus">Item to check</param>
         /// <returns>Item existence as a boolean</returns>
-        public async static Task<bool> ExistsAsync(string tableName, string columnName, string whereClaus)
+        public static bool Exists(string tableName, string columnName, string whereClaus)
         {
             var _exists = 0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT({columnName}) FROM `{App.Schema}`.`{tableName}` WHERE `{columnName}`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT({columnName}) FROM [{tableName}] WHERE [{columnName}]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", whereClaus);
-                    _exists = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    _exists = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 return _exists >= 1
                     ? true
@@ -316,16 +314,17 @@ namespace OMNI.Models
         public async static Task<int[]> MonthlySalesAsync(string lookupMonth, int lookupYear)
         {
             var values = new int[2];
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT `Sales`, `Firm` FROM `{App.Schema}`.`monthlysales` WHERE `Year`=@p1 AND `Month`=@p2", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [Sales], [Firm] FROM [monthlysales] WHERE [Year]=@p1 AND Month=@p2", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", lookupYear);
                 cmd.Parameters.AddWithValue("p2", lookupMonth);
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync())
                     {
-                        values[0] = reader.GetInt32(0);
-                        values[1] = reader.GetInt16(1);
+                        values[0] = reader.SafeGetInt32("Sales");
+                        values[1] = reader.SafeGetInt32("Firm");
                     }
                 }
             }
@@ -340,14 +339,15 @@ namespace OMNI.Models
         public async static Task<int> YearlySalesAsync(int lookupYear)
         {
             var values = 0;
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT `Sales` FROM `{App.Schema}`.`monthlysales` WHERE `Year`=@p1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [Sales] FROM [monthlysales] WHERE [Year]=@p1", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", lookupYear);
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync())
                     {
-                        values += reader.GetInt32(0);
+                        values += reader.SafeGetInt32("Sales");
                     }
                 }
             }
@@ -361,24 +361,29 @@ namespace OMNI.Models
         /// <param name="year">Update Year</param>
         /// <param name="sales">Sales number to update/insert</param>
         /// <param name="firm">optional: Marks that the sales number has been validated by accounting</param>
-        public async static void UpdateSalesAsync(string month, int year, int sales, bool firm = false)
+        public static void UpdateSales(string month, int year, int sales, bool firm = false)
         {
             var valueCheck = 0;
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`monthlysales` WHERE `Month`=@p1 AND `Year`=@p2", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT COUNT(*) FROM [monthlysales] WHERE [Month]=@p1 AND [Year]=@p2", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", month);
                 cmd.Parameters.AddWithValue("p2", year);
-                valueCheck = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                valueCheck = Convert.ToInt32(cmd.ExecuteScalar());
             }
             var _cmd = string.Empty;
-            _cmd = valueCheck >= 1 ? $"UPDATE `{App.Schema}`.`monthlysales` SET `Sales`=@p1, `Firm`=@p2 WHERE `Month`=@p3 AND `Year`=@p4" : $"INSERT INTO `{App.Schema}`.`monthlysales` (`Sales`, `Firm`, `Month`, `Year`) VALUES (@p1, @p2, @p3, @p4)";
-            using (MySqlCommand cmd = new MySqlCommand(_cmd, App.ConAsync))
+            _cmd = valueCheck >= 1 
+                ? $@"USE {App.DataBase};
+                    UPDATE [monthlysales] SET [Sales]=@p1, [Firm]=@p2 WHERE [Month=@p3 AND [Year]=@p4"
+                : $@"USE {App.DataBase};
+                    INSERT INTO [monthlysales] ([Sales], [Firm], [Month], [Year]) VALUES (@p1, @p2, @p3, @p4)";
+            using (SqlCommand cmd = new SqlCommand(_cmd, App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", sales);
                 cmd.Parameters.AddWithValue("p2", firm);
                 cmd.Parameters.AddWithValue("p3", month);
                 cmd.Parameters.AddWithValue("p4", year);
-                await cmd.ExecuteNonQueryAsync();
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -387,13 +392,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="userID">User ID</param>
         /// <returns>DomainName as string</returns>
-        public async static Task<string> UserDomainNameFromIDAsync(int userID)
+        public static string UserDomainNameFromID(int userID)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `DomainName` FROM `{App.Schema}`.`users` WHERE `EmployeeNumber`={userID}", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [DomainName] FROM [users] WHERE [EmployeeNumber]={userID}", App.SqlConAsync))
                 {
-                    return (await cmd.ExecuteScalarAsync()).ToString();
+                    return (cmd.ExecuteScalar()).ToString();
                 }
             }
             catch (Exception)
@@ -406,13 +412,14 @@ namespace OMNI.Models
         /// Retrieve an updated plate index table
         /// </summary>
         /// <returns>plate_index as DataTable</returns>
-        public async static Task<DataTable> GetExtruderPlateTableAsync()
+        public static DataTable GetExtruderPlateTable()
         {
             var sqlRowCount = 0;
             var tempFile = $"{Properties.Settings.Default.omnitemp}datamine.xlsm";
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`plate_index`;", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT(*) FROM [plate_index];", App.SqlConAsync))
                 {
                     sqlRowCount = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
                 }
@@ -423,7 +430,8 @@ namespace OMNI.Models
                     var ExcelRowCount = stats.NumberOfRows - 2;
                     while (ExcelRowCount > sqlRowCount)
                     {
-                        using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`plate_index` (Part_No, Ext_No, Die_ID, Top_Bar, Plate, Date) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)", App.ConAsync))
+                        using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                                INSERT INTO [plate_index] (Part_No, Ext_No, Die_ID, Top_Bar, Plate, Date) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)", App.SqlConAsync))
                         {
                             sqlRowCount++;
                             cmd.Parameters.AddWithValue("p1", Excel.GetCellValueAsInt32(sqlRowCount, 1));
@@ -436,18 +444,50 @@ namespace OMNI.Models
                         }
                     }
                 }
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT DISTINCT `Date`, `Part_No`, `Ext_No`, `Die_ID`, `Top_Bar`, `Plate` FROM `{App.Schema}`.`plate_index`", App.ConAsync))
+                using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                                    SELECT DISTINCT [Date], [Part_No], [Ext_No], [Die_ID], [Top_Bar], [Plate] FROM [plate_index]", App.SqlConAsync))
                 {
                     using (DataTable table = new DataTable())
                     {
-                        await adapter.FillAsync(table);
+                        adapter.Fill(table);
                         return table;
                     }
                 }
             }
             catch (Exception ex)
             {
-                ExceptionWindow.Show("Unhandled Exception", ex.Message, ex, nameof(GetExtruderPlateTableAsync));
+                ExceptionWindow.Show("Unhandled Exception", ex.Message, ex, nameof(GetExtruderPlateTable));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get a list of sites
+        /// </summary>
+        /// <returns>populated list of sites</returns>
+        public static List<string> GetSiteList()
+        {
+            try
+            {
+                var _temp = new List<string>();
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [companyName] AS 'Site' FROM [company]", App.SqlConAsync))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                _temp.Add(reader.SafeGetString("Site"));
+                            }
+                        }
+                    }
+                }
+                return _temp;
+            }
+            catch (Exception)
+            {
                 return null;
             }
         }
@@ -458,65 +498,60 @@ namespace OMNI.Models
         public static void UpdateUsers()
         {
             var users = new Users();
-            using (MySqlConnection con = new MySqlConnection("Server=172.16.0.221;UID=omni;Pwd=7009;"))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT * FROM [users]", App.SqlConAsync))
             {
-                con.Open();
-                using (MySqlCommand cmd = new MySqlCommand("SELECT * FROM `omni.users`", con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            users.EmployeeNumber = reader.GetInt32("EmployeeNumber");
-                            users.DomainName = reader.GetString("DomainName");
-                            users.FullName = reader.GetString("FullName");
-                            users.EmployeeNumber = reader.GetInt32("EmployeeNumber");
-                            users.Email = reader.GetString("eMail");
-                            users.Quality = reader.GetBoolean("Quality");
-                            users.QualityNotice = reader.GetBoolean("QualityNotice");
-                            users.Kaizen = reader.GetBoolean("Kaizen");
-                            users.CMMS = reader.GetBoolean("CMMS");
-                            users.CMMSCrew = reader.GetBoolean("CMMSCrew");
-                            users.IT = reader.GetBoolean("IT");
-                            users.Engineering = reader.GetBoolean("Engineering");
-                            users.Admin = reader.GetBoolean("OMNIAdministrator");
-                            users.Developer = reader.GetBoolean("Developer");
-                            SubmitUser(users);
-                        }
+                        users.EmployeeNumber = reader.SafeGetInt32("EmployeeNumber");
+                        users.DomainName = reader.SafeGetString("DomainName");
+                        users.FullName = reader.SafeGetString("FullName");
+                        users.EmployeeNumber = reader.SafeGetInt32("EmployeeNumber");
+                        users.Email = reader.SafeGetString("eMail");
+                        users.Quality = reader.SafeGetBoolean("Quality");
+                        users.QualityNotice = reader.SafeGetBoolean("QualityNotice");
+                        users.Kaizen = reader.SafeGetBoolean("Kaizen");
+                        users.CMMS = reader.SafeGetBoolean("CMMS");
+                        users.CMMSCrew = reader.SafeGetBoolean("CMMSCrew");
+                        users.IT = reader.SafeGetBoolean("IT");
+                        users.Engineering = reader.SafeGetBoolean("Engineering");
+                        users.Admin = reader.SafeGetBoolean("OMNIAdministrator");
+                        users.Developer = reader.SafeGetBoolean("Developer");
+                        SubmitUser(users);
                     }
                 }
             }
         }
         public static void SubmitUser(Users users)
         {
-            using (MySqlConnection con = new MySqlConnection(Properties.Settings.Default.omniConnectionString))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    INSERT INTO [users]([EmployeeNumber], [DomainName], [AccountName], [FullName], [eMail], [Quality], [QualityNotice], [Kaizen], [CMMS], [CMMSCrew], [IT], [Engineering], [OMNIAdministrator], [Developer])
+                                                    VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)", App.SqlConAsync))
             {
-                con.Open();
-                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO omni.users (`EmployeeNumber`, `DomainName`, `AccountName`, `FullName`, `eMail`, `Quality`, `QualityNotice`, `Kaizen`, `CMMS`, `CMMSCrew`, `IT`, `Engineering`, `OMNIAdministrator`, `Developer`) VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)", con))
+                cmd.Parameters.AddWithValue("p1", users.EmployeeNumber);
+                cmd.Parameters.AddWithValue("p2", users.DomainName);
+                if (users.FullName.Contains(" "))
                 {
-                    cmd.Parameters.AddWithValue("p1", users.EmployeeNumber);
-                    cmd.Parameters.AddWithValue("p2", users.DomainName);
-                    if (users.FullName.Contains(" "))
-                    {
-                        cmd.Parameters.AddWithValue("p3", users.FullName.Substring(0, users.FullName.IndexOf(" ")));
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("p3", users.FullName);
-                    }
-                    cmd.Parameters.AddWithValue("p4", users.FullName);
-                    cmd.Parameters.AddWithValue("p5", users.Email);
-                    cmd.Parameters.AddWithValue("p6", users.Quality);
-                    cmd.Parameters.AddWithValue("p7", users.QualityNotice);
-                    cmd.Parameters.AddWithValue("p8", users.Kaizen);
-                    cmd.Parameters.AddWithValue("p9", users.CMMS);
-                    cmd.Parameters.AddWithValue("p10", users.CMMSCrew);
-                    cmd.Parameters.AddWithValue("p11", users.IT);
-                    cmd.Parameters.AddWithValue("p12", users.Engineering);
-                    cmd.Parameters.AddWithValue("p13", users.Admin);
-                    cmd.Parameters.AddWithValue("p14", users.Developer);
-                    cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("p3", users.FullName.Substring(0, users.FullName.IndexOf(" ")));
                 }
+                else
+                {
+                    cmd.Parameters.AddWithValue("p3", users.FullName);
+                }
+                cmd.Parameters.AddWithValue("p4", users.FullName);
+                cmd.Parameters.AddWithValue("p5", users.Email);
+                cmd.Parameters.AddWithValue("p6", users.Quality);
+                cmd.Parameters.AddWithValue("p7", users.QualityNotice);
+                cmd.Parameters.AddWithValue("p8", users.Kaizen);
+                cmd.Parameters.AddWithValue("p9", users.CMMS);
+                cmd.Parameters.AddWithValue("p10", users.CMMSCrew);
+                cmd.Parameters.AddWithValue("p11", users.IT);
+                cmd.Parameters.AddWithValue("p12", users.Engineering);
+                cmd.Parameters.AddWithValue("p13", users.Admin);
+                cmd.Parameters.AddWithValue("p14", users.Developer);
+                cmd.ExecuteNonQuery();
             }
         }
     }

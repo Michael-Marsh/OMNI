@@ -16,14 +16,14 @@ namespace OMNI.ViewModels
     {
         #region Properties
 
-        public int? QIRNotice { get { return QualityNotice ? OMNIDataBase.CountNullValuesAsync("qir_notice", IdNumber.ToString()).Result : 0; } }
-        public int? ExceptionInbox { get { return Developer ? OMNIDataBase.CountWithValuesAsync("exceptionlog", "Handled", "0").Result : 0; } }
-        public int? CMMSInbox { get { return CMMSView ? OMNIDataBase.CountWithComparisonAsync("cmmsworkorder", "`Status` IN ('Pending', 'Reviewing')").Result : 0; } }
-        public int? CMMSOpen { get { return CMMSView ? OMNIDataBase.CountWithComparisonAsync("cmmsworkorder", $"`Status`='Assigned'").Result : 0; } }
-        public int? CMMSNotice { get { return CMMSView ? OMNIDataBase.CountWithComparisonAsync("cmmsworkorder", "`Status` NOT IN ('Completed', 'Denied')").Result : 0; } }
-        public int? ITInbox { get { return IT ? OMNIDataBase.CountWithComparisonAsync("it_ticket_master", "`Status`='Pending' AND `Type`<>'Project'").Result : 0; } }
-        public int? ITOpen { get { return IT ? OMNIDataBase.CountWithComparisonAsync("it_ticket_master", "`Status`='Assigned' AND `Type`<>'Project'").Result : 0; } }
-        public int? ITProject { get { return IT ? OMNIDataBase.CountWithComparisonAsync("it_ticket_master", "`Type`<>'Ticket'").Result : 0; } }
+        public int? QIRNotice { get { return QualityNotice ? OMNIDataBase.CountNullValues("qir_notice", IdNumber.ToString()) : 0; } }
+        public int? ExceptionInbox { get { return Developer ? OMNIDataBase.CountWithValues("exceptionlog", "Handled", "0") : 0; } }
+        public int? CMMSInbox { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", "[Status] IN ('Pending', 'Reviewing')") : 0; } }
+        public int? CMMSOpen { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", $"[Status]='Assigned'") : 0; } }
+        public int? CMMSNotice { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", "[Status] NOT IN ('Completed', 'Denied')") : 0; } }
+        public int? ITInbox { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Status]='Pending' AND [Type]<>'Project'") : 0; } }
+        public int? ITOpen { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Status]='Assigned' AND [Type]<>'Project'") : 0; } }
+        public int? ITProject { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Type]<>'Ticket'") : 0; } }
         public bool CanUpdate { get { return App.IsUpdateAvailable; } }
         public bool CMMSView { get { return CMMS || CMMSCrew || CMMSAdmin; } }
         public bool ElevatedCMMSView { get { return CMMSAdmin || CMMSCrew; } }

@@ -13,10 +13,12 @@ using OMNI.QMS.Enumeration;
 using OMNI.QMS.Model;
 using OMNI.Models;
 using OMNI.QMS.View;
+using System.Threading.Tasks;
+using OMNI.Interfaces;
 
 namespace OMNI.QMS.ViewModel
 {
-    public class QIRNoticeViewModel : ViewModelBase
+    public class QIRNoticeViewModel : ViewModelBase, INotice
     {
         #region Properties
 
@@ -33,13 +35,13 @@ namespace OMNI.QMS.ViewModel
                     {
                         ReadTimer.Stop();
                     }
-                    if (NoticeView.FormGrid.Children.Count > 0)
-                    {
-                        ((ViewModelBase)((QIRFormView)NoticeView.FormGrid.Children[0]).DataContext).Dispose();
-                        NoticeView.FormGrid.Children.Clear();
-                    }
                     try
                     {
+                        if (NoticeView.FormGrid.Children.Count > 0)
+                        {
+                            ((ViewModelBase)((QIRFormView)NoticeView.FormGrid.Children[0]).DataContext).Dispose();
+                            NoticeView.FormGrid.Children.Clear();
+                        }
                         NoticeView.FormGrid.Children.Add(new QIRFormView
                         {
                             DataContext = new QIRFormViewModel(new QIR(Convert.ToInt32(value.Row.ItemArray[2]), false))
@@ -53,6 +55,10 @@ namespace OMNI.QMS.ViewModel
                     {
                         selectedRow = value = null;
                     }
+                    catch (Exception)
+                    {
+                        selectedRow = value;
+                    }
                 }
                 selectedRow = value;
             }
@@ -63,6 +69,7 @@ namespace OMNI.QMS.ViewModel
         public DispatcherTimer UpdateTimer { get; private set; }
         public static bool RefreshNotice { get; set; }
         public bool SiteFilter { get { return CurrentUser.Site == "WCCO"; } }
+        public bool Loading { get; set; }
 
         RelayCommand filter;
 
@@ -73,7 +80,6 @@ namespace OMNI.QMS.ViewModel
         /// </summary>
         public QIRNoticeViewModel()
         {
-            RefreshNotice = false;
             if (ReadTimer == null)
             {
                 ReadTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(CurrentUser.NoticeTimer) };
@@ -87,18 +93,8 @@ namespace OMNI.QMS.ViewModel
             }
             if (NoticeDataTable == null)
             {
-                NoticeDataTable = QIR.LoadNoticeAsync().Result;
-                if (NoticeDataTable != null)
-                {
-                    NoticeDataTable.DefaultView.Sort = "QIRDate DESC";
-                    NoticeDataTable.ColumnChanging += QIR.FlaggedColumnChanging;
-                    if (NoticeCollection == null)
-                    {
-                        NoticeCollection = CollectionViewSource.GetDefaultView(NoticeDataTable);
-                        NoticeCollection.GroupDescriptions.Add(new PropertyGroupDescription("QIRDate", new DateGroupConverter()));
-                        SelectedRow = (DataRowView)NoticeCollection.CurrentItem;
-                    }
-                }
+                Loading = true;
+                Task.Run(() => RefreshNoticeView());
             }
             CurrentFilter = QIRNoticeModule.Default;
         }
@@ -142,7 +138,7 @@ namespace OMNI.QMS.ViewModel
         {
             NoticeDataTable = null;
             NoticeCollection = null;
-            NoticeDataTable = QIR.LoadNoticeAsync().Result;
+            NoticeDataTable = QIR.LoadNotice();
             if (NoticeDataTable != null)
             {
                 NoticeDataTable.DefaultView.Sort = "QIRDate DESC";
@@ -156,6 +152,8 @@ namespace OMNI.QMS.ViewModel
             }
             OnPropertyChanged(nameof(NoticeCollection));
             RefreshNotice = false;
+            Loading = false;
+            OnPropertyChanged(nameof(Loading));
         }
 
         #region FilterICommand Implementation
@@ -200,7 +198,7 @@ namespace OMNI.QMS.ViewModel
                     break;
             }
         }
-        public virtual bool FilterCanExecute(object parameter) => NoticeCollection != null && App.ConConnected;
+        public virtual bool FilterCanExecute(object parameter) => NoticeCollection != null && App.SqlConAsync.State == ConnectionState.Open;
 
         #endregion
 

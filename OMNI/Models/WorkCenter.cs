@@ -1,10 +1,10 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.Enumerations;
+﻿using OMNI.Enumerations;
 using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.QMS.Enumeration;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.Models
@@ -27,7 +27,7 @@ namespace OMNI.Models
         public WorkCenter(int idNbr)
         {
             IDNumber = idNbr;
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT `WorkCenterName` FROM `{App.Schema}`.`workcenter` WHERE `WorkCenterNumber` = @p1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT [WorkCenterName] FROM [workcenter] WHERE [WorkCenterNumber] = @p1", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", idNbr);
                 Name = cmd.ExecuteScalar().ToString();
@@ -44,13 +44,13 @@ namespace OMNI.Models
             var _workCenterList = new List<WorkCenter>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `WorkCenterNumber`, `WorkCenterName` FROM `{App.Schema}`.`workcenter` WHERE `{listType.GetDescription()}`=1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; SELECT [WorkCenterNumber], [WorkCenterName] FROM [workcenter] WHERE [{listType.GetDescription()}]=1", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _workCenterList.Add(new WorkCenter { IDNumber = reader.GetInt32("WorkCenterNumber"), Name = reader.GetString("WorkCenterName") });
+                            _workCenterList.Add(new WorkCenter { IDNumber = reader.SafeGetInt32("WorkCenterNumber"), Name = reader.SafeGetString("WorkCenterName") });
                         }
                     }
                 }
@@ -67,14 +67,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="workCenterNumber">Work Center Number</param>
         /// <returns>Work Center EZ Type as NCMType</returns>
-        public async static Task<NCMType> GetEZTypeAsync(int? workCenterNumber)
+        public static NCMType GetEZType(int? workCenterNumber)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT WorkCenterType FROM `{App.Schema}`.`workcenter` WHERE WorkCenterNumber=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; SELECT [WorkCenterType] FROM [workcenter] WHERE [WorkCenterNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", workCenterNumber);
-                    Enum.TryParse((await cmd.ExecuteScalarAsync().ConfigureAwait(false)).ToString(), out NCMType _type);
+                    Enum.TryParse((cmd.ExecuteScalar()).ToString(), out NCMType _type);
                     return _type;
                 }
             }

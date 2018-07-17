@@ -1,4 +1,5 @@
 ﻿using iTextSharp.text.pdf;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.QMS.Model;
 using System;
@@ -80,10 +81,8 @@ namespace OMNI.Models
             MoveStatus = string.Empty;
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
-                {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($@"SELECT 
+                using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                                                            SELECT 
 	                                                            a.[Part_Nbr], b.[Description], b.[Um], c.[Locations], c.[Oh_Qtys]
                                                             FROM 
 	                                                            [dbo].[LOT-INIT] a 
@@ -92,141 +91,142 @@ namespace OMNI.Models
                                                             LEFT JOIN
 	                                                            [dbo].[LOT-INIT_Lot_Loc_Qtys] c ON c.[ID1] = a.[Lot_Number]
                                                             WHERE 
-	                                                            a.[Lot_Number] = @p1;", con))
+	                                                            a.[Lot_Number] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
-                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        if (dr.HasRows)
                         {
-                            if (dr.HasRows)
+                            while (dr.Read())
                             {
-                                while (dr.Read())
+                                PartNumber = !dr.IsDBNull(0) ? dr.GetString(0) : "N/A";
+                                Description = !dr.IsDBNull(1) ? dr.GetString(1) : "N/A";
+                                UOM = !dr.IsDBNull(2) ? dr.GetString(2) : "N/A";
+                                if (OnHand == null)
                                 {
-                                    PartNumber = !dr.IsDBNull(0) ? dr.GetString(0) : "N/A";
-                                    Description = !dr.IsDBNull(1) ? dr.GetString(1) : "N/A";
-                                    UOM = !dr.IsDBNull(2) ? dr.GetString(2) : "N/A";
-                                    if (OnHand == null)
-                                    {
-                                        OnHand = new Dictionary<string, int>();
-                                    }
-                                    if (!dr.IsDBNull(3) || !dr.IsDBNull(4))
-                                    {
-                                        OnHand.Add(dr.GetString(3), Convert.ToInt32(dr.GetValue(4)));
-                                    }
+                                    OnHand = new Dictionary<string, int>();
+                                }
+                                if (!dr.IsDBNull(3) || !dr.IsDBNull(4))
+                                {
+                                    OnHand.Add(dr.GetString(3), Convert.ToInt32(dr.GetValue(4)));
                                 }
                             }
                         }
                     }
-                    using (SqlCommand cmd = new SqlCommand($@"SELECT
+                }
+                using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                                                            SELECT
 	                                                            b.[ID], b.[Work_Center]
                                                             FROM
 	                                                            [dbo].[WP-INIT_Lot_Entered] a
                                                             LEFT JOIN
 	                                                            [dbo].[WPO-INIT] b ON b.[ID] LIKE CONCAT(a.[Wp_Nbr], '%')
                                                             WHERE
-	                                                            a.[Lot_Entered] = @p1;", con))
+	                                                            a.[Lot_Entered] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
-                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        if (dr.HasRows)
                         {
-                            if (dr.HasRows)
+                            while (dr.Read())
                             {
-                                while (dr.Read())
+                                if (!dr.IsDBNull(0))
                                 {
-                                    if (!dr.IsDBNull(0))
-                                    {
-                                        var _tempS = dr.GetString(0).Split('*');
-                                        WorkOrderNumber = _tempS[0];
-                                        WorkOrderSequence = Convert.ToInt32(_tempS[1]);
-                                    }
-                                    else
-                                    {
-                                        WorkOrderNumber = "N/A";
-                                        WorkOrderSequence = 0;
-                                    }
-                                    WorkCenter = dr.IsDBNull(1) ? new WorkCenter { IDNumber = 0, Name = "N/A" } : new WorkCenter(Convert.ToInt32(dr.GetString(1)));
-                                }
-                            }
-                            else
-                            {
-                                WorkOrderNumber = "N/A";
-                                WorkOrderSequence = 0;
-                                WorkCenter = new WorkCenter { IDNumber = 0, Name = "N/A" };
-                            }
-                        }
-                    }
-                    var _tempDiamond = $"'{_lotTrim}|P*%';";
-                    var _tempDmdList = new List<string>();
-                    while (DiamondNumber == null)
-                    {
-                        var cmdString = "SELECT DISTINCT([Component_Lot]) FROM [dbo].[Lot Structure] WHERE [Ls_ID] LIKE ";
-                        if (_tempDmdList.Count == 1)
-                        {
-                            cmdString += $"'{_tempDmdList[0]}|P*%'";
-                        }
-                        else if (_tempDmdList.Count > 1)
-                        {
-                            _tempDiamond = string.Empty;
-                            foreach (string s in _tempDmdList)
-                            {
-                                if (!_tempDiamond.Contains(s))
-                                {
-                                    _tempDiamond += _tempDiamond == string.Empty ? $"'{s}|P*%'" : $" OR [Ls_ID] LIKE '{s}|P*%'";
-                                }
-                            }
-                            cmdString += $"{_tempDiamond};";
-                        }
-                        else
-                        {
-                            cmdString += _tempDiamond;
-                        }
-                        _tempDmdList.Clear();
-                        using (SqlCommand cmd = new SqlCommand(cmdString, con))
-                        {
-                            using (SqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                if (reader.HasRows)
-                                {
-                                    while (reader.Read())
-                                    {
-                                        _tempDmdList.Add(reader.GetString(0).Replace("|P", "").TrimEnd()); 
-                                    }
+                                    var _tempS = dr.GetString(0).Split('*');
+                                    WorkOrderNumber = _tempS[0];
+                                    WorkOrderSequence = Convert.ToInt32(_tempS[1]);
                                 }
                                 else
                                 {
-                                    _tempDmdList.Clear();
-                                    DiamondNumber = "";
+                                    WorkOrderNumber = "N/A";
+                                    WorkOrderSequence = 0;
                                 }
+                                WorkCenter = dr.IsDBNull(1) ? new WorkCenter { IDNumber = 0, Name = "N/A" } : new WorkCenter(Convert.ToInt32(dr.GetString(1)));
                             }
-                            if (_tempDmdList.Count == 1)
+                        }
+                        else
+                        {
+                            WorkOrderNumber = "N/A";
+                            WorkOrderSequence = 0;
+                            WorkCenter = new WorkCenter { IDNumber = 0, Name = "N/A" };
+                        }
+                    }
+                }
+                var _tempDiamond = $"'{_lotTrim}|P*%';";
+                var _tempDmdList = new List<string>();
+                while (DiamondNumber == null)
+                {
+                    var cmdString = $"USE [{CurrentUser.Site.ToUpper()}_MAIN]; SELECT DISTINCT([Component_Lot]) FROM [dbo].[Lot Structure] WHERE [Ls_ID] LIKE ";
+                    if (_tempDmdList.Count == 1)
+                    {
+                        cmdString += $"'{_tempDmdList[0]}|P*%'";
+                    }
+                    else if (_tempDmdList.Count > 1)
+                    {
+                        _tempDiamond = string.Empty;
+                        foreach (string s in _tempDmdList)
+                        {
+                            if (!_tempDiamond.Contains(s))
                             {
-                                DiamondNumber = _tempDmdList[0].Contains("-") ? null : _tempDmdList[0];
+                                _tempDiamond += _tempDiamond == string.Empty ? $"'{s}|P*%'" : $" OR [Ls_ID] LIKE '{s}|P*%'";
+                            }
+                        }
+                        cmdString += $"{_tempDiamond};";
+                    }
+                    else
+                    {
+                        cmdString += _tempDiamond;
+                    }
+                    _tempDmdList.Clear();
+                    using (SqlCommand cmd = new SqlCommand(cmdString, App.SqlConAsync))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    _tempDmdList.Add(reader.GetString(0).Replace("|P", "").TrimEnd());
+                                }
                             }
                             else
                             {
-                                foreach (string s in _tempDmdList)
-                                {
-                                    DiamondNumber = s.Contains("-") ? null : DiamondNumber == null ? s : $"{DiamondNumber} / {s}";
-                                }
+                                _tempDmdList.Clear();
+                                DiamondNumber = "";
+                            }
+                        }
+                        if (_tempDmdList.Count == 1)
+                        {
+                            DiamondNumber = _tempDmdList[0].Contains("-") ? null : _tempDmdList[0];
+                        }
+                        else
+                        {
+                            foreach (string s in _tempDmdList)
+                            {
+                                DiamondNumber = s.Contains("-") ? null : DiamondNumber == null ? s : $"{DiamondNumber} / {s}";
                             }
                         }
                     }
-                    if (PartNumber != null)
+                }
+                if (PartNumber != null)
+                {
+                    if (ItemsLot == null)
                     {
-                        if (ItemsLot == null)
-                        {
-                            ItemsLot = new DataTable();
-                        }
-                        using (SqlDataAdapter adapter = new SqlDataAdapter($@"SELECT 
+                        ItemsLot = new DataTable();
+                    }
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                                                                            SELECT 
                                                                                 l.[Lot_Number], o.[Oh_Qtys], o.[Loc] 
                                                                             FROM 
                                                                                 [dbo].[LOT-INIT] l 
                                                                             RIGHT JOIN 
                                                                                 [dbo].[LOT-INIT_Lot_Loc_Qtys] o ON o.[ID1] = l.[Lot_Number] 
                                                                             WHERE 
-                                                                                l.[Part_Nbr] = '{PartNumber}' AND [Stores_Oh] != 0;", con))
-                        {
-                            adapter.Fill(ItemsLot);
-                        }
+                                                                                l.[Part_Nbr] = '{PartNumber}' AND [Stores_Oh] != 0;", App.SqlConAsync))
+                    {
+                        adapter.Fill(ItemsLot);
                     }
                 }
                 if (QIRList == null)
@@ -247,32 +247,29 @@ namespace OMNI.Models
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
-                {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($@"SELECT 
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                                                            SELECT 
 	                                                            SUM(DISTINCT([Inc_Std_Costs])) AS [Total_Inc], SUM([Ru_Std_Costs]) AS [Total_Ru] 
                                                             FROM 
 	                                                            [dbo].[IM-INIT_Std_Costs] 
                                                             WHERE 
-	                                                            [Part_Nbr] = @p1;", con))
+	                                                            [Part_Nbr] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", partNbr);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", partNbr);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.HasRows)
                         {
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    var _std = reader.IsDBNull(0) ? 0.00 : Convert.ToDouble(reader.GetDecimal(0));
-                                    var _run = reader.IsDBNull(1) ? 0.00 : Convert.ToDouble(reader.GetDecimal(1));
-                                    return _std + _run;
-                                }
+                                var _std = reader.IsDBNull(0) ? 0.00 : Convert.ToDouble(reader.GetDecimal(0));
+                                var _run = reader.IsDBNull(1) ? 0.00 : Convert.ToDouble(reader.GetDecimal(1));
+                                return _std + _run;
                             }
-                            else
-                            {
-                                return 0.00;
-                            }
+                        }
+                        else
+                        {
+                            return 0.00;
                         }
                     }
                 }
@@ -291,14 +288,10 @@ namespace OMNI.Models
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", App.SqlConAsync))
                 {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", con))
-                    {
-                        cmd.Parameters.AddWithValue("p1", partNbr);
-                        return cmd.ExecuteScalar().ToString();
-                    }
+                    cmd.Parameters.AddWithValue("p1", partNbr);
+                    return cmd.ExecuteScalar().ToString();
                 }
             }
             catch (Exception)
@@ -315,34 +308,31 @@ namespace OMNI.Models
             var _temp = new string[2];
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
-                {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($@"SELECT 
-	                                                            a.[Part_Wo_Desc], b.[Work_Center] 
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                                                            SELECT 
+	                                                            a.[Part_Wo_Desc] as 'Desc', b.[Work_Center] as 'Machine' 
                                                             FROM 
 	                                                            [dbo].[WP-INIT] a 
                                                             RIGHT JOIN
 	                                                            [dbo].[WPO-INIT] b ON b.ID LIKE CONCAT(a.[Wp_Nbr], '%') 
                                                             WHERE 
-	                                                            a.[Wp_Nbr] = @p1;", con))
+	                                                            a.[Wp_Nbr] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", workOrderNbr);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", workOrderNbr);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.HasRows)
                         {
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    _temp[0] = !reader.IsDBNull(0) ? reader.GetString(0) : null;
-                                    _temp[1] = !reader.IsDBNull(1) ? reader.GetString(1) : null;
-                                    return _temp;
-                                }
+                                _temp[0] = reader.SafeGetString("Desc");
+                                _temp[1] = reader.SafeGetString("Machine");
+                                return _temp;
                             }
-                            else
-                            {
-                                return null;
-                            }
+                        }
+                        else
+                        {
+                            return null;
                         }
                     }
                 }
@@ -360,41 +350,38 @@ namespace OMNI.Models
         public static InventorySkew GetSkewFromPartNrb(string partNrb)
         {
             var _temp = new InventorySkew { OnHand = new Dictionary<string, int>() };
-            using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+            try
             {
-                con.Open();
-                try
-                {
-                    using (SqlCommand cmd = new SqlCommand(@"SELECT
-                                                                a.[Part_Number], a.[Description], a.[Um], CAST(b.[Qty_On_Hand] AS INT) 
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                                                            SELECT
+                                                                a.[Description] as 'Desc', a.[Um], CAST(b.[Qty_On_Hand] AS INT) as 'OnHand' 
                                                             FROM
                                                                 [dbo].[IM-INIT] a
                                                             RIGHT JOIN
                                                                 [dbo].[IPL-INIT] b ON b.[Part_Nbr] = a.[Part_Number]
                                                             WHERE
-                                                                a.[Part_Number] = @p1;", con))
+                                                                a.[Part_Number] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", partNrb);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", partNrb);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.HasRows)
                         {
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while(reader.Read())
-                                {
-                                    _temp.PartNumber = partNrb;
-                                    _temp.Description = reader.IsDBNull(1) ? "" : reader.GetString(1);
-                                    _temp.UOM = reader.IsDBNull(2) ? "" : reader.GetString(2);
-                                    _temp.OnHand.Add("Total", Convert.ToInt32(reader.GetValue(3)));
-                                }
+                                _temp.PartNumber = partNrb;
+                                _temp.Description = reader.SafeGetString("Desc");
+                                _temp.UOM = reader.SafeGetString("Um");
+                                _temp.OnHand.Add("Total", reader.SafeGetInt32("OnHand"));
                             }
                         }
                     }
-                    return _temp;
                 }
-                catch (Exception)
-                {
-                    return null;
-                }
+                return _temp;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }

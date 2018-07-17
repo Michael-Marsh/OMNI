@@ -22,8 +22,31 @@ namespace OMNI.ViewModels
 
             set
             {
-                base.SelectedCrewMember = value;
-                CMMSNoticeOpenOrdersTick();
+                if (base.SelectedCrewMember == null)
+                {
+                    base.SelectedCrewMember = value;
+                }
+                else
+                {
+                    base.SelectedCrewMember = value;
+                    CMMSNoticeOpenOrdersTick();
+                }
+            }
+        }
+        public override string SelectedSite
+        {
+            get { return base.SelectedSite; }
+            set
+            {
+                if (base.SelectedSite == null)
+                {
+                    base.SelectedSite = value;
+                }
+                else
+                {
+                    base.SelectedSite = value;
+                    CMMSNoticeOpenOrdersTick();
+                }
             }
         }
 
@@ -35,6 +58,7 @@ namespace OMNI.ViewModels
         public CMMSNoticeOpenOrdersUCViewModel()
         {
             Module = CMMSActionGridView.OpenOrders;
+            SelectedSite = CurrentUser.Site;
             UpdateTimer.Add(CMMSNoticeOpenOrdersTick);
             CMMSNoticeOpenOrdersTick();
         }
@@ -48,7 +72,7 @@ namespace OMNI.ViewModels
                 {
                     _tempPosition = OpenOrdersView.CurrentPosition;
                 }
-                NoticeTable = CMMSWorkOrder.LoadNoticeAsync(Convert.ToInt32(Module), SelectedCrewMember).Result;
+                NoticeTable = CMMSWorkOrder.LoadNotice(Convert.ToInt32(Module), SelectedCrewMember, SelectedSite);
                 OpenOrdersView = CollectionViewSource.GetDefaultView(NoticeTable);
                 OpenOrdersView.GroupDescriptions.Add(new PropertyGroupDescription(CurrentGroup));
                 OpenOrdersView.MoveCurrentToPosition(_tempPosition);
@@ -78,6 +102,12 @@ namespace OMNI.ViewModels
         {
             base.DenyExecute(parameter);
             CMMSNoticeOpenOrdersTick();
+        }
+
+        public override void OnDispose(bool disposing)
+        {
+            UpdateTimer.Remove(CMMSNoticeOpenOrdersTick);
+            base.OnDispose(disposing);
         }
     }
 }

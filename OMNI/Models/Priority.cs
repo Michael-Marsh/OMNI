@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.Models
@@ -36,8 +36,10 @@ namespace OMNI.Models
         /// <returns>New Priority Object</returns>
         public static Priority Create(string description)
         {
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT `PriorityLevel` FROM `{App.Schema}`.`priority` WHERE `Priority`='{description}'", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [PriorityLevel] FROM [priority] WHERE [Priority]=@p1", App.SqlConAsync))
             {
+                cmd.Parameters.AddWithValue("p1", description);
                 return new Priority { Level = Convert.ToInt32(cmd.ExecuteScalar()), Description = description };
             }
         }
@@ -50,15 +52,16 @@ namespace OMNI.Models
         public async static Task<List<Priority>> GetListAsync(bool unassigned)
         {
             var _priority = new List<Priority>();
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`priority`", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT * FROM [priority]", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync())
                     {
-                        if (unassigned && reader.GetInt32("PriorityLevel") != 6)
+                        if (unassigned && reader.SafeGetInt32("PriorityLevel") != 6)
                         {
-                            _priority.Add(Create(reader.GetInt32("PriorityLevel"), reader.GetString(nameof(Priority))));
+                            _priority.Add(Create(reader.SafeGetInt32("PriorityLevel"), reader.SafeGetString(nameof(Priority))));
                         }
                     }
                 }

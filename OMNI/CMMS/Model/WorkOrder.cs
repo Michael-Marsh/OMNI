@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System.Data.SqlClient;
 using OMNI.Helpers;
 using OMNI.Models;
 using System;
@@ -30,11 +30,11 @@ namespace OMNI.CMMS.Model
             /*var _wo = (WorkOrder)formObject;
             try
             {
-                var Command = $"INSERT INTO `{App.Schema}`.`cmmsworkorder`";
+                var Command = $"INSERT INTO {App.Schema}.cmmsworkorder";
                 var Columns = $"(Status, Priority, Date, Submitter, WorkCenter, Description, Safety, Quality, Production, CrewMembersAssigned, RequestedByDate, RequestDateReason, DateAssigned, DateCompleted, MachineDown, PartsUsed, AttachedNotes, Lockout)";
                 const string Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)";
 
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _wo.Status.ToString());
                     cmd.Parameters.AddWithValue("p2", _wo.Priority);

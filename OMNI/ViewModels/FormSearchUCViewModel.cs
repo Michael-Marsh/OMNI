@@ -1,11 +1,11 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.CustomControls;
+﻿using OMNI.CustomControls;
 using OMNI.Extensions;
 using OMNI.Models;
 using OMNI.QMS.Model;
 using System;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Windows.Data;
 
 namespace OMNI.ViewModels
@@ -33,7 +33,7 @@ namespace OMNI.ViewModels
         /// </summary>
         public FormSearchUCViewModel()
         {
-            LoadTableAsync();
+            LoadTable();
         }
 
         /// <summary>
@@ -42,22 +42,23 @@ namespace OMNI.ViewModels
         /// <param name="searchFilter">DataTable Search Filter</param>
         public FormSearchUCViewModel(string searchFilter)
         {
-            LoadTableAsync(searchFilter);
+            LoadTable(searchFilter);
         }
 
         /// <summary>
         /// Load the Table for the view
         /// </summary>
         /// <param name="searchFilter">optional: DataTable Search Filter. default = null</param>
-        public async void LoadTableAsync(string searchFilter = null)
+        public void LoadTable(string searchFilter = null)
         {
             Table = new DataTable();
             if (string.IsNullOrEmpty(searchFilter))
             {
-                using (var adapter = new MySqlDataAdapter($"SELECT `WorkOrderNumber`, `Date` FROM `omni`.`cmmsworkorder` WHERE `Submitter`='{CurrentUser.FullName}'", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                        SELECT [WorkOrderNumber], [Date] FROM [cmmsworkorder] WHERE [Submitter]='{CurrentUser.FullName}';", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     _table.Columns[0].ColumnName = "FormNumber";
                     _table.Columns[1].ColumnName = "SubmitDate";
                     _table.Columns.Add("Type", typeof(string));
@@ -67,18 +68,20 @@ namespace OMNI.ViewModels
                     }
                     Table.Merge(_table);
                 }
-                using (var adapter = new MySqlDataAdapter($"SELECT `QIRNumber`, `QIRDate`, `Type` FROM `omni`.`qir_master` WHERE `Submitter`='{CurrentUser.FullName}'", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                           SELECT [QIRNumber], [QIRDate], [Type] FROM [qir_master] WHERE [Submitter]='{CurrentUser.FullName}';", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     _table.Columns[0].ColumnName = "FormNumber";
                     _table.Columns[1].ColumnName = "SubmitDate";
                     Table.Merge(_table);
                 }
-                using (var adapter = new MySqlDataAdapter($"SELECT `TicketNumber`, `SubmitDate` FROM `omni`.`it_ticket_master` WHERE `Submitter`='{CurrentUser.FullName}'", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                            SELECT [TicketNumber], [SubmitDate] FROM [it_ticket_master] WHERE [Submitter]='{CurrentUser.FullName}';", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     _table.Columns[0].ColumnName = "FormNumber";
                     _table.Columns[1].ColumnName = "SubmitDate";
                     _table.Columns.Add("Type", typeof(string));
@@ -91,10 +94,11 @@ namespace OMNI.ViewModels
             }
             else
             {
-                using (var adapter = new MySqlDataAdapter($"SELECT * FROM `omni`.`cmmsworkorder`", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase}
+                                                            SELECT * FROM [cmmsworkorder]", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     var _tableView = _table.SearchToDataView(searchFilter);
                     _table = null;
                     _table = _tableView.ToTable(false, "WorkOrderNumber", "Date");
@@ -107,10 +111,11 @@ namespace OMNI.ViewModels
                     }
                     Table.Merge(_table);
                 }
-                using (var adapter = new MySqlDataAdapter($"SELECT * FROM `omni`.`qir_master`", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                            SELECT * FROM [qir_master];", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     var _tableView = _table.SearchToDataView(searchFilter);
                     _table = null;
                     _table = _tableView.ToTable(false, "QIRNumber", "QIRDate", "Type");
@@ -118,10 +123,11 @@ namespace OMNI.ViewModels
                     _table.Columns[1].ColumnName = "SubmitDate";
                     Table.Merge(_table);
                 }
-                using (var adapter = new MySqlDataAdapter($"SELECT * FROM `omni`.`it_ticket_master`", App.ConAsync))
+                using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                            SELECT * FROM [it_ticket_master];", App.SqlConAsync))
                 {
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table);
+                    adapter.Fill(_table);
                     var _tableView = _table.SearchToDataView(searchFilter);
                     _table = null;
                     _table = _tableView.ToTable(false, "TicketNumber", "SubmitDate");

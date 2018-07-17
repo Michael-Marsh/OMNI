@@ -21,7 +21,7 @@ namespace OMNI.ViewModels
             {
                 if (value != null)
                 {
-                    CMMSPart.UnlockLockRecordAsync(Convert.ToInt32(searchID), false);
+                    CMMSPart.UnlockLockRecord(Convert.ToInt32(searchID), false);
                     WccoPart = CMMSPart.GetCMMSPartAsync(Convert.ToInt32(value)).Result;
                     OnPropertyChanged(nameof(WccoPart));
                 }
@@ -62,10 +62,10 @@ namespace OMNI.ViewModels
             switch(PartAction)
             {
                 case CMMSPartAction.New:
-                    saveValidation = WccoPart.SubmitAsync().Result;
+                    saveValidation = WccoPart.Submit();
                     break;
                 case CMMSPartAction.Save:
-                    saveValidation = WccoPart.UpdateAsync().Result;
+                    saveValidation = WccoPart.Update();
                     break;
                 case CMMSPartAction.Open:
                     ExceptionWindow.Show("Invalid Part", "No part has been selected.");
@@ -99,7 +99,7 @@ namespace OMNI.ViewModels
         {
             if (disposing)
             {
-                CMMSPart.UnlockLockRecordAsync(Convert.ToInt32(SearchID), false);
+                CMMSPart.UnlockLockRecord(Convert.ToInt32(SearchID), false);
                 CMMSPartManagementUCViewModel.PartSave -= WCCOPartSave;
                 CMMSPartManagementUCViewModel.WCCOPartCanSave = false;
             }

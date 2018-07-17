@@ -123,9 +123,11 @@ namespace OMNI.ViewModels
         public bool IsLoaded
         {
             get { return isLoaded; }
-            set { if (value) { UpdateNotesAsync(); LoadFormAsync(); } isLoaded = value = false; }
+            set { if (value) { UpdateNotes(); LoadFormAsync(); } isLoaded = value = false; }
         }
         public bool IsClosed { get { return WorkOrder == null || WorkOrder.Status.Equals(CMMSStatus.Completed) || WorkOrder.Status.Equals(CMMSStatus.Denied); } }
+        public string CurrentSite { get { return CurrentUser.Site; } }
+
 
         RelayCommand _submit;
         RelayCommand _note;
@@ -162,7 +164,7 @@ namespace OMNI.ViewModels
             Running = false;
             OnPropertyChanged(nameof(PriorityView));
             OnPropertyChanged(nameof(AssignView));
-            UpdateNotesAsync();
+            UpdateNotes();
         }
 
         /// <summary>
@@ -219,7 +221,7 @@ namespace OMNI.ViewModels
                     if (WorkOrder.IDNumber > 0)
                     {
                         WorkOrder.CrewAssigned = BuildCrew();
-                        WorkOrder.UpdateAsync();
+                        WorkOrder.Update();
                         TakeAction();
                     }
                 }
@@ -240,7 +242,7 @@ namespace OMNI.ViewModels
                         WorkOrder.Status = CMMSStatus.Pending;
                     }
                     WorkOrder.CrewAssigned = BuildCrew();
-                    WorkOrder.UpdateAsync();
+                    WorkOrder.Update();
                     TakeAction();
                 }
             }
@@ -263,7 +265,7 @@ namespace OMNI.ViewModels
                 {
                     File.Delete($"{Properties.Settings.Default.CMMSDocumentLocation}{DocumentList[e.NewIndex].FileName}");
                 }
-                WorkOrder.RemoveDocumentAsync(DocumentList[e.NewIndex].FileName);
+                WorkOrder.RemoveDocument(DocumentList[e.NewIndex].FileName);
                 DocumentList.RemoveAt(e.NewIndex);
             }
 
@@ -272,11 +274,11 @@ namespace OMNI.ViewModels
         /// <summary>
         /// Update the notes attached to the QIR
         /// </summary>
-        public async void UpdateNotesAsync()
+        public void UpdateNotes()
         {
             if (WorkOrder.IDNumber != null)
             {
-                NotesTable = await CMMSWorkOrder.LoadNotesAsync((int)WorkOrder.IDNumber);
+                NotesTable = CMMSWorkOrder.LoadNotes((int)WorkOrder.IDNumber);
                 OnPropertyChanged(nameof(NotesTable));
             }
         }
@@ -338,7 +340,7 @@ namespace OMNI.ViewModels
         {
             SearchEntered = true;
             OnPropertyChanged(nameof(SearchEntered));
-            CrewList = CurrentUser.CMMSCrew || CurrentUser.CMMSAdmin ? new BindingList<Users>(await Users.CMMSUserListAsync(false, (int)WorkOrder?.IDNumber, false)) : new BindingList<Users>(await Users.CMMSAssignedCrewListAsync((int)WorkOrder?.IDNumber));
+            CrewList = CurrentUser.CMMSCrew || CurrentUser.CMMSAdmin ? new BindingList<Users>(await Users.CMMSUserListAsync(false, (int)WorkOrder?.IDNumber, false)) : new BindingList<Users>(Users.CMMSAssignedCrewList((int)WorkOrder?.IDNumber));
             CrewList.ListChanged += CrewListChanged;
             OnPropertyChanged(nameof(CrewList));
             CommandType = FormCommand.Update;
@@ -349,7 +351,7 @@ namespace OMNI.ViewModels
             OnPropertyChanged(nameof(ClosedView));
             OnPropertyChanged(nameof(FinishedStatus));
             OnPropertyChanged(nameof(PriorityView));
-            UpdateNotesAsync();
+            UpdateNotes();
             DocumentList = new BindingList<AttachedDocuments>(await AttachedDocuments.CreateDocListAsync((int)WorkOrder.IDNumber));
             DocumentList.ListChanged += DocumentListChanged;
             OnPropertyChanged(nameof(DocumentList));
@@ -362,7 +364,7 @@ namespace OMNI.ViewModels
             OnPropertyChanged(nameof(CanAssign));
             OnPropertyChanged(nameof(Assigned));
             OnPropertyChanged(nameof(IsClosed));
-            if (!FormBase.FormChangeInProgress && WorkOrder.LinkExistsAsync().Result)
+            if (!FormBase.FormChangeInProgress && WorkOrder.LinkExists())
             {
                 var noUseYet = WorkOrder.GetLinkListAsync().Result;
             }
@@ -424,7 +426,7 @@ namespace OMNI.ViewModels
             {
                 if (WorkOrder.Status == CMMSStatus.Completed || WorkOrder.Status == CMMSStatus.Denied)
                 {
-                    var email = Users.RetrieveEmailAddressAsync(WorkOrder.Submitter).Result;
+                    var email = Users.RetrieveEmailAddress(WorkOrder.Submitter);
                     if (!email.Equals("Not on File", StringComparison.OrdinalIgnoreCase))
                     {
                         WorkOrder.ExportToPDF(true);
@@ -530,11 +532,11 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Empty Object</param>
         private void NoteExecute(object parameter)
         {
-            if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", WorkOrder.IDNumber).Result))
+            if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", WorkOrder.IDNumber)))
             {
                 WorkOrder.AttachedNotes = true;
             }
-            UpdateNotesAsync();
+            UpdateNotes();
         }
         private bool NoteCanExecute(object parameter) => WorkOrder == null || WorkOrder.IDNumber == null || IsClosed
             ? false
@@ -561,20 +563,20 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Empty Object</param>
         private void DenyExecute(object parameter)
         {
-            if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", WorkOrder.IDNumber).Result))
+            if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", WorkOrder.IDNumber)))
             {
                 WorkOrder.Status = CMMSStatus.Denied;
                 SelectedPriority = "Unassigned";
                 WorkOrder.DateAssigned = DateTime.MinValue;
                 WorkOrder.DateComplete = DateTime.Today;
                 WorkOrder.AttachedNotes = true;
-                UpdateNotesAsync();
+                UpdateNotes();
                 foreach (var item in CrewList)
                 {
                     item.Selected = false;
                 }
                 OnPropertyChanged(nameof(CrewList));
-                WorkOrder.UpdateAsync();
+                WorkOrder.Update();
                 TakeAction();
             }
             OnPropertyChanged(nameof(AssignView));
@@ -616,12 +618,12 @@ namespace OMNI.ViewModels
             {
                 WorkOrder.CrewAssigned = BuildCrew();
                 ValidateStatus(WorkOrder.Status);
-                WorkOrder.IDNumber = WorkOrder.SubmitAsync().Result;
+                WorkOrder.IDNumber = WorkOrder.Submit();
                 if (DocumentList.Count > 0)
                 {
                     foreach (var file in DocumentList)
                     {
-                        WorkOrder.SubmitAttachDocumentAsync(file.FileName);
+                        WorkOrder.SubmitAttachDocument(file.FileName);
                         File.Copy(file.FilePath, $"{Properties.Settings.Default.CMMSDocumentLocation}{file.FileName}", true);
                         file.FilePath = $"{Properties.Settings.Default.CMMSDocumentLocation}{file.FileName}";
                     }
@@ -633,13 +635,13 @@ namespace OMNI.ViewModels
             }
             else if (CommandType == FormCommand.Update)
             {
-                if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", WorkOrder.IDNumber).Result))
+                if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", WorkOrder.IDNumber)))
                 {
                     WorkOrder.CrewAssigned = BuildCrew();
                     ValidateStatus(WorkOrder.Status);
                     WorkOrder.AttachedNotes = true;
-                    UpdateNotesAsync();
-                    WorkOrder.UpdateAsync();
+                    UpdateNotes();
+                    WorkOrder.Update();
                     TakeAction();
                 }
             }
@@ -690,14 +692,14 @@ namespace OMNI.ViewModels
         {
             if (CompleteCommandType == "Complete" && ValidateStatus(CMMSStatus.Completed))
             {
-                if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", WorkOrder.IDNumber).Result))
+                if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", WorkOrder.IDNumber)))
                 {
                     WorkOrder.Status = CMMSStatus.Completed;
                     WorkOrder.DateComplete = DateTime.Now;
                     WorkOrder.AttachedNotes = true;
-                    WorkOrder.UpdateAsync();
+                    WorkOrder.Update();
                     TakeAction();
-                    UpdateNotesAsync();
+                    UpdateNotes();
                     OnPropertyChanged(nameof(WorkOrder));
                 }
             }
@@ -705,14 +707,14 @@ namespace OMNI.ViewModels
             {
                 WorkOrder.Status = CMMSStatus.Assigned;
                 WorkOrder.DateComplete = DateTime.MinValue;
-                WorkOrder.UpdateAsync();
+                WorkOrder.Update();
                 OnPropertyChanged(nameof(WorkOrder));
             }
             else
             {
                 WorkOrder.Status = CMMSStatus.Pending;
                 WorkOrder.DateComplete = DateTime.MinValue;
-                WorkOrder.UpdateAsync();
+                WorkOrder.Update();
                 OnPropertyChanged(nameof(WorkOrder));
             }
             OnPropertyChanged(nameof(ClosedView));

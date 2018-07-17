@@ -69,7 +69,7 @@ namespace OMNI.ViewModels
             LoadContent = string.Empty;
             Running = false;
             CommandType = FormCommand.Search;
-            Task.Run(LoadResultsTableAsync);
+            Task.Run(() => LoadResultsTable());
             if (ExtruderList == null)
             {
                 ExtruderList = new ObservableCollection<string>();
@@ -84,9 +84,9 @@ namespace OMNI.ViewModels
         /// Initializes ResultsTable
         /// </summary>
         /// <returns></returns>
-        public async Task LoadResultsTableAsync()
+        public void LoadResultsTable()
         {
-            ResultsTable = await OMNIDataBase.GetExtruderPlateTableAsync().ConfigureAwait(false);
+            ResultsTable = OMNIDataBase.GetExtruderPlateTable();
         }
 
         #region View Commands
@@ -121,10 +121,9 @@ namespace OMNI.ViewModels
                 LoadContent = "Loading...";
                 if (ResultsTable == null)
                 {
-                    while (!LoadResultsTableAsync().IsCompleted) { }
                     if (ResultsTable != null)
                     {
-                        ResultsTable.DefaultView.RowFilter = $"`Part_No`={PartNumber} AND `Ext_No`='{SelectedExtruder}'";
+                        ResultsTable.DefaultView.RowFilter = $"Part_No={PartNumber} AND Ext_No='{SelectedExtruder}'";
                     }
                     else
                     {
@@ -136,7 +135,7 @@ namespace OMNI.ViewModels
                 {
                     ResultsTable.DefaultView.RowFilter = string.Empty;
                     OnPropertyChanged(nameof(ResultsTable));
-                    ResultsTable.DefaultView.RowFilter = $"`Part_No`={PartNumber} AND `Ext_No`='{SelectedExtruder}'";
+                    ResultsTable.DefaultView.RowFilter = $"Part_No={PartNumber} AND Ext_No='{SelectedExtruder}'";
                 }
                 OnPropertyChanged(nameof(ResultsTable));
             }

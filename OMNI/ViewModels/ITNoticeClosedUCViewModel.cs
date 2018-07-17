@@ -32,7 +32,7 @@ namespace OMNI.ViewModels
                     {
                         _position = OpenTicketsView.CurrentPosition;
                     }
-                    NoticeTable = ITTicket.GetNoticeDataTableAsync(ITNotice.Closed).Result;
+                    NoticeTable = ITTicket.GetNoticeDataTable(ITNotice.Closed, true);
                     OpenTicketsView = CollectionViewSource.GetDefaultView(NoticeTable);
                     OpenTicketsView.GroupDescriptions.Add(new PropertyGroupDescription(CurrentGroup));
                     OpenTicketsView.MoveCurrentToPosition(_position);
@@ -54,6 +54,12 @@ namespace OMNI.ViewModels
             base.RefreshExecute(parameter);
             ITNoticeClosedTick();
             UpdateTimer.Add(ITNoticeClosedTick);
+        }
+
+        public override void OnDispose(bool disposing)
+        {
+            UpdateTimer.Remove(ITNoticeClosedTick);
+            base.OnDispose(disposing);
         }
     }
 }

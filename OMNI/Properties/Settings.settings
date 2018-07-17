@@ -32,9 +32,6 @@
     <Setting Name="omnitemp" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\temp\</Value>
     </Setting>
-    <Setting Name="QIRNoticeEmailAddress" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">QIRNotice@WCCOBELTING.onmicrosoft.com</Value>
-    </Setting>
     <Setting Name="CSISupplierNumber" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">1015</Value>
     </Setting>
@@ -74,37 +71,15 @@
     <Setting Name="CSIManageAccount" Type="System.String" Scope="User">
       <Value Profile="(Default)">E:/roi/CSI.MAIN</Value>
     </Setting>
-    <Setting Name="omniConnectionString" Type="(Connection string)" Scope="Application">
-      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;database=omni&lt;/ConnectionString&gt;
-  &lt;ProviderName&gt;MySql.Data.MySqlClient&lt;/ProviderName&gt;
-&lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;database=omni</Value>
-    </Setting>
-    <Setting Name="omniUserConnectionString" Type="(Connection string)" Scope="Application">
-      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;&lt;/ConnectionString&gt;
-&lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;</Value>
-    </Setting>
-    <Setting Name="RedBackConnectionString" Type="(Connection string)" Scope="Application">
-      <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;account=E:\roi\WCCO.MAIN;host=172.16.0.122;userid=query;password=query;domain=;whitepagesport=8403&lt;/ConnectionString&gt;
-&lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">account=E:\roi\WCCO.MAIN;host=172.16.0.122;userid=query;password=query;domain=;whitepagesport=8403</Value>
-    </Setting>
     <Setting Name="UsersPhotoDirectory" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\Document Center\Photo Library\Employees</Value>
     </Setting>
-    <Setting Name="omniMSSQLConnectionString" Type="(Connection string)" Scope="Application">
+    <Setting Name="SqlConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connection Timeout=5&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;MultipleActiveResultSets=True&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connection Timeout=5</Value>
+      <Value Profile="(Default)">Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;MultipleActiveResultSets=True</Value>
     </Setting>
     <Setting Name="CSIDocumentLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\192.168.16.4\FileStorage\Published Documents\</Value>

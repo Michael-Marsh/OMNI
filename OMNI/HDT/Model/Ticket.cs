@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-using OMNI.Models;
-using System.ComponentModel;
+﻿using OMNI.Extensions;
 using OMNI.HDT.Enumeration;
 using OMNI.Helpers;
+using OMNI.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace OMNI.HDT.Model
 {
@@ -75,33 +73,34 @@ namespace OMNI.HDT.Model
             try
             {
                 var _tempPriority = string.Empty;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_master` WHERE `TicketNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                          SELECT * FROM [it_ticket_master] WHERE [TicketNumber] = @p1;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", idNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             IDNumber = idNumber;
-                            Submitter = reader.GetString(nameof(Submitter));
-                            Date = reader.GetDateTime("SubmitDate");
-                            Location = reader.GetString(nameof(Location));
-                            Subject = reader.GetString(nameof(Subject));
-                            Type = (TicketType)Enum.Parse(typeof(TicketType), reader.GetString(nameof(Type)));
-                            RequestDate = reader.GetDateTime("RequestCompletionDate");
-                            RequestReason = reader.IsDBNull(7) ? string.Empty : reader.GetString("RequestCompletionReason");
-                            Description = reader.GetString(nameof(Description));
-                            IAR = reader.GetBoolean(nameof(IAR));
-                            Status = reader.GetString(nameof(Status));
-                            _tempPriority = reader.GetString(nameof(Priority));
-                            Confidential = reader.GetBoolean(nameof(Confidential));
-                            CompletionDate = reader.GetDateTime("DateCompleted");
-                            POC = reader.IsDBNull(14) ? string.Empty : reader.GetString(nameof(POC));
+                            Submitter = reader.SafeGetString(nameof(Submitter));
+                            Date = reader.SafeGetDateTime("SubmitDate");
+                            Location = reader.SafeGetString(nameof(Location));
+                            Subject = reader.SafeGetString(nameof(Subject));
+                            Type = (TicketType)Enum.Parse(typeof(TicketType), reader.SafeGetString(nameof(Type)));
+                            RequestDate = reader.SafeGetDateTime("RequestCompletionDate");
+                            RequestReason = reader.SafeGetString("RequestCompletionReason");
+                            Description = reader.SafeGetString(nameof(Description));
+                            IAR = reader.SafeGetBoolean(nameof(IAR));
+                            Status = reader.SafeGetString(nameof(Status));
+                            _tempPriority = reader.SafeGetString(nameof(Priority));
+                            Confidential = reader.SafeGetBoolean(nameof(Confidential));
+                            CompletionDate = reader.SafeGetDateTime("DateCompleted");
+                            POC = reader.SafeGetString(nameof(POC));
                         }
                     }
                 }
                 Priority = _tempPriority == "--Unassigned--" ? Priority.Create(6, "--Unassigned--") : Priority.Create(_tempPriority);
-                AssignedTo = TeamMember.GetBindingListAsync(false).Result;
+                AssignedTo = TeamMember.GetBindingList(false);
             }
             catch (Exception ex)
             {
@@ -119,13 +118,14 @@ namespace OMNI.HDT.Model
             try
             {
                 var _list = new List<string>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_status`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                          SELECT[Title] FROM[it_ticket_status]; ", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            _list.Add(reader.GetString("Title"));
+                            _list.Add(reader.SafeGetString("Title"));
                         }
                     }
                 }
@@ -146,13 +146,14 @@ namespace OMNI.HDT.Model
             try
             {
                 var _list = new List<string>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_type`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                          SELECT [Title] FROM [it_ticket_type];", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            _list.Add(reader.GetString("Title"));
+                            _list.Add(reader.SafeGetString("Title"));
                         }
                     }
                 }
@@ -168,20 +169,26 @@ namespace OMNI.HDT.Model
         /// Load a DataTable with the currently submited tickets and all open tickets
         /// </summary>
         /// <returns>Ticket Notice Data as DataTable</returns>
-        public async static Task<DataTable> LoadNoticeAsync()
+        public static DataTable LoadNotice()
         {
-            var cmdString = $"SELECT `TicketNumber`, `Submitter`, `SubmitDate`, `Subject`, `Status`, `Type`, `Confidential` FROM `{App.Schema}`.it_ticket_master WHERE `DateCompleted`>'{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' OR `Status` NOT IN('Denied', 'Closed')";
+            var cmdString = $@"USE [OMNI];
+                                SELECT
+	                                [TicketNumber], [Submitter], [SubmitDate], [Subject], [Status], [Type], [Confidential]
+                                FROM
+	                                [it_ticket_master]
+                                WHERE
+	                                [DateCompleted]>'{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' OR [Status] NOT IN('Denied', 'Closed')";
             if (!CurrentUser.ITTeam)
             {
-                cmdString += $" AND (`Confidential`=0 OR (`Confidential`=1 AND `Submitter`='{CurrentUser.FullName}'))";
+                cmdString += $" AND ([Confidential]=0 OR ([Confidential]=1 AND [Submitter]='{CurrentUser.FullName}'))";
             }
             using (DataTable dt = new DataTable())
             {
                 try
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmdString, App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmdString, App.SqlConAsync))
                     {
-                        await adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }

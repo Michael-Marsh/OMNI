@@ -1,8 +1,9 @@
-﻿using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using OMNI.Extensions;
 
 namespace OMNI.HDT.Model
 {
@@ -45,21 +46,22 @@ namespace OMNI.HDT.Model
         /// Get a list of all IT Team Members
         /// </summary>
         /// <param name="addAll">Add a team member named 'All'</param>
-        /// <returns>List of ITTeamMember</ITTeamMember></returns>
-        public async static Task<List<TeamMember>> GetListAsync(bool addAll)
+        /// <returns>List of Team Members</returns>
+        public static List<TeamMember> GetList(bool addAll)
         {
             var _tempList = new List<TeamMember>();
             if (addAll)
             {
                 _tempList.Add(new TeamMember { Name = "All", AssignDate = DateTime.MinValue });
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `ITTeam`=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                      SELECT [FullName] FROM [users] WHERE [ITTeam] = 1; ", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    while (reader.Read())
                     {
-                        _tempList.Add(new TeamMember { Name = reader.GetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
+                        _tempList.Add(new TeamMember { Name = reader.SafeGetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
                     }
                 }
             }
@@ -71,20 +73,21 @@ namespace OMNI.HDT.Model
         /// </summary>
         /// <param name="addAll">Add a team member named 'All'</param>
         /// <returns>BindingList of ITTeamMember</ITTeamMember></returns>
-        public async static Task<BindingList<TeamMember>> GetBindingListAsync(bool addAll)
+        public static BindingList<TeamMember> GetBindingList(bool addAll)
         {
             var _tempList = new BindingList<TeamMember>();
             if (addAll)
             {
                 _tempList.Add(new TeamMember { Name = "All", AssignDate = DateTime.MinValue });
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `ITTeam`=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                      SELECT [FullName] FROM [users] WHERE [ITTeam] = 1; ", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    while (reader.Read())
                     {
-                        _tempList.Add(new TeamMember { Name = reader.GetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
+                        _tempList.Add(new TeamMember { Name = reader.SafeGetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
                     }
                 }
             }

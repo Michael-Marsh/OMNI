@@ -1,8 +1,7 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.Helpers;
+﻿using OMNI.Helpers;
 using System;
 using System.Data;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace OMNI.Models
 {
@@ -28,7 +27,8 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand("INSERT INTO omni.exceptionlog (source, stacktrace, User, Date, Message, MethodName) VALUES (@p1, @p2, @p3, @p4, @p5, @p6)", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO [exceptionlog] ([source], [stacktrace], [User], [Date], [Message], [MethodName]) VALUES (@p1, @p2, @p3, @p4, @p5, @p6)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", source);
                     cmd.Parameters.AddWithValue("p2", stackTrace);
@@ -54,7 +54,7 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"`{App.Schema}`.`handle_exception`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand($"{App.DataBase}.handle_exception", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("@exceptionID", exceptionID);
                     await cmd.ExecuteNonQueryAsync();
@@ -70,17 +70,17 @@ namespace OMNI.Models
         /// Retrieve a datatable of unhandled exceptions
         /// </summary>
         /// <returns>DataTable of all unhandled exceptions logged by OMNI users</returns>
-        public async static Task<DataTable> UnhandledExceptionsTableAsync()
+        public static DataTable UnhandledExceptionsTable()
         {
             try
             {
                 using (var _table = new DataTable())
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"`{App.Schema}`.`query_unhandled_exceptions`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+                    using (SqlCommand cmd = new SqlCommand($"{App.DataBase}.query_unhandled_exceptions", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                     {
-                        using (MySqlDataAdapter adapter = new MySqlDataAdapter(cmd))
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                         {
-                            await adapter.FillAsync(_table);
+                            adapter.Fill(_table);
                             return _table;
                         }
                     }

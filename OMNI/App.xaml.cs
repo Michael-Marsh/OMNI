@@ -1,7 +1,7 @@
 using Microsoft.Win32;
-using MySql.Data.MySqlClient;
 using System;
-using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
 using System.Deployment.Application;
 using System.Diagnostics;
 using System.Reflection;
@@ -26,11 +26,12 @@ namespace OMNI
             {
                 try
                 {
-                    if (!ConAsync.State.Equals(System.Data.ConnectionState.Closed))
+                    if (SqlConAsync.State == ConnectionState.Open)
                     {
-                        using (var cmd = new MySqlCommand("SELECT * FROM `omni`.`version`", ConAsync))
+                        using (var cmd = new SqlCommand(@"USE [OMNI];
+                                                          SELECT * FROM [version];", SqlConAsync))
                         {
-                            if (cmd.ExecuteScalarAsync().Result.ToString().Equals(Assembly.GetExecutingAssembly().GetName().Version.ToString()))
+                            if (cmd.ExecuteScalar().ToString().Equals(Assembly.GetExecutingAssembly().GetName().Version.ToString()))
                             {
                                 return false;
                             }
@@ -52,37 +53,15 @@ namespace OMNI
         public static bool IsWordInstalled { get; private set; }
 
         /// <summary>
-        /// OMNI MySQL Async Connection
+        /// OMNI SQL Async Connection
         /// </summary>
-        public static MySqlConnection ConAsync { get; private set; }
-
-        private static bool _connected;
-        /// <summary>
-        /// OMNI is connected to MySQL Database
-        /// </summary>
-        public static bool ConConnected
-        {
-            get { return _connected; }
-            set { _connected = value; StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(ConConnected))); }
-        }
-
-        public static bool _trainingStatus;
-        public static bool TrainingStatus
-        {
-            get { return _trainingStatus; }
-            set
-            {
-                Schema = value ? Enumerations.MySqlSchema.omnitraining : Enumerations.MySqlSchema.omni;
-                _trainingStatus = value;
-            }
-        }
+        public static SqlConnection SqlConAsync { get; private set; }
 
         /// <summary>
-        /// OMNI MySql Schema name to read and write to
+        /// OMNI Sql DataBase name to read and write to
         /// </summary>
-        public static Enumerations.MySqlSchema Schema { get; set; }
-
-        public static event EventHandler<PropertyChangedEventArgs> StaticPropertyChanged;
+        public static string DataBase { get; set; }
+        public static bool IsExiting { get; set; }
 
         #endregion
 
@@ -142,6 +121,7 @@ namespace OMNI
         /// </summary>
         public App()
         {
+            IsExiting = false;
             try
             {
                 using (var regWord = Registry.ClassesRoot.OpenSubKey("Word.Application"))
@@ -155,24 +135,24 @@ namespace OMNI
             }
             try
             {
-                if (ConAsync == null)
+                if (SqlConAsync == null)
                 {
-                    ConAsync = new MySqlConnection(OMNI.Properties.Settings.Default.omniUserConnectionString);
-                    ConAsync.OpenAsync();
-                    ConConnected = ConAsync.State == System.Data.ConnectionState.Open ? true : false;
+                    SqlConAsync = new SqlConnection(OMNI.Properties.Settings.Default.SqlConnectionString);
+                    SqlConAsync.OpenAsync();
                 }
+
             }
             catch (Exception)
             {
                 MessageBox.Show("OMNI heavily relies on the ability to connect with it's database.\nThere is currently no available connection.\nMany of OMNI's functions will be disabled.", "Connection Failed", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
-                ConConnected = false;
             }
             Current.Exit += App_Exit;
             AppDomain.CurrentDomain.UnhandledException += App_ExceptionCrash;
             Current.DispatcherUnhandledException += App_DispatherCrash;
             SystemEvents.PowerModeChanged += OnPowerChange;
             Helpers.UpdateTimer.IntializeUpdateTimer(new TimeSpan(0,0,10));
-            ConAsync.StateChange += ConAsync_StateChangeAsync;
+            SqlConAsync.StateChange += AppSqlCon_StateChangeAsync;
+            DataBase = "OMNI";
         }
 
         /// <summary>
@@ -181,7 +161,6 @@ namespace OMNI
         /// <param name="e">start up events sent from the application.exe</param>
         protected override void OnStartup(StartupEventArgs e)
         {
-            TrainingStatus = false;
             string[] startUpArgs = null;
             try
             {
@@ -198,7 +177,7 @@ namespace OMNI
                     switch (s.Remove(0,1))
                     {
                         case "t":
-                            TrainingStatus = true;
+                            //TrainingStatus = true;
                             break;
                         case "m":
                             Helpers.MapForm.TypePDF();
@@ -216,20 +195,16 @@ namespace OMNI
         }
 
         /// <summary>
-        /// MySQLConnection state change watch
+        /// SqlConnection state change watch
         /// </summary>
         /// <param name="sender">empty object</param>
         /// <param name="e">Connection State Change Events</param>
-        private async static void ConAsync_StateChangeAsync(object sender, System.Data.StateChangeEventArgs e)
+        private async static void AppSqlCon_StateChangeAsync(object sender, StateChangeEventArgs e)
         {
-            ConConnected = false;
-            StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(ConConnected)));
             var count = 0;
-            while ((ConAsync.State == System.Data.ConnectionState.Broken || ConAsync.State == System.Data.ConnectionState.Closed) && count <= 10)
+            while (!IsExiting && (SqlConAsync.State == ConnectionState.Broken || SqlConAsync.State == ConnectionState.Closed) && count <= 8)
             {
-                await ConAsync.OpenAsync();
-                ConConnected = true;
-                StaticPropertyChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(ConConnected)));
+                await SqlConAsync.OpenAsync();
                 count++;
             }
         }
@@ -241,9 +216,13 @@ namespace OMNI
         /// <param name="e">Exit Event Arguments</param>
         private void App_Exit(object sender, ExitEventArgs e)
         {
-            ConAsync?.Close();
-            ConAsync?.Dispose();
-            ConAsync = null;
+            IsExiting = true;
+            if (SqlConAsync != null)
+            {
+                SqlConAsync.Close();
+                SqlConAsync.Dispose();
+                SqlConAsync = null;
+            }
         }
 
         /// <summary>
@@ -256,16 +235,20 @@ namespace OMNI
             try
             {
                 e.Handled = true;
-                if (ConAsync.State == System.Data.ConnectionState.Open)
+                if (SqlConAsync != null && SqlConAsync.State == ConnectionState.Open)
                 {
                     Models.OMNIException.SendtoLogAsync(e.Exception.Source, e.Exception.StackTrace, e.Exception.Message, nameof(App_DispatherCrash));
                 }
             }
             finally
             {
-                ConAsync.Close();
-                ConAsync.Dispose();
-                ConAsync = null;
+                IsExiting = true;
+                if (SqlConAsync != null)
+                {
+                    SqlConAsync.Close();
+                    SqlConAsync.Dispose();
+                    SqlConAsync = null;
+                }
                 Current.Shutdown();
             }
         }
@@ -281,7 +264,7 @@ namespace OMNI
             {
                 try
                 {
-                    if (ConAsync.State == System.Data.ConnectionState.Open)
+                    if (SqlConAsync != null && SqlConAsync.State == ConnectionState.Open)
                     {
                         var ex = (Exception)e.ExceptionObject;
                         Models.OMNIException.SendtoLogAsync(ex.Source, ex.StackTrace, ex.Message, nameof(App_ExceptionCrash));
@@ -289,9 +272,13 @@ namespace OMNI
                 }
                 finally
                 {
-                    ConAsync.Close();
-                    ConAsync.Dispose();
-                    ConAsync = null;
+                    IsExiting = true;
+                    if (SqlConAsync != null)
+                    {
+                        SqlConAsync.Close();
+                        SqlConAsync.Dispose();
+                        SqlConAsync = null;
+                    }
                     Current.Shutdown();
                 }
             }

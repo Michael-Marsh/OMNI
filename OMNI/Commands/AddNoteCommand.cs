@@ -11,7 +11,7 @@ namespace OMNI.Commands
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
-        public bool CanExecute(object parameter) => ((FormBase)parameter)?.IDNumber != null && App.ConConnected;
+        public bool CanExecute(object parameter) => ((FormBase)parameter)?.IDNumber != null && App.SqlConAsync.State == System.Data.ConnectionState.Open;
         public void Execute(object parameter)
         {
             ((FormBase)parameter).AddNote();

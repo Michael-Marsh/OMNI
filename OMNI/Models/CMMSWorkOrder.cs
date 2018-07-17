@@ -1,12 +1,13 @@
 ﻿using iTextSharp.text.pdf;
 using Microsoft.Win32;
-using MySql.Data.MySqlClient;
 using OMNI.Enumerations;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -50,44 +51,41 @@ namespace OMNI.Models
             try
             {
                 var _wo = new CMMSWorkOrder();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`cmmsworkorder` WHERE `WorkOrderNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT(*) FROM [cmmsworkorder] WHERE [WorkOrderNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", cmmsWorkOrderNumber);
-                    var i = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    var i = Convert.ToInt32(cmd.ExecuteScalar());
                     if (i == 0)
                     {
                         ExceptionWindow.Show("Invalid Work Order Number", $"{cmmsWorkOrderNumber} is invalid.\nPlease double check your entry and try again.");
                         return null;
                     }
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmmsworkorder` WHERE `WorkOrderNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmmsworkorder] WHERE [WorkOrderNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", cmmsWorkOrderNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             _wo.IDNumber = cmmsWorkOrderNumber;
-                            _wo.Status = (CMMSStatus)Enum.Parse(typeof(CMMSStatus), reader.GetString(nameof(Status)));
-                            _wo.Priority = reader.GetString(nameof(Priority));
-                            _wo.Date = reader.GetDateTime(nameof(Date));
-                            _wo.Submitter = reader.GetString(nameof(Submitter));
-                            _wo.Workcenter = reader.GetString(nameof(Workcenter));
-                            _wo.Description = reader.GetString(nameof(Description));
-                            _wo.Safety = reader.GetBoolean(nameof(Safety));
-                            _wo.Quality = reader.GetBoolean(nameof(Quality));
-                            _wo.Production = reader.GetBoolean(nameof(Production));
-                            _wo.CrewAssigned = reader.GetString("CrewMembersAssigned");
-                            _wo.RequestDate = reader.GetDateTime("RequestedByDate");
-                            if (!reader.IsDBNull(reader.GetOrdinal("RequestDateReason")))
-                            {
-                                _wo.RequestedDateReason = reader.GetString("RequestDateReason");
-                            }
-                            _wo.DateAssigned = reader.GetDateTime(nameof(DateAssigned));
-                            _wo.DateComplete = reader.GetDateTime("DateCompleted");
-                            _wo.MachineDown = reader.GetBoolean(nameof(MachineDown));
-                            _wo.AttachedNotes = reader.GetBoolean(nameof(AttachedNotes));
-                            _wo.LockOut = reader.GetBoolean("Lockout");
+                            _wo.Status = (CMMSStatus)Enum.Parse(typeof(CMMSStatus), reader.SafeGetString(nameof(Status)));
+                            _wo.Priority = reader.SafeGetString(nameof(Priority));
+                            _wo.Date = reader.SafeGetDateTime(nameof(Date));
+                            _wo.Submitter = reader.SafeGetString(nameof(Submitter));
+                            _wo.Workcenter = reader.SafeGetString(nameof(Workcenter));
+                            _wo.Description = reader.SafeGetString(nameof(Description));
+                            _wo.Safety = reader.SafeGetBoolean(nameof(Safety));
+                            _wo.Quality = reader.SafeGetBoolean(nameof(Quality));
+                            _wo.Production = reader.SafeGetBoolean(nameof(Production));
+                            _wo.CrewAssigned = reader.SafeGetString("CrewMembersAssigned");
+                            _wo.RequestDate = reader.SafeGetDateTime("RequestedByDate");
+                            _wo.RequestedDateReason = reader.SafeGetString("RequestDateReason");
+                            _wo.DateAssigned = reader.SafeGetDateTime(nameof(DateAssigned));
+                            _wo.DateComplete = reader.SafeGetDateTime("DateCompleted");
+                            _wo.MachineDown = reader.SafeGetBoolean(nameof(MachineDown));
+                            _wo.AttachedNotes = reader.SafeGetBoolean(nameof(AttachedNotes));
+                            _wo.LockOut = reader.SafeGetBoolean("Lockout");
                         }
                     }
                 }
@@ -105,17 +103,23 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="module">Module to load</param>
         /// <param name="crewMemberFullName">Crew member full name or All for a general filter</param>
+        /// <param name="site">Current Work Site</param>
         /// <returns>Notice Module DataTable</returns>
-        public async static Task<DataTable> LoadNoticeAsync(int module, string crewMemberFullName)
+        public static DataTable LoadNotice(int module, string crewMemberFullName, string site)
         {
             var _tempTable = new DataTable();
-            using (var cmd = new MySqlCommand($"`{App.Schema}`.`cmms_notice_load`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+            if (crewMemberFullName == null)
+            {
+                crewMemberFullName = CurrentUser.FullName;
+            }
+            using (var cmd = new SqlCommand($"{App.DataBase}.[dbo].[cmms_notice_load]", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
             {
                 cmd.Parameters.AddWithValue("@fullName", crewMemberFullName);
                 cmd.Parameters.AddWithValue("@module", module);
-                using (var adapter = new MySqlDataAdapter(cmd))
+                cmd.Parameters.AddWithValue("@site", site);
+                using (var adapter = new SqlDataAdapter(cmd))
                 {
-                    await adapter.FillAsync(_tempTable).ConfigureAwait(false);
+                    adapter.Fill(_tempTable);
                     return _tempTable;
                 }
             }
@@ -126,15 +130,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="workOrderId">Work Order Number to select from the notes database</param>
         /// <returns>Notes DataTable</returns>
-        public async static Task<DataTable> LoadNotesAsync(int workOrderId)
+        public static DataTable LoadNotes(int workOrderId)
         {
             var _tempTable = new DataTable();
-            using (var cmd = new MySqlCommand($"`{App.Schema}`.`cmms_notes_load`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+            using (var cmd = new SqlCommand($"{App.DataBase}.[dbo].cmms_notes_load", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
             {
                 cmd.Parameters.AddWithValue("@workOrderID", workOrderId);
-                using (var adapter = new MySqlDataAdapter(cmd))
+                using (var adapter = new SqlDataAdapter(cmd))
                 {
-                    await adapter.FillAsync(_tempTable).ConfigureAwait(false);
+                    adapter.Fill(_tempTable);
                     return _tempTable;
                 }
             }
@@ -145,7 +149,7 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="mType">Type of metric to calculate</param>
         /// <returns>Count value as int based on metric type</returns>
-        public async static Task<int> GetMetricsAsync(MetricType mType)
+        public static int GetMetrics(MetricType mType)
         {
             try
             {
@@ -153,21 +157,21 @@ namespace OMNI.Models
                 switch (mType)
                 {
                     case MetricType.Completed:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`cmmsworkorder` WHERE (`DateCompleted` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [cmmsworkorder] WHERE ([DateCompleted] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                     case MetricType.Submission:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`cmmsworkorder` WHERE (`Date` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [cmmsworkorder] WHERE ([Date] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                     case MetricType.ResponseTime:
-                        cmdText = $"SELECT AVG(`ResponseTime`) FROM {App.Schema}.`cmmsworkorder` WHERE (`DateCompleted` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT AVG([ResponseTime]) FROM [cmmsworkorder] WHERE ([DateCompleted] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                 }
-                using (MySqlCommand cmd = new MySqlCommand(cmdText, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand(cmdText, App.SqlConAsync))
                 {
-                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return 0;
             }
@@ -180,7 +184,7 @@ namespace OMNI.Models
         /// <param name="month">Month of metric</param>
         /// <param name="year">Year of metric</param>
         /// <returns>Count value as int based on metric type</returns>
-        public async static Task<int> GetMetricsAsync(MetricType mType, int month, int year)
+        public static int GetMetrics(MetricType mType, int month, int year)
         {
             try
             {
@@ -190,18 +194,18 @@ namespace OMNI.Models
                 switch (mType)
                 {
                     case MetricType.Completed:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`cmmsworkorder` WHERE `Status` IN ('Completed', 'Denied') AND (`Date` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [cmmsworkorder] WHERE [Status] IN ('Completed', 'Denied') AND ([Date] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                     case MetricType.Submission:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`cmmsworkorder` WHERE (`Date` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [cmmsworkorder] WHERE ([Date] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                     case MetricType.ResponseTime:
-                        cmdText = $"SELECT AVG(`ResponseTime`) FROM {App.Schema}.`cmmsworkorder` WHERE (`DateCompleted` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND (`Date` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01')";
+                        cmdText = $"USE {App.DataBase}; SELECT AVG([ResponseTime]) FROM [cmmsworkorder] WHERE ([DateCompleted] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND ([Date] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Site]='{CurrentUser.Site}'";
                         break;
                 }
-                using (MySqlCommand cmd = new MySqlCommand(cmdText, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand(cmdText, App.SqlConAsync))
                 {
-                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -240,13 +244,13 @@ namespace OMNI.Models
 
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmmsglaccounts`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmmsglaccounts] WHERE [Site]='{CurrentUser.Site}'", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _glList.Add(Create(reader.GetString(nameof(GLAccount)), reader.GetString(nameof(Description)), reader.GetString(nameof(Group))));
+                            _glList.Add(Create(reader.SafeGetString(nameof(GLAccount)), reader.SafeGetString(nameof(Description)), reader.SafeGetString(nameof(Group))));
                         }
                     }
                 }
@@ -264,14 +268,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="workCenter">Name of the work center</param>
         /// <returns>GL Account number</returns>
-        public async static Task<string> FindbyWorkCenterAsync(string workCenter)
+        public static string FindbyWorkCenter(string workCenter)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"`{App.Schema}`.`query_gl_account`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand($"{App.DataBase}.query_gl_account", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("@workCenter", workCenter);
-                    return (await cmd.ExecuteScalarAsync().ConfigureAwait(false)).ToString();
+                    return (cmd.ExecuteScalar()).ToString();
                 }
             }
             catch (Exception ex)
@@ -326,14 +330,14 @@ namespace OMNI.Models
             var _docList = new List<AttachedDocuments>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmms_work_order_documents` WHERE `WorkOrderNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmms_work_order_documents] WHERE [WorkOrderNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", workOrderID);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _docList.Add(new AttachedDocuments { FileName = reader.GetString(nameof(FilePath)), FilePath = $"{Properties.Settings.Default.CMMSDocumentLocation}{reader.GetString(nameof(FilePath))}", Attached = true });
+                            _docList.Add(new AttachedDocuments { FileName = reader.SafeGetString(nameof(FilePath)), FilePath = $"{Properties.Settings.Default.CMMSDocumentLocation}{reader.SafeGetString(nameof(FilePath))}", Attached = true });
                         }
                     }
                 }
@@ -354,15 +358,16 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="wo">Current Work Order</param>
         /// <returns>CMMS Work Order Number</returns>
-        public async static Task<int?> SubmitAsync(this CMMSWorkOrder wo)
+        public static int? Submit(this CMMSWorkOrder wo)
         {
             try
             {
-                var Command = $"INSERT INTO `{App.Schema}`.`cmmsworkorder`";
-                var Columns = $"(Status, Priority, Date, Submitter, WorkCenter, Description, Safety, Quality, Production, CrewMembersAssigned, RequestedByDate, RequestDateReason, DateAssigned, DateCompleted, MachineDown, PartsUsed, AttachedNotes, Lockout)";
-                const string Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18)";
-
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO
+                                                        [cmmsworkorder]([Status], [Priority], [Date], [Submitter], [WorkCenter], [Description], [Safety], [Quality], [Production], [CrewMembersAssigned], [RequestedByDate],
+                                                        [RequestDateReason], [DateAssigned], [DateCompleted], [MachineDown], [PartsUsed], [AttachedNotes], [Lockout], [Site])
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19);
+                                                        SELECT [WorkOrderNumber] FROM [cmmsworkorder] WHERE [WorkOrderNumber] = @@IDENTITY;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", wo.Status.ToString());
                     cmd.Parameters.AddWithValue("p2", wo.Priority);
@@ -374,16 +379,16 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p8", wo.Quality);
                     cmd.Parameters.AddWithValue("p9", wo.Production);
                     cmd.Parameters.AddWithValue("p10", wo.CrewAssigned);
-                    cmd.Parameters.AddWithValue("p11", wo.RequestDate);
-                    cmd.Parameters.AddWithValue("p12", wo.RequestedDateReason);
-                    cmd.Parameters.AddWithValue("p13", wo.DateAssigned);
-                    cmd.Parameters.AddWithValue("p14", wo.DateComplete);
+                    cmd.SafeAddParemeters("p11", wo.RequestDate);
+                    cmd.SafeAddParemeters("p12", wo.RequestedDateReason);
+                    cmd.SafeAddParemeters("p13", wo.DateAssigned);
+                    cmd.SafeAddParemeters("p14", wo.DateComplete);
                     cmd.Parameters.AddWithValue("p15", wo.MachineDown);
-                    cmd.Parameters.AddWithValue("p16", "");
+                    cmd.Parameters.AddWithValue("p16", DBNull.Value);
                     cmd.Parameters.AddWithValue("p17", wo.AttachedNotes);
                     cmd.Parameters.AddWithValue("p18", wo.LockOut);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    return Convert.ToInt32(cmd.LastInsertedId);
+                    cmd.Parameters.AddWithValue("p19", CurrentUser.Site);
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception e)
@@ -397,26 +402,28 @@ namespace OMNI.Models
         /// Update a CMMS work order in the OMNI database
         /// </summary>
         /// <param name="wo">Current Work Order</param>
-        public async static void UpdateAsync(this CMMSWorkOrder wo)
+        public static void Update(this CMMSWorkOrder wo)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($@"UPDATE `{App.Schema}`.`cmmsworkorder` SET `Status`=@p1,
-                                                                                                        `Priority`=@p2,
-                                                                                                        `WorkCenter`=@p3,
-                                                                                                        `Description`=@p4,
-                                                                                                        `Safety`=@p5,
-                                                                                                        `Quality`=@p6,
-                                                                                                        `Production`=@p7,
-                                                                                                        `CrewMembersAssigned`=@p8,
-                                                                                                        `RequestedByDate`=@p9,
-                                                                                                        `RequestDateReason`=@p10,
-                                                                                                        `DateAssigned`=@p11,
-                                                                                                        `DateCompleted`=@p12,
-                                                                                                        `MachineDown`=@p13,
-                                                                                                        `PartsUsed`=@p14,
-                                                                                                        `AttachedNotes`=@p15,
-                                                                                                        `Lockout`=@p16 WHERE `WorkOrderNumber`=@p17", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        UPDATE [cmmsworkorder] SET 
+                                                            [Status]=@p1,
+                                                            [Priority]=@p2,
+                                                            [WorkCenter]=@p3,
+                                                            [Description]=@p4,
+                                                            [Safety]=@p5,
+                                                            [Quality]=@p6,
+                                                            [Production]=@p7,
+                                                            [CrewMembersAssigned]=@p8,
+                                                            [RequestedByDate]=@p9,
+                                                            [RequestDateReason]=@p10,
+                                                            [DateAssigned]=@p11,
+                                                            [DateCompleted]=@p12,
+                                                            [MachineDown]=@p13,
+                                                            [PartsUsed]=@p14,
+                                                            [AttachedNotes]=@p15,
+                                                            [Lockout]=@p16 WHERE [WorkOrderNumber]=@p17", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", wo.Status.ToString());
                     cmd.Parameters.AddWithValue("p2", wo.Priority);
@@ -435,7 +442,7 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p15", wo.AttachedNotes);
                     cmd.Parameters.AddWithValue("p16", wo.LockOut);
                     cmd.Parameters.AddWithValue("p17", wo.IDNumber);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception e)
@@ -449,17 +456,18 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="wo">Current Work Order</param>
         /// <param name="fileName">FileName</param>
-        public async static void SubmitAttachDocumentAsync(this CMMSWorkOrder wo, string fileName)
+        public static void SubmitAttachDocument(this CMMSWorkOrder wo, string fileName)
         {
             if (wo.IDNumber > 0)
             {
                 try
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT `{App.Schema}`.`cmms_work_order_documents` (WorkOrderNumber, FilePath) VALUES(@p1, @p2)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            INSERT [cmms_work_order_documents] ([WorkOrderNumber], [FilePath]) VALUES(@p1, @p2)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", wo.IDNumber);
                         cmd.Parameters.AddWithValue("p2", fileName);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                 }
                 catch (Exception e)
@@ -474,17 +482,17 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="wo">Current Work Order</param>
         /// <param name="fileName">FileName</param>
-        public async static void RemoveDocumentAsync(this CMMSWorkOrder wo, string fileName)
+        public static void RemoveDocument(this CMMSWorkOrder wo, string fileName)
         {
             if (wo.IDNumber > 0)
             {
                 try
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.`cmms_work_order_documents` WHERE `WorkOrderNumber`=@p1 AND `FilePath`=@p2", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [cmms_work_order_documents] WHERE [WorkOrderNumber]=@p1 AND [FilePath]=@p2", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", wo.IDNumber);
                         cmd.Parameters.AddWithValue("p2", fileName);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                 }
                 catch (Exception e)
@@ -515,7 +523,7 @@ namespace OMNI.Models
                             pdfField.SetField("RadioButtonList[0]", Convert.ToInt32(woObject.MachineDown).ToString());
                             pdfField.SetField("TextField1[0]", woObject.CrewAssigned);
                             pdfField.SetField("TextField1[1]", woObject.Workcenter);
-                            pdfField.SetField("TextField1[2]", $"01-00-{CMMSGLAccount.FindbyWorkCenterAsync(woObject.Workcenter).Result}");
+                            pdfField.SetField("TextField1[2]", $"01-00-{CMMSGLAccount.FindbyWorkCenter(woObject.Workcenter)}");
                             pdfField.SetField("TextField1[3]", woObject.Description);
                             pdfField.SetField("TextField1[4]", woObject.Submitter);
                             pdfField.SetField("CheckBox1[0]", Convert.ToInt32(woObject.Safety).ToString());
@@ -564,7 +572,7 @@ namespace OMNI.Models
                     else
                     {
                         File.Copy(fileName, $"{Properties.Settings.Default.CMMSDocumentLocation}{Path.GetFileName(fileName)}", true);
-                        wo.SubmitAttachDocumentAsync(Path.GetFileName(fileName));
+                        wo.SubmitAttachDocument(Path.GetFileName(fileName));
                         _tempList.Add( new AttachedDocuments { FileName = Path.GetFileName(fileName), FilePath = $"{Properties.Settings.Default.CMMSDocumentLocation}{Path.GetFileName(fileName)}", Attached = true });
                     }
                 }
@@ -593,7 +601,7 @@ namespace OMNI.Models
                     else
                     {
                         File.Copy(_file, $"{Properties.Settings.Default.CMMSDocumentLocation}{Path.GetFileName(_file)}", true);
-                        wo.SubmitAttachDocumentAsync(Path.GetFileName(_file));
+                        wo.SubmitAttachDocument(Path.GetFileName(_file));
                         _tempList.Add(new AttachedDocuments { FileName = Path.GetFileName(_file), FilePath = $"{Properties.Settings.Default.CMMSDocumentLocation}{Path.GetFileName(_file)}", Attached = true });
                     }
                 }

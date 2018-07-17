@@ -1,9 +1,10 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.Models;
 using OMNI.QMS.Enumeration;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.QMS.Model
@@ -28,13 +29,14 @@ namespace OMNI.QMS.Model
             try
             {
                 var _ncmList = new List<NCM>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`ncm`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT * FROM [ncm]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _ncmList.Add(new NCM { Code = reader.GetInt32("NCMCode"), Summary = reader.GetString(nameof(Summary)) });
+                            _ncmList.Add(new NCM { Code = reader.SafeGetInt32("NCMCode"), Summary = reader.SafeGetString(nameof(Summary)) });
                         }
                     }
                 }
@@ -54,7 +56,7 @@ namespace OMNI.QMS.Model
         /// <returns>Generated List of NCM Codes and Summaries</returns>
         public async static Task<List<NCM>> GetNCMListAsync(int? workCenterNumber)
         {
-            var _listType = await WorkCenter.GetEZTypeAsync(workCenterNumber);
+            var _listType = WorkCenter.GetEZType(workCenterNumber);
             if (_listType.Equals(NCMType.None))
             {
                 return null;
@@ -62,14 +64,15 @@ namespace OMNI.QMS.Model
             var _ncmList = new List<NCM>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`ncm` WHERE {_listType}=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT * FROM [ncm] WHERE [{_listType}]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", 1);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _ncmList.Add(new NCM { Code = reader.GetInt32("NCMCode"), Summary = reader.GetString(nameof(Summary)) });
+                            _ncmList.Add(new NCM { Code = reader.SafeGetInt32("NCMCode"), Summary = reader.SafeGetString(nameof(Summary)) });
                         }
                     }
                 }

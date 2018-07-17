@@ -1,8 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.QMS.Enumeration;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.QMS.Model
@@ -25,13 +26,13 @@ namespace OMNI.QMS.Model
             var _qirDispositionList = new List<QIRDisposition>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`qir_disposition`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [qir_disposition]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _qirDispositionList.Add(new QIRDisposition { Description = reader.GetString(nameof(Description)), Status = (QIRStatus)Enum.Parse(typeof(QIRStatus),reader.GetString(nameof(Status))) });
+                            _qirDispositionList.Add(new QIRDisposition { Description = reader.SafeGetString(nameof(Description)), Status = (QIRStatus)Enum.Parse(typeof(QIRStatus),reader.SafeGetString(nameof(Status))) });
                         }
                     }
                 }
@@ -52,14 +53,14 @@ namespace OMNI.QMS.Model
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`qir_disposition` WHERE `Description`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [qir_disposition] WHERE [Description]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", description);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            return new QIRDisposition { Description = reader.GetString(nameof(Description)), Status = (QIRStatus)Enum.Parse(typeof(QIRStatus), reader.GetString(nameof(Status))) };
+                            return new QIRDisposition { Description = reader.SafeGetString(nameof(Description)), Status = (QIRStatus)Enum.Parse(typeof(QIRStatus), reader.SafeGetString(nameof(Status))) };
                         }
                     }
                 }

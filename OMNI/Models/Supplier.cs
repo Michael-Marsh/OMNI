@@ -1,7 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.Models
@@ -27,13 +28,14 @@ namespace OMNI.Models
             try
             {
                 var _supplierList = new List<Supplier>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`supplier`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT * FROM [supplier]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _supplierList.Add(new Supplier { ID = reader.GetInt32("SupplierNumber"), Name = reader.GetString("SupplierName") });
+                            _supplierList.Add(new Supplier { ID = reader.SafeGetInt32("SupplierNumber"), Name = reader.SafeGetString("SupplierName") });
                         }
                     }
                 }
@@ -51,13 +53,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="supplierName">Name of the supplier</param>
         /// <returns>Supplier Number as int</returns>
-        public async static Task<int> GetSupplierNumberAsync(string supplierName)
+        public static int GetSupplierNumber(string supplierName)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `SupplierNumber` FROM `{App.Schema}`.`supplier` WHERE `SupplierName` LIKE %{supplierName}%", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [SupplierNumber] FROM [supplier] WHERE [SupplierName] LIKE %{supplierName}%", App.SqlConAsync))
                 {
-                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)

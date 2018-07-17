@@ -36,7 +36,7 @@ namespace OMNI.ViewModels
         {
             if (ProjectsView == null)
             {
-                ProjectsView = CollectionViewSource.GetDefaultView(ITTicket.GetProjectDataTableAsync().Result);
+                ProjectsView = CollectionViewSource.GetDefaultView(ITTicket.GetProjectDataTable());
                 ProjectsView.MoveCurrentToPosition(-1);
             }
             UpdateProjectTaskDefualtView(null);
@@ -52,7 +52,7 @@ namespace OMNI.ViewModels
             {
                 try
                 {
-                    ProjectTasksView = CollectionViewSource.GetDefaultView(ITTicket.GetProjectTaskDataTableAsync(Convert.ToInt32(((DataRowView)projectRow).Row[0])).Result);
+                    ProjectTasksView = CollectionViewSource.GetDefaultView(ITTicket.GetProjectTaskDataTable(Convert.ToInt32(((DataRowView)projectRow).Row[0])));
                     ProjectTasksView.MoveCurrentToPosition(-1);
                 }
                 catch (IndexOutOfRangeException)

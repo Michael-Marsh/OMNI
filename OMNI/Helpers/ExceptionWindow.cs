@@ -38,7 +38,7 @@ namespace OMNI.Helpers
                 ShowDetails = true;
                 Source = exceptionSource.ToString();
                 var ex = (Exception)exceptionSource;
-                if (App.ConConnected)
+                if (App.SqlConAsync?.State == System.Data.ConnectionState.Open)
                 {
                     OMNIException.SendtoLogAsync(ex.Source, ex.StackTrace, ex.Message, methodName);
                 }

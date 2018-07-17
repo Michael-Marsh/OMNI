@@ -12,6 +12,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace OMNI.ViewModels
 {
@@ -136,7 +137,7 @@ namespace OMNI.ViewModels
         public int TicketMTDCompletedCount { get; set; }
         public int TicketMTDResponseTime { get; set; }
         public QIRMetric QIRValues { get; set; }
-        private readonly bool Loading;
+        public bool Loading { get; set; }
 
         RelayCommand _update;
         RelayCommand _charts;
@@ -166,8 +167,9 @@ namespace OMNI.ViewModels
             Loading = true;
             SelectedInternalMonth = SelectedIncomingMonth = SelectedWorkOrderMonth = SelectedTicketMonth = SelectedMonthSales = DateTime.Now.ToString("MMMM");
             SelectedInternalYear = SelectedIncomingYear = SelectedWorkOrderYear = SelectedTicketYear = SelectedYearSales = DateTime.Now.Year;
-            Loading = false;
-            UpdateSales(SelectedMonthSales, SelectedYearSales);
+            Task.Run(() => UpdateSales(SelectedMonthSales, SelectedYearSales));
+            Task.Run(() => UpdateCMMS());
+            Task.Run(() => UpdateHDT());
         }
 
         /// <summary>
@@ -189,6 +191,8 @@ namespace OMNI.ViewModels
                 SalesFirm = Convert.ToBoolean(i[1]);
                 OnPropertyChanged(nameof(MonthlySales));
                 OnPropertyChanged(nameof(SalesFirm));
+                Loading = false;
+                OnPropertyChanged(nameof(Loading));
             }
         }
 
@@ -201,9 +205,9 @@ namespace OMNI.ViewModels
             {
                 try
                 {
-                    TMInService = (int)OMNIDataBase.CountWithComparisonAsync("caltapemeasure", "`Status`='In Service'").Result;
-                    TMOverDue = Convert.ToInt32(OMNIDataBase.CountWithComparisonAsync("caltapemeasure", $"`CalDueDate`<'{DateTime.Today.ToString("yyyy-MM-dd")}'").Result);
-                    TMAlmostDue = Convert.ToInt32(OMNIDataBase.CountWithComparisonAsync("caltapemeasure", $"`CalDueDate`>'{DateTime.Today.ToString("yyyy-MM-dd")}' AND `CalDueDate`<'{DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd")}'").Result);
+                    TMInService = (int)OMNIDataBase.CountWithComparison("caltapemeasure", "`Status`='In Service'");
+                    TMOverDue = Convert.ToInt32(OMNIDataBase.CountWithComparison("caltapemeasure", $"`CalDueDate`<'{DateTime.Today.ToString("yyyy-MM-dd")}'"));
+                    TMAlmostDue = Convert.ToInt32(OMNIDataBase.CountWithComparison("caltapemeasure", $"`CalDueDate`>'{DateTime.Today.ToString("yyyy-MM-dd")}' AND `CalDueDate`<'{DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd")}'"));
                 }
                 catch (InvalidOperationException)
                 {
@@ -246,17 +250,17 @@ namespace OMNI.ViewModels
         /// </summary>
         private void UpdateCMMS()
         {
-            WorkOrderYTDCompletedCount = CMMSWorkOrder.GetMetricsAsync(MetricType.Completed).Result;
+            WorkOrderYTDCompletedCount = CMMSWorkOrder.GetMetrics(MetricType.Completed);
             OnPropertyChanged(nameof(WorkOrderYTDCompletedCount));
-            WorkOrderYTDSubmissions = CMMSWorkOrder.GetMetricsAsync(MetricType.Submission).Result;
+            WorkOrderYTDSubmissions = CMMSWorkOrder.GetMetrics(MetricType.Submission);
             OnPropertyChanged(nameof(WorkOrderYTDSubmissions));
-            WorkOrderYTDResponseTime = CMMSWorkOrder.GetMetricsAsync(MetricType.ResponseTime).Result;
+            WorkOrderYTDResponseTime = CMMSWorkOrder.GetMetrics(MetricType.ResponseTime);
             OnPropertyChanged(nameof(WorkOrderYTDResponseTime));
-            WorkOrderMTDCompletedCount = CMMSWorkOrder.GetMetricsAsync(MetricType.Completed, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear).Result;
+            WorkOrderMTDCompletedCount = CMMSWorkOrder.GetMetrics(MetricType.Completed, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
             OnPropertyChanged(nameof(WorkOrderMTDCompletedCount));
-            WorkOrderMTDSubmissions = CMMSWorkOrder.GetMetricsAsync(MetricType.Submission, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear).Result;
+            WorkOrderMTDSubmissions = CMMSWorkOrder.GetMetrics(MetricType.Submission, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
             OnPropertyChanged(nameof(WorkOrderMTDSubmissions));
-            WorkOrderMTDResponseTime = CMMSWorkOrder.GetMetricsAsync(MetricType.ResponseTime, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear).Result;
+            WorkOrderMTDResponseTime = CMMSWorkOrder.GetMetrics(MetricType.ResponseTime, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
             OnPropertyChanged(nameof(WorkOrderMTDResponseTime));
         }
 
@@ -265,17 +269,17 @@ namespace OMNI.ViewModels
         /// </summary>
         private void UpdateHDT()
         {
-            TicketYTDCompletedCount = ITTicket.GetMetricsAsync(MetricType.Completed).Result;
+            TicketYTDCompletedCount = ITTicket.GetMetrics(MetricType.Completed);
             OnPropertyChanged(nameof(TicketYTDCompletedCount));
-            TicketYTDSubmissions = ITTicket.GetMetricsAsync(MetricType.Submission).Result;
+            TicketYTDSubmissions = ITTicket.GetMetrics(MetricType.Submission);
             OnPropertyChanged(nameof(TicketYTDSubmissions));
-            TicketYTDResponseTime = ITTicket.GetMetricsAsync(MetricType.ResponseTime).Result;
+            TicketYTDResponseTime = ITTicket.GetMetrics(MetricType.ResponseTime);
             OnPropertyChanged(nameof(TicketYTDResponseTime));
-            TicketMTDCompletedCount = ITTicket.GetMetricsAsync(MetricType.Completed, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear).Result;
+            TicketMTDCompletedCount = ITTicket.GetMetrics(MetricType.Completed, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
             OnPropertyChanged(nameof(TicketMTDCompletedCount));
-            TicketMTDSubmissions = ITTicket.GetMetricsAsync(MetricType.Submission, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear).Result;
+            TicketMTDSubmissions = ITTicket.GetMetrics(MetricType.Submission, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
             OnPropertyChanged(nameof(TicketMTDSubmissions));
-            TicketMTDResponseTime = ITTicket.GetMetricsAsync(MetricType.ResponseTime, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear).Result;
+            TicketMTDResponseTime = ITTicket.GetMetrics(MetricType.ResponseTime, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
             OnPropertyChanged(nameof(TicketMTDResponseTime));
         }
 

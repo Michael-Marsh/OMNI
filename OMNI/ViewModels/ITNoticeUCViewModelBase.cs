@@ -71,10 +71,6 @@ namespace OMNI.ViewModels
         public ITNoticeUCViewModelBase()
         {
             CurrentGroup = "OverAll";
-            if (NoticeTable == null)
-            {
-                NoticeTable = ITTicket.GetNoticeDataTableAsync(Module).Result;
-            }
             if (TeamList == null)
             {
                 TeamList = new ObservableCollection<ITTeamMember>(ITTeamMember.GetListAsync(true).Result);
@@ -91,8 +87,8 @@ namespace OMNI.ViewModels
         {
             if (selectedValue != null)
             {
-                NotesTable = ITTicket.GetNotesDataTableAsync(Convert.ToInt32(((DataRowView)selectedValue).Row[0])).Result;
-                AssignmentTable = ITTicket.GetAssignmentDataTableAsync(Convert.ToInt32(((DataRowView)selectedValue).Row[0])).Result;
+                NotesTable = ITTicket.GetNotesDataTable(Convert.ToInt32(((DataRowView)selectedValue).Row[0]));
+                AssignmentTable = ITTicket.GetAssignmentDataTable(Convert.ToInt32(((DataRowView)selectedValue).Row[0]));
                 IsAssigned = AssignmentTable.Rows.Count > 0;
                 OnPropertyChanged(nameof(IsAssigned));
                 OnPropertyChanged(nameof(NotesTable));
@@ -226,12 +222,12 @@ namespace OMNI.ViewModels
                 ? Convert.ToInt32(((DataRowView)SelectedRow).Row[0])
                 : Convert.ToInt32(parameter);
             var ticket = ITTicket.GetITTicketAsync(_idNumber).Result;
-            if (ticket.AddNotesAsync().Result)
+            if (ticket.AddNotes())
             {
                 var _tempStatus = ticket.Status.Title;
                 ticket.CompletionDate = DateTime.Today;
                 ticket.Status = TicketStatus.Create("Denied");
-                if (!ticket.UpdateAsync().Result)
+                if (!ticket.Update())
                 {
                     ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                     ticket.CompletionDate = DateTime.MinValue;
@@ -266,12 +262,12 @@ namespace OMNI.ViewModels
                 ? Convert.ToInt32(((DataRowView)SelectedRow).Row[0])
                 : Convert.ToInt32(parameter);
             var ticket = ITTicket.GetITTicketAsync(_idNumber).Result;
-            if (ticket.AddNotesAsync().Result)
+            if (ticket.AddNotes())
             {
                 var _tempStatus = ticket.Status.Title;
                 ticket.CompletionDate = DateTime.Today;
                 ticket.Status = new TicketStatus { Title = nameof(Closed) };
-                if (!ticket.UpdateAsync().Result)
+                if (!ticket.Update())
                 {
                     ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                     ticket.CompletionDate = DateTime.MinValue;
@@ -306,7 +302,7 @@ namespace OMNI.ViewModels
             var ticketSubmitter = parameter == null ? ((DataRowView)SelectedRow).Row[3].ToString() : ITTicket.GetITTicketAsync(Convert.ToInt32(parameter)).Result.Submitter;
             try
             {
-                var reciever = Users.RetrieveEmailAddressAsync(ticketSubmitter).Result;
+                var reciever = Users.RetrieveEmailAddress(ticketSubmitter);
                 EmailForm.ManualSend(reciever, $"Ticket Number #{ticketID}", false);
             }
             catch (Exception ex)
@@ -339,7 +335,7 @@ namespace OMNI.ViewModels
             var _ticket = parameter == null ? ITTicket.GetITTicketAsync(Convert.ToInt32(((DataRowView)SelectedRow).Row[0])).Result : ITTicket.GetITTicketAsync(Convert.ToInt32(parameter)).Result;
             _ticket.Status.Title = "Assigned";
             _ticket.Priority = Priority.Create("Standard");
-            if (!_ticket.UpdateAsync().Result)
+            if (!_ticket.Update())
             {
                 ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
             }
@@ -378,7 +374,7 @@ namespace OMNI.ViewModels
             if (parameter == null)
             {
                 var ticket = ITTicket.GetITTicketAsync(Convert.ToInt32(((DataRowView)SelectedRow).Row[0])).Result;
-                if (ticket.AddNotesAsync().Result)
+                if (ticket.AddNotes())
                 {
                     OnPropertyChanged(nameof(NotesTable));
                 }

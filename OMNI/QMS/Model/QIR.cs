@@ -1,6 +1,6 @@
 ﻿using iTextSharp.text.pdf;
 using Microsoft.Win32;
-using MySql.Data.MySqlClient;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.Models;
 using OMNI.QMS.Enumeration;
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -28,6 +29,7 @@ namespace OMNI.QMS.Model
             get { return partNumber; }
             set
             {
+                value = value.ToUpper();
                 if (CurrentRevision.LotNumber == "N/A" && WONumber == "N/A" && !string.IsNullOrEmpty(value) && LoadM2kData)
                 {
                     LoadM2kData = false;
@@ -44,6 +46,7 @@ namespace OMNI.QMS.Model
             get { return woNumber; }
             set
             {
+                value = value.ToUpper();
                 if (!string.IsNullOrEmpty(value) && value != woNumber && value.Length == 6 && LoadM2kData)
                 {
                     LoadM2kData = false;
@@ -194,7 +197,7 @@ namespace OMNI.QMS.Model
             {
                 if (validate)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`QIRNumber`) FROM `{App.Schema}`.qir_master WHERE `QIRNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([QIRNumber]) FROM [qir_master] WHERE [QIRNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("@p1", qirNumber);
                         if (Convert.ToInt32(cmd.ExecuteScalar()) == 0)
@@ -204,7 +207,7 @@ namespace OMNI.QMS.Model
                         }
                     }
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`qir_master` WHERE `QIRNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"SELECT * FROM [qir_master] WHERE [QIRNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("@p1", qirNumber);
                     using (var reader = cmd.ExecuteReader())
@@ -212,19 +215,19 @@ namespace OMNI.QMS.Model
                         while (reader.Read())
                         {
                             IDNumber = qirNumber;
-                            Date = reader.GetDateTime("QIRDate");
-                            Submitter = reader.GetString(nameof(Submitter));
-                            QIRFormType = (QIRType)Enum.Parse(typeof(QIRType), reader.GetString("Type").Replace(" ", string.Empty));
-                            PartNumber = !reader.IsDBNull(4) ? reader.GetString(nameof(PartNumber)) : string.Empty;
-                            WONumber = !reader.IsDBNull(5) ? reader.GetString(nameof(WONumber)) : string.Empty;
-                            Found = !reader.IsDBNull(6) ? reader.GetInt32(nameof(Found)) : 0;
-                            MaterialCost = !reader.IsDBNull(7) ? reader.GetDouble(nameof(MaterialCost)) : 0.00;
-                            UOM = !reader.IsDBNull(9) ? reader.GetString(nameof(UOM)) : string.Empty;
-                            PIC = !reader.IsDBNull(10) ? reader.GetString(nameof(PIC)) : string.Empty;
+                            Date = reader.SafeGetDateTime("QIRDate");
+                            Submitter = reader.SafeGetString(nameof(Submitter));
+                            QIRFormType = (QIRType)Enum.Parse(typeof(QIRType), reader.SafeGetString("Type").Replace(" ", string.Empty));
+                            PartNumber = !reader.IsDBNull(4) ? reader.SafeGetString(nameof(PartNumber)) : string.Empty;
+                            WONumber = !reader.IsDBNull(5) ? reader.SafeGetString(nameof(WONumber)) : string.Empty;
+                            Found = !reader.IsDBNull(6) ? reader.SafeGetInt32(nameof(Found)) : 0;
+                            MaterialCost = !reader.IsDBNull(7) ? reader.SafeGetDouble(nameof(MaterialCost)) : 0.00;
+                            UOM = !reader.IsDBNull(9) ? reader.SafeGetString(nameof(UOM)) : string.Empty;
+                            PIC = !reader.IsDBNull(10) ? reader.SafeGetString(nameof(PIC)) : string.Empty;
                         }
                     }
                 }
-                NotesTable = this.GetNotesTableAsync().Result;
+                NotesTable = this.GetNotesTable();
                 IsPhotosAttached = true;
                 NCMCodeList = null;
                 LoadM2kData = true;
@@ -244,13 +247,13 @@ namespace OMNI.QMS.Model
             var _qirCauseList = new List<string>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`qir_cause`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [qir_cause]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            _qirCauseList.Add(reader.GetString("Description"));
+                            _qirCauseList.Add(reader.SafeGetString("Description"));
                         }
                     }
                 }
@@ -273,7 +276,7 @@ namespace OMNI.QMS.Model
             {
                 if (e.Column.ColumnName == "Flagged")
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`qir_notice` SET `{CurrentUser.IdNumber}`=@p1 WHERE `QIRNumber`=@p2", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [qir_notice] SET [{CurrentUser.IdNumber}]=@p1 WHERE [QIRNumber]=@p2", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", e.ProposedValue);
                         cmd.Parameters.AddWithValue("p2", Convert.ToInt32(e.Row.ItemArray[2]));
@@ -293,32 +296,32 @@ namespace OMNI.QMS.Model
         /// <param name="site">Optional: Site to filter the Notice data</param>
         /// <param name="update">Optional: Update call as a boolean</param>
         /// <returns>Filtered Notice DataTable</returns>
-        public async static Task<DataTable> LoadNoticeAsync(string site = "", bool update = false)
+        public static DataTable LoadNotice(string site = "", bool update = false)
         {
             site = site == string.Empty ? CurrentUser.Site : site;
             var table = new DataTable();
             try
             {
-                var cmdString = $"SELECT n.`{CurrentUser.IdNumber}`, r.`SupplierID`, q.* FROM `{App.Schema}`.`qir_master` q ";
-                cmdString += $"LEFT JOIN `{App.Schema}`.`qir_notice` n ON q.`QIRNumber`=n.`QIRNumber` ";
-                cmdString += $"LEFT JOIN `{App.Schema}`.`qir_revisions` r ON q.`QIRNumber`=r.`QIRNumber` AND q.`QIRDate`=r.`revision_date`";
+                var cmdString = $"USE {App.DataBase}; SELECT n.[{CurrentUser.IdNumber}], r.[SupplierID], q.* FROM [qir_master] q ";
+                cmdString += $"LEFT JOIN [qir_notice] n ON q.[QIRNumber]=n.[QIRNumber] ";
+                cmdString += $"LEFT JOIN [qir_revisions] r ON q.[QIRNumber]=r.[QIRNumber] AND q.[QIRDate]=r.[revision_date]";
                 if (update)
                 {
-                    cmdString += $" WHERE `QIRDate`>'{DateTime.Now.AddMinutes(-1).ToString("yyyy-MM-dd HH:mm")}'";
+                    cmdString += $" WHERE [QIRDate]>'{DateTime.Now.AddMinutes(-1).ToString("yyyy-MM-dd HH:mm")}'";
                 }
                 else if (site == "WCCO")
                 {
-                    cmdString += $" WHERE(q.`Status`= 'Open' OR n.`{ CurrentUser.IdNumber}`= 1 OR n.`{ CurrentUser.IdNumber}` IS NULL) OR q.`QIRDate` BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}'";
+                    cmdString += $" WHERE (q.[Status]= 'Open' OR n.[{ CurrentUser.IdNumber}]= 1 OR n.[{CurrentUser.IdNumber}] IS NULL) OR q.[QIRDate] BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}'";
                 }
                 else
                 {
-                    cmdString += $" WHERE((q.`Status`= 'Open' OR n.`{ CurrentUser.IdNumber}`= 1 OR n.`{ CurrentUser.IdNumber}` IS NULL) AND r.`SupplierID`=1015) OR q.`QIRDate` BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' AND r.`SupplierID`=1015";
+                    cmdString += $" WHERE ((q.[Status]= 'Open' OR n.[{ CurrentUser.IdNumber}]= 1 OR n.[{CurrentUser.IdNumber}] IS NULL) AND r.[SupplierID]=1015) OR q.[QIRDate] BETWEEN '{DateTime.Now.AddDays(-CurrentUser.NoticeHistory).ToString("yyyy-MM-dd HH:mm:ss")}' AND '{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' AND r.[SupplierID]=1015";
                 }
-                using (var adapter = new MySqlDataAdapter(cmdString, App.ConAsync))
+                using (var adapter = new SqlDataAdapter(cmdString, App.SqlConAsync))
                 {
-                    await adapter.FillSchemaAsync(table, SchemaType.Source);
+                    adapter.FillSchema(table, SchemaType.Source);
                     table.Columns[$"{CurrentUser.IdNumber}"].DataType = typeof(bool);
-                    await adapter.FillAsync(table).ConfigureAwait(false);
+                    adapter.Fill(table);
                     table.Columns[$"{CurrentUser.IdNumber}"].ColumnName = "Flagged";
                     return table;
                 }
@@ -340,21 +343,24 @@ namespace OMNI.QMS.Model
             var _idNumber = 0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`qir_master` (QIRDate, Submitter, Type, PartNumber, WONumber, Found, MaterialCost, TotalCost, UOM, PIC, Status) Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11)", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO
+                                                            [qir_master] ([QIRDate], [Submitter], [Type], [PartNumber], [WONumber], [Found], [MaterialCost], [TotalCost], [UOM], [PIC], [Status])
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11);
+                                                        SELECT [QIRNumber] FROM [qir_master] WHERE [QIRNumber] = @@IDENTITY;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _qir.CurrentRevision.RevDate.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("p2", _qir.CurrentRevision.RevSubmitter);
                     cmd.Parameters.AddWithValue("p3", _qir.QIRFormType.ToString());
-                    cmd.Parameters.AddWithValue("p4", _qir.PartNumber);
-                    cmd.Parameters.AddWithValue("p5", _qir.WONumber);
+                    cmd.SafeAddParemeters("p4", _qir.PartNumber);
+                    cmd.SafeAddParemeters("p5", _qir.WONumber);
                     cmd.Parameters.AddWithValue("p6", _qir.Found);
                     cmd.Parameters.AddWithValue("p7", _qir.MaterialCost);
                     cmd.Parameters.AddWithValue("p8", _qir.MaterialCost * _qir.CurrentRevision.MaterialLost);
                     cmd.Parameters.AddWithValue("p9", _qir.UOM);
-                    cmd.Parameters.AddWithValue("p10", _qir.PIC);
+                    cmd.SafeAddParemeters("p10", DBNull.Value);
                     cmd.Parameters.AddWithValue("p11", _qir.CurrentRevision.Disposition.Status.ToString());
-                    cmd.ExecuteNonQuery();
-                    _idNumber = Convert.ToInt32(cmd.LastInsertedId);
+                    _idNumber = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 _qir.CurrentRevision.Submit(Convert.ToInt32(_idNumber));
                 _qir.RevisionList.Add(CurrentRevision);
@@ -378,17 +384,32 @@ namespace OMNI.QMS.Model
             {
                 var _tempRev = _qir.CurrentRevision;
                 _tempRev.RevDate = DateTime.Now;
-                using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`qir_master` SET `QIRDate`=@p1, `Submitter`=@p2, `PartNumber`=@p3, `WONumber`=@p4, `Found`=@p5, `MaterialCost`=@p6, `TotalCost`=@p7, `UOM`=@p8, `PIC`=@p9, `Status`=@p10 WHERE `QIRNumber`=@p11", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        UPDATE
+                                                            [qir_master]
+                                                        SET
+                                                            [QIRDate]=@p1,
+                                                            [Submitter]=@p2,
+                                                            [PartNumber]=@p3,
+                                                            [WONumber]=@p4,
+                                                            [Found]=@p5,
+                                                            [MaterialCost]=@p6,
+                                                            [TotalCost]=@p7,
+                                                            [UOM]=@p8,
+                                                            [PIC]=@p9,
+                                                            [Status]=@p10
+                                                        WHERE
+                                                            [QIRNumber]=@p11", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _tempRev.RevDate.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("p2", CurrentUser.FullName);
-                    cmd.Parameters.AddWithValue("p3", _qir.PartNumber);
+                    cmd.SafeAddParemeters("p3", _qir.PartNumber);
                     cmd.Parameters.AddWithValue("p4", _qir.WONumber);
                     cmd.Parameters.AddWithValue("p5", _qir.Found);
                     cmd.Parameters.AddWithValue("p6", _qir.MaterialCost);
                     cmd.Parameters.AddWithValue("p7", _qir.MaterialCost * _qir.CurrentRevision.MaterialLost);
                     cmd.Parameters.AddWithValue("p8", _qir.UOM);
-                    cmd.Parameters.AddWithValue("p9", _qir.PIC);
+                    cmd.SafeAddParemeters("p9", _qir.PIC);
                     cmd.Parameters.AddWithValue("p10", _qir.CurrentRevision.Disposition.Status.ToString());
                     cmd.Parameters.AddWithValue("p11", _qir.IDNumber);
                     cmd.ExecuteNonQuery();
@@ -410,7 +431,7 @@ namespace OMNI.QMS.Model
         /// </summary>
         public static void MarkAllViewed()
         {
-            using (MySqlCommand cmd = new MySqlCommand($"UPDATE {App.Schema}.qir_notice SET `{CurrentUser.IdNumber}`=0 WHERE `{CurrentUser.IdNumber}` IS NULL", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [qir_notice] SET [{CurrentUser.IdNumber}]=0 WHERE [{CurrentUser.IdNumber}] IS NULL", App.SqlConAsync))
             {
                 cmd.ExecuteNonQuery();
             }
@@ -428,7 +449,7 @@ namespace OMNI.QMS.Model
             {
                 try
                 {
-                    using (MySqlDataAdapter da = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`qir_metrics_view` WHERE `QIRDate` BETWEEN '{startDate.ToString("yyyy-MM-dd")}' AND '{endDate.AddDays(1).ToString("yyyy-MM-dd")}'", App.ConAsync))
+                    using (SqlDataAdapter da = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [qir_metrics_view] WHERE [QIRDate] BETWEEN '{startDate.ToString("yyyy-MM-dd")}' AND '{endDate.AddDays(1).ToString("yyyy-MM-dd")}'", App.SqlConAsync))
                     {
                         da.Fill(dt);
                     }
@@ -540,7 +561,7 @@ namespace OMNI.QMS.Model
         /// <param name="noticeTable">Current notice DataTable</param>
         public static void UpdateNoticeTable(this DataTable noticeTable)
         {
-            using (DataTable _tempTable = QIR.LoadNoticeAsync(update:true).Result)
+            using (DataTable _tempTable = QIR.LoadNotice(update:true))
             {
                 if (_tempTable != null && _tempTable.Rows.Count > 0)
                 {
@@ -763,16 +784,17 @@ namespace OMNI.QMS.Model
             var _tempQIR = new List<int>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `QIRNumber` FROM `{App.Schema}`.`qir_metrics_view` WHERE `LotNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [QIRNumber] FROM [qir_metrics_view] WHERE LotNumber=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("@p1", lotNbr);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
                             while (reader.Read())
                             {
-                                _tempQIR.Add(reader.GetInt32(0));
+                                _tempQIR.Add(reader.SafeGetInt32("QIRNumber"));
                             }
                         }
                         else

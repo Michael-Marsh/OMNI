@@ -62,7 +62,7 @@ namespace OMNI.ViewModels
             {
                 if (value != _selectedCost && value != null)
                 {
-                    CostResultsTable = QIRChart.GetResultsAsync(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year).Result;
+                    CostResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year);
                 }
                 _selectedCost = value;
                 SelectedQIRNumberCost = null;
@@ -86,7 +86,7 @@ namespace OMNI.ViewModels
             {
                 if (value != _selectedCount && value != null)
                 {
-                    CountResultsTable = QIRChart.GetResultsAsync(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year).Result;
+                    CountResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year);
                 }
                 _selectedCount = value;
                 OnPropertyChanged(nameof(CountResultsTable));

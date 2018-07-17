@@ -1,8 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.Views;
 using System;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Threading.Tasks;
@@ -71,35 +72,35 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `DomainName`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [users] WHERE [DomainName]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", userName);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync())
                         {
-                            FullName = reader.GetString(nameof(FullName));
-                            DomainName = reader.GetString(nameof(DomainName));
-                            AccountName = reader.GetString(nameof(AccountName));
-                            Email = reader.GetString(nameof(Email));
-                            IdNumber = reader.GetInt32("EmployeeNumber");
-                            SlitterLead = reader.GetBoolean(nameof(SlitterLead));
-                            Quality = reader.GetBoolean(nameof(Quality));
-                            QualityNotice = reader.GetBoolean(nameof(QualityNotice));
-                            Kaizen = reader.GetBoolean(nameof(Kaizen));
-                            CMMS = reader.GetBoolean(nameof(CMMS));
-                            CMMSCrew = reader.GetBoolean(nameof(CMMSCrew));
-                            CMMSAdmin = reader.GetBoolean(nameof(CMMSAdmin));
-                            IT = reader.GetBoolean(nameof(IT));
-                            ITTeam = reader.GetBoolean(nameof(ITTeam));
-                            Engineering = reader.GetBoolean(nameof(Engineering));
-                            Accounting = reader.GetBoolean(nameof(Accounting));
-                            Admin = reader.GetBoolean("OMNIAdministrator");
-                            Tools = reader.GetBoolean("OMNITools");
-                            Developer = reader.GetBoolean(nameof(Developer));
-                            Site = reader.GetString(nameof(Site));
-                            NoticeTimer = reader.GetInt32(nameof(NoticeTimer));
-                            NoticeHistory = reader.GetInt32(nameof(NoticeHistory));
+                            FullName = reader.SafeGetString(nameof(FullName));
+                            DomainName = reader.SafeGetString(nameof(DomainName));
+                            AccountName = reader.SafeGetString(nameof(AccountName));
+                            Email = reader.SafeGetString(nameof(Email));
+                            IdNumber = reader.SafeGetInt32("EmployeeNumber");
+                            SlitterLead = reader.SafeGetBoolean(nameof(SlitterLead));
+                            Quality = reader.SafeGetBoolean(nameof(Quality));
+                            QualityNotice = reader.SafeGetBoolean(nameof(QualityNotice));
+                            Kaizen = reader.SafeGetBoolean(nameof(Kaizen));
+                            CMMS = reader.SafeGetBoolean(nameof(CMMS));
+                            CMMSCrew = reader.SafeGetBoolean(nameof(CMMSCrew));
+                            CMMSAdmin = reader.SafeGetBoolean(nameof(CMMSAdmin));
+                            IT = reader.SafeGetBoolean(nameof(IT));
+                            ITTeam = reader.SafeGetBoolean(nameof(ITTeam));
+                            Engineering = reader.SafeGetBoolean(nameof(Engineering));
+                            Accounting = reader.SafeGetBoolean(nameof(Accounting));
+                            Admin = reader.SafeGetBoolean("OMNIAdministrator");
+                            Tools = reader.SafeGetBoolean("OMNITools");
+                            Developer = reader.SafeGetBoolean(nameof(Developer));
+                            Site = reader.SafeGetString(nameof(Site));
+                            NoticeTimer = reader.SafeGetInt32(nameof(NoticeTimer));
+                            NoticeHistory = reader.SafeGetInt32(nameof(NoticeHistory));
                         }
                     }
                 }
@@ -115,14 +116,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="userName">Input User Name</param>
         /// <returns>true = exists; false = does not exist</returns>
-        public async static Task<bool> ExistsAsync(string userName)
+        public static bool Exists(string userName)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`users` WHERE `DomainName`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT(*) FROM [users] WHERE [DomainName]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", userName);
-                    if (Convert.ToInt32(await cmd.ExecuteScalarAsync()) > 0)
+                    if (Convert.ToInt32(cmd.ExecuteScalar()) > 0)
                         return true;
                     return false;
                 }
@@ -152,9 +153,9 @@ namespace OMNI.Models
         /// <param name="email">Current User eMail</param>
         /// <param name="noticeTimer">Current User Notice Timer settings</param>
         /// <param name="noticeHistory">Current User Notice Histroy settings</param>
-        public async static void UpdateUserAsync(string fullName, string accountName, string email, int noticeTimer, int noticeHistory)
+        public static void UpdateUser(string fullName, string accountName, string email, int noticeTimer, int noticeHistory)
         {
-            using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`users` SET `FullName`=@p1, `AccountName`=@p2, `eMail`=@p3, `NoticeTimer`=@p4, `NoticeHistory`=@p5 WHERE `EmployeeNumber`=@p6", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [users] SET [FullName]=@p1, [AccountName]=@p2, [eMail]=@p3, [NoticeTimer]=@p4, [NoticeHistory]=@p5 WHERE [EmployeeNumber]=@p6", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", fullName);
                 cmd.Parameters.AddWithValue("p2", accountName);
@@ -162,7 +163,7 @@ namespace OMNI.Models
                 cmd.Parameters.AddWithValue("p4", noticeTimer);
                 cmd.Parameters.AddWithValue("p5", noticeHistory);
                 cmd.Parameters.AddWithValue("p6", IdNumber);
-                await cmd.ExecuteNonQueryAsync();
+                cmd.ExecuteNonQuery();
             }
             FullName = fullName;
             AccountName = accountName;

@@ -55,7 +55,7 @@ namespace OMNI.HDT.ViewModel
         {
             if (NoticeDataTable == null)
             {
-                NoticeDataTable = Ticket.LoadNoticeAsync().Result;
+                NoticeDataTable = Ticket.LoadNotice();
                 if (NoticeDataTable != null)
                 {
                     NoticeDataTable.DefaultView.Sort = "SubmitDate DESC";

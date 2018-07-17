@@ -65,7 +65,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">typeof(FormCommand)</param>
         private void SubmitExecute(object parameter)
         {
-            if (!SlitterCal.SubmitAsync().Result)
+            if (!SlitterCal.Submit())
             {
                 ExceptionWindow.Show("Submission Interference", "OMNI is currently unavailabe to submit this calcheck to the database\nPlease contact IT for further assistance");
             }

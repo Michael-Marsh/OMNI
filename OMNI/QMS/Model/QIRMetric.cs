@@ -1,11 +1,11 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
+using OMNI.Helpers;
 using OMNI.Models;
-using OMNI.Extensions;
 using OMNI.QMS.Enumeration;
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
-using OMNI.Helpers;
 
 namespace OMNI.QMS.Model
 {
@@ -39,9 +39,10 @@ namespace OMNI.QMS.Model
                 var _yearlySales = OMNIDataBase.YearlySalesAsync(DateTime.Today.Year).Result + monthlySales;
                 using (DataTable dt = new DataTable())
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                                        SELECT [TotalCost], [SupplierID], [QIRDate] FROM [qir_metrics_view] WHERE [QIRDate] >= '{DateTime.Today.Year}-01-01'", App.SqlConAsync))
                     {
-                        adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                     }
                     InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
                     InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
@@ -94,7 +95,13 @@ namespace OMNI.QMS.Model
                 }
                 using (DataTable dt = new DataTable())
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` BETWEEN '{year}-{_month}-01' AND '{year}-{_month}-{Convert.ToDateTime($"01/{_month}/{year}").LastDayOfMonth()}'", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                                        SELECT
+                                                                            [TotalCost], [SupplierID]
+                                                                        FROM
+                                                                            [qir_metrics_view]
+                                                                        WHERE
+                                                                            [QIRDate] BETWEEN '{year}-{_month}-01' AND '{year}-{_month}-{Convert.ToDateTime($"01/{_month}/{year}").LastDayOfMonth()}'", App.SqlConAsync))
                     {
                         adapter.Fill(dt);
                     }
@@ -127,9 +134,10 @@ namespace OMNI.QMS.Model
                 var _yearlySales = OMNIDataBase.YearlySalesAsync(DateTime.Today.Year).Result + monthlySales;
                 using (DataTable dt = new DataTable())
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `TotalCost`, `SupplierID`, `QIRDate` FROM `{App.Schema}`.qir_metrics_view WHERE `QIRDate` >= '{DateTime.Today.Year}-01-01'", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                                        SELECT [TotalCost], [SupplierID], [QIRDate] FROM [qir_metrics_view] WHERE [QIRDate] >= '{DateTime.Today.Year}-01-01'", App.SqlConAsync))
                     {
-                        adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                     }
                     metric.InternalCountYTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
                     metric.InternalCostYTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));

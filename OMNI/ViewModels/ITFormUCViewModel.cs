@@ -226,8 +226,8 @@ namespace OMNI.ViewModels
             LoadFromNotice = false;
             PrimaryCommandType = FormCommand.Update;
             SecondaryCommandType = Ticket.CompletionDate == DateTime.MinValue ? FormCommand.Complete : FormCommand.ReOpen;
-            Ticket.NotesTable = ITTicket.GetNotesDataTableAsync(Convert.ToInt32(Ticket.IDNumber)).Result;
-            if (!FormBase.FormChangeInProgress && Ticket.LinkExistsAsync().Result)
+            Ticket.NotesTable = ITTicket.GetNotesDataTable(Convert.ToInt32(Ticket.IDNumber));
+            if (!FormBase.FormChangeInProgress && Ticket.LinkExists())
             {
                 var noUseYet = Ticket.GetLinkListAsync().Result;
             }
@@ -295,7 +295,7 @@ namespace OMNI.ViewModels
                 {
                     if (emailSubmitter)
                     {
-                        var _tempEmail = Users.RetrieveEmailAddressAsync(Ticket.Submitter).Result;
+                        var _tempEmail = Users.RetrieveEmailAddress(Ticket.Submitter);
                         if (_tempEmail != "Not on File")
                         {
                             EmailForm.SendwithoutAttachment(_tempEmail, $"Action has been taken on your ticket #{Ticket.IDNumber}, log into OMNI to view the changes.", $"HDT #{Ticket.IDNumber} {commandAction}");
@@ -314,7 +314,7 @@ namespace OMNI.ViewModels
                     }
                     if (emailAssignee)
                     {
-                        EmailForm.SendwithoutAttachment(Users.RetrieveEmailAddressAsync(MemberAssigned).Result, $"Ticket #{Ticket?.IDNumber} was just {commandAction} to {MemberAssigned}, please log into OMNI to review.", $"HDT #{Ticket?.IDNumber} {commandAction}");
+                        EmailForm.SendwithoutAttachment(Users.RetrieveEmailAddress(MemberAssigned), $"Ticket #{Ticket?.IDNumber} was just {commandAction} to {MemberAssigned}, please log into OMNI to review.", $"HDT #{Ticket?.IDNumber} {commandAction}");
                         MemberAssigned = string.Empty;
                     }
                 });
@@ -362,7 +362,7 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case FormCommand.Update:
-                    if (!Ticket.UpdateAsync().Result)
+                    if (!Ticket.Update())
                     {
                         ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                     }
@@ -372,7 +372,7 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case FormCommand.Assigned:
-                    if (!Ticket.UpdateAsync().Result)
+                    if (!Ticket.Update())
                     {
                         ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                     }
@@ -396,23 +396,23 @@ namespace OMNI.ViewModels
                         OnPropertyChanged(nameof(SelectedPriority));
                         OnPropertyChanged(nameof(SelectedLocation));
                         ((TabItem)(DashBoardTabControl.WorkSpace).SelectedItem).Header = Ticket.IDNumber;
-                        Ticket.NotesTable = ITTicket.GetNotesDataTableAsync(Convert.ToInt32(Ticket.IDNumber)).Result;
+                        Ticket.NotesTable = ITTicket.GetNotesDataTable(Convert.ToInt32(Ticket.IDNumber));
                         OnPropertyChanged(nameof(Ticket));
                         Ticket.AssignedTo.ListChanged += AssignedToChanged;
                         Ticket.DocumentList.ListChanged += DocumentListChanged;
-                        if (!FormBase.FormChangeInProgress && Ticket.LinkExistsAsync().Result)
+                        if (!FormBase.FormChangeInProgress && Ticket.LinkExists())
                         {
                             var noUseYet = Ticket.GetLinkListAsync().Result;
                         }
                     }
                     break;
                 case FormCommand.Complete:
-                    if (Ticket.AddNotesAsync().Result)
+                    if (Ticket.AddNotes())
                     {
                         SecondaryCommandType = FormCommand.ReOpen;
                         Ticket.CompletionDate = DateTime.Today;
                         Ticket.Status = TicketStatus.Create("Closed");
-                        if (!Ticket.UpdateAsync().Result)
+                        if (!Ticket.Update())
                         {
                             ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                             SecondaryCommandType = FormCommand.Complete;
@@ -428,14 +428,14 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case FormCommand.ReOpen:
-                    if (Ticket.AddNotesAsync().Result)
+                    if (Ticket.AddNotes())
                     {
                         var _tempDate = Ticket.CompletionDate;
                         var _tempStatus = Ticket.Status.Title;
                         SecondaryCommandType = FormCommand.Complete;
                         Ticket.CompletionDate = DateTime.MinValue;
                         Ticket.Status.Title = Ticket.AssignedTo.Count(o => o.Assigned) > 0 ? "Assigned" : "Pending";
-                        if (!Ticket.UpdateAsync().Result)
+                        if (!Ticket.Update())
                         {
                             ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                             SecondaryCommandType = FormCommand.ReOpen;
@@ -451,13 +451,13 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case FormCommand.Deny:
-                    if (Ticket.AddNotesAsync().Result)
+                    if (Ticket.AddNotes())
                     {
                         var _tempStatus = Ticket.Status.Title;
                         SecondaryCommandType = FormCommand.ReOpen;
                         Ticket.CompletionDate = DateTime.Today;
                         Ticket.Status = TicketStatus.Create("Denied");
-                        if (!Ticket.UpdateAsync().Result)
+                        if (!Ticket.Update())
                         {
                             ExceptionWindow.Show("Update Failed", "OMNI is currently not able to process your update request.\nPlease check your connection, and try again.\nIf you need immediate assistance contact IT directly.");
                             SecondaryCommandType = FormCommand.Complete;
@@ -518,7 +518,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Empty Object</param>
         private void NoteExecute(object parameter)
         {
-            if (Ticket.AddNotesAsync().Result)
+            if (Ticket.AddNotes())
             {
                 TakeAction("Note Added", true, false, false);
                 OnPropertyChanged(nameof(Ticket));

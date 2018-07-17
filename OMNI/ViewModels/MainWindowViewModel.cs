@@ -1,5 +1,4 @@
 ﻿using OMNI.Commands;
-using OMNI.Enumerations;
 using OMNI.Helpers;
 using OMNI.Models;
 using OMNI.QMS.View;
@@ -85,10 +84,10 @@ namespace OMNI.ViewModels
             get { return CurrentUser.AccountName; }
             set { value = CurrentUser.AccountName; OnPropertyChanged(nameof(UserAccountName)); }
         }
-        public string TrainingMode { get { return App.TrainingStatus ? "Turn Training Off" : "Turn Training On"; } }
+        public string TrainingMode { get { return App.DataBase.Contains("Train") ? "Turn Training Off" : "Turn Training On"; } }
         public bool Training
         {
-            get { return App.TrainingStatus; }
+            get { return App.DataBase.Contains("Train"); }
         }
         private bool _update;
         public bool UpdateAvailable
@@ -104,8 +103,8 @@ namespace OMNI.ViewModels
         public static Action MainWindowUpdateTick { get; set; }
         public bool DataBaseOnline
         {
-            get { return App.ConConnected; }
-            set { value = App.ConConnected; OnPropertyChanged(nameof(DataBaseOnline)); }
+            get { return App.SqlConAsync.State == System.Data.ConnectionState.Open; }
+            set { value = App.SqlConAsync.State == System.Data.ConnectionState.Open; OnPropertyChanged(nameof(DataBaseOnline)); }
         }
 
         RelayCommand _login;
@@ -120,7 +119,7 @@ namespace OMNI.ViewModels
         public MainWindowViewModel()
         {
             var _test = UseSSO();
-            if (!string.IsNullOrEmpty(_test) && CurrentUser.ExistsAsync(_test.Substring(_test.LastIndexOf('\\') + 1)).Result)
+            if (!string.IsNullOrEmpty(_test) && CurrentUser.Exists(_test.Substring(_test.LastIndexOf('\\') + 1)))
             {
                 CurrentUser.LogInAsync(_test.Substring(_test.LastIndexOf('\\') + 1));
                 RefreshView(true);
@@ -177,6 +176,8 @@ namespace OMNI.ViewModels
             OnPropertyChanged(nameof(UserName));
         }
 
+        #region Log In ICommand
+
         /// <summary>
         /// Log In Command
         /// </summary>
@@ -198,11 +199,11 @@ namespace OMNI.ViewModels
         {
             if (int.TryParse(UserName, out int empID))
             {
-                UserName = OMNIDataBase.UserDomainNameFromIDAsync(empID).Result;
+                UserName = OMNIDataBase.UserDomainNameFromID(empID);
             }
             if (CurrentUser.Validate(UserName, Password))
             {
-                if (CurrentUser.ExistsAsync(UserName).Result)
+                if (CurrentUser.Exists(UserName))
                 {
                     CurrentUser.LogInAsync(UserName);
                 }
@@ -224,6 +225,10 @@ namespace OMNI.ViewModels
         private bool LogInCanExecute(object parameter) => (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Password))
                 ? false
                 : true;
+
+        #endregion
+
+        #region Work Space ICommand
 
         /// <summary>
         /// Work Space Command
@@ -272,18 +277,15 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case "Turn Training On":
-                    App.TrainingStatus = true;
                     OnPropertyChanged(nameof(TrainingMode));
                     OnPropertyChanged(nameof(Training));
                     break;
                 case "Turn Training Off":
-                    App.TrainingStatus = false;
                     OnPropertyChanged(nameof(TrainingMode));
                     OnPropertyChanged(nameof(Training));
                     break;
                 case "LogOut":
                     CurrentUser.LogOut();
-                    App.TrainingStatus = false;
                     OnPropertyChanged(nameof(TrainingMode));
                     OnPropertyChanged(nameof(Training));
                     RefreshView();
@@ -293,6 +295,10 @@ namespace OMNI.ViewModels
         private bool WorkCanExecute(object parameter) => LoggedOut
                 ? false
                 : true;
+
+        #endregion
+
+        #region Default ICommand
 
         /// <summary>
         /// Default Command
@@ -378,6 +384,8 @@ namespace OMNI.ViewModels
                     break;
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Object Disposal

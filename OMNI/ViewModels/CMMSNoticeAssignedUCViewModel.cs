@@ -2,6 +2,8 @@
 using OMNI.Helpers;
 using OMNI.Models;
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Data;
 
 namespace OMNI.ViewModels
@@ -33,6 +35,26 @@ namespace OMNI.ViewModels
                 }
             }
         }
+        public override string SelectedSite
+        {
+            get { return base.SelectedSite; }
+            set
+            {
+                if (base.SelectedSite == null)
+                {
+                    base.SelectedSite = value;
+                }
+                else
+                {
+                    base.SelectedSite = value;
+                    CrewList = new ObservableCollection<Users>(Users.CMMSUserListAsync(true, addNone: false, site: value).Result);
+                    CrewList.Insert(0, Users.CreateCMMSUser("All", false));
+                    OnPropertyChanged(nameof(CrewList));
+                    SelectedCrewMember = CrewList.Any(o => o.FullName == CurrentUser.FullName) ? CurrentUser.FullName : "All";
+                    CMMSNoticeAssignedTick();
+                }
+            }
+        }
 
         #endregion
 
@@ -42,6 +64,7 @@ namespace OMNI.ViewModels
         public CMMSNoticeAssignedUCViewModel()
         {
             Module = CMMSActionGridView.Assigned;
+            SelectedSite = CurrentUser.Site;
             UpdateTimer.Add(CMMSNoticeAssignedTick);
             CMMSNoticeAssignedTick();
         }
@@ -55,7 +78,7 @@ namespace OMNI.ViewModels
                 {
                     _tempPosition = OpenOrdersView.CurrentPosition;
                 }
-                NoticeTable = CMMSWorkOrder.LoadNoticeAsync(Convert.ToInt32(Module), SelectedCrewMember).Result;
+                NoticeTable = CMMSWorkOrder.LoadNotice(Convert.ToInt32(Module), SelectedCrewMember, SelectedSite);
                 NoticeTable.DefaultView.Sort = nameof(Priority);
                 OpenOrdersView = CollectionViewSource.GetDefaultView(NoticeTable);
                 OpenOrdersView.GroupDescriptions.Add(new PropertyGroupDescription(CurrentGroup));
@@ -86,6 +109,12 @@ namespace OMNI.ViewModels
         {
             base.DenyExecute(parameter);
             CMMSNoticeAssignedTick();
+        }
+
+        public override void OnDispose(bool disposing)
+        {
+            UpdateTimer.Remove(CMMSNoticeAssignedTick);
+            base.OnDispose(disposing);
         }
     }
 }

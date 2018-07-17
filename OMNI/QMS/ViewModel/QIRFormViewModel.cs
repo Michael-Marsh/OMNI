@@ -58,7 +58,7 @@ namespace OMNI.QMS.ViewModel
                     OnPropertyChanged(nameof(TempID));
                     SelectedDisposition = Qir.CurrentRevision?.Disposition?.Description;
                     OnPropertyChanged(nameof(Lot));
-                    if (Qir.LinkExistsAsync().Result)
+                    if (Qir.LinkExists())
                     {
                         var _remove = Qir.GetLinkListAsync().Result;
                     }
@@ -88,6 +88,7 @@ namespace OMNI.QMS.ViewModel
             get { return Qir.CurrentRevision?.LotNumber; }
             set
             {
+                value = value.ToUpper();
                 if (!string.IsNullOrEmpty(value) && Qir.LoadM2kData && value != "N/A")
                 {
                     Qir.LoadM2kData = false;
@@ -141,7 +142,7 @@ namespace OMNI.QMS.ViewModel
             SelectedDisposition = Qir.CurrentRevision.Disposition.Description;
             TempID = qir.IDNumber;
             ReadOnly = CurrentUser.Quality;
-            if (Qir.LinkExistsAsync().Result)
+            if (Qir.LinkExists())
             {
                 var _remove = Qir.GetLinkListAsync().Result;
             }
@@ -231,7 +232,7 @@ namespace OMNI.QMS.ViewModel
                 File.Delete($"{Properties.Settings.Default.omnitemp}{Qir.IDNumber.ToString()}.pdf");
             }
         }
-        private bool PrintFormCanExecute(object parameter) => Qir?.IDNumber != null && App.ConConnected;
+        private bool PrintFormCanExecute(object parameter) => Qir?.IDNumber != null && App.SqlConAsync.State == System.Data.ConnectionState.Open;
 
         #endregion
 

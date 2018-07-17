@@ -1,6 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.Models
@@ -34,16 +35,17 @@ namespace OMNI.Models
             var _locList = new List<CMMSPartLocation>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmms_part_locations`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT * FROM [cmms_part_locations]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             _locList.Add(new CMMSPartLocation
                             {
-                                LocationID = reader.GetString(nameof(LocationID)),
-                                Description = reader.GetString("LocationDescription")
+                                LocationID = reader.SafeGetString(nameof(LocationID)),
+                                Description = reader.SafeGetString("LocationDescription")
                             });
                         }
                     }

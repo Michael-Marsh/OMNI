@@ -12,7 +12,7 @@ namespace OMNI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.6.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -111,15 +111,6 @@ namespace OMNI.Properties {
         public string omnitemp {
             get {
                 return ((string)(this["omnitemp"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("QIRNotice@WCCOBELTING.onmicrosoft.com")]
-        public string QIRNoticeEmailAddress {
-            get {
-                return ((string)(this["QIRNoticeEmailAddress"]));
             }
         }
         
@@ -248,38 +239,6 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;da" +
-            "tabase=omni")]
-        public string omniConnectionString {
-            get {
-                return ((string)(this["omniConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("server=172.16.0.27;user id=omniuser;password=Omni6235;persistsecurityinfo=True;")]
-        public string omniUserConnectionString {
-            get {
-                return ((string)(this["omniUserConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("account=E:\\roi\\WCCO.MAIN;host=172.16.0.122;userid=query;password=query;domain=;wh" +
-            "itepagesport=8403")]
-        public string RedBackConnectionString {
-            get {
-                return ((string)(this["RedBackConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Photo Library\\Employees")]
         public string UsersPhotoDirectory {
             get {
@@ -290,11 +249,11 @@ namespace OMNI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Database=WCCO_MAIN;Connect" +
-            "ion Timeout=5")]
-        public string omniMSSQLConnectionString {
+        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;Multi" +
+            "pleActiveResultSets=True")]
+        public string SqlConnectionString {
             get {
-                return ((string)(this["omniMSSQLConnectionString"]));
+                return ((string)(this["SqlConnectionString"]));
             }
         }
         

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ViewModel="clr-namespace:OMNI.ViewModels"
+             xmlns:cvtr="clr-namespace:OMNI.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="900" d:DesignWidth="1280">
 
@@ -13,6 +14,7 @@
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <cvtr:InvertedBooltoVisibility x:Key="InvertedBoolToVisConverter"/>
     </UserControl.Resources>
 
     <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
@@ -69,37 +71,51 @@
             <ComboBox Grid.Row="1" Grid.Column="1"  ItemsSource="{Binding YearList}" SelectedValue="{Binding SelectedInternalYear, Mode=TwoWay}" HorizontalAlignment="Right" Width="60" ToolTip="Select the Year" FontSize="14" Height="25" Cursor="Hand"/>
 
             <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <Label Content="Year to Date" Foreground="Black" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.InternalCountYTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.InternalCostYTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                <Grid>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Text="Loading..."
+                               Visibility="{Binding Loading, Converter={StaticResource BooltoVisConverter}, FallbackValue=Collapsed}"/>
 
-                    <Label Content="{Binding QIRValues.InternalPercentOfSalesYTD}"
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding Loading, Converter={StaticResource InvertedBoolToVisConverter}, FallbackValue=Visible}">
+                        <Label Content="Year to Date" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.InternalCountYTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.InternalCostYTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+
+                        <Label Content="{Binding QIRValues.InternalPercentOfSalesYTD}"
                            ContentStringFormat="% of Sales = {0:P3}"
                            Foreground="WhiteSmoke"
                            FontWeight="Bold"
                            FontSize="14"/>
 
-                    <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="InternalYTD" Style="{DynamicResource DashBoardButtonStyle}">
-                        <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
-                    </Button>
-                </StackPanel>
+                        <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="InternalYTD" Style="{DynamicResource DashBoardButtonStyle}">
+                            <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="{Binding SelectedInternalMonth}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
-                        <Label Content="{Binding SelectedInternalYear}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                <Grid>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Text="Loading..."
+                               Visibility="{Binding Loading, Converter={StaticResource BooltoVisConverter}, FallbackValue=Collapsed}"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding Loading, Converter={StaticResource InvertedBoolToVisConverter}, FallbackValue=Visible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding SelectedInternalMonth}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                            <Label Content="{Binding SelectedInternalYear}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                        </StackPanel>
+                        <Label Content="{Binding QIRValues.InternalCountMTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.InternalCostMTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.InternalPercentOfSalesMTD}" ContentStringFormat="% of Sales = {0:P}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="InternalMTD" Style="{DynamicResource DashBoardButtonStyle}">
+                            <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
+                        </Button>
                     </StackPanel>
-                    <Label Content="{Binding QIRValues.InternalCountMTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.InternalCostMTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.InternalPercentOfSalesMTD}" ContentStringFormat="% of Sales = {0:P}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="InternalMTD" Style="{DynamicResource DashBoardButtonStyle}">
-                        <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
-                    </Button>
-                </StackPanel>
-
+                </Grid>
             </Border>
 
             <!--    Incoming Metrics    -->
@@ -113,30 +129,44 @@
             <ComboBox Grid.Row="1" Grid.Column="3"  ItemsSource="{Binding YearList}" SelectedValue="{Binding SelectedIncomingYear, Mode=TwoWay}" HorizontalAlignment="Right" Width="60" ToolTip="Select the Year" FontSize="14" Height="25" Cursor="Hand"/>
 
             <Border Grid.Row="2" Grid.Column="2" BorderBrush="Black" BorderThickness="1" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <Label Content="Year to Date" Foreground="Black" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.IncomingCountYTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.IncomingCostYTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.IncomingPercentOfSalesYTD}" ContentStringFormat="% of Sales = {0:P3}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="IncomingYTD" Style="{DynamicResource DashBoardButtonStyle}">
-                        <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
-                    </Button>
-                </StackPanel>
+                <Grid>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Text="Loading..."
+                               Visibility="{Binding Loading, Converter={StaticResource BooltoVisConverter}, FallbackValue=Collapsed}"/>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="{Binding Loading, Converter={StaticResource InvertedBoolToVisConverter}, FallbackValue=Visible}">
+                        <Label Content="Year to Date" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.IncomingCountYTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.IncomingCostYTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.IncomingPercentOfSalesYTD}" ContentStringFormat="% of Sales = {0:P3}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="IncomingYTD" Style="{DynamicResource DashBoardButtonStyle}">
+                            <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Border>
 
             <Border Grid.Row="2" Grid.Column="3" BorderBrush="Black" BorderThickness="1"  CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="{Binding SelectedIncomingMonth}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
-                        <Label Content="{Binding SelectedIncomingYear}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                <Grid>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Text="Loading..."
+                               Visibility="{Binding Loading, Converter={StaticResource BooltoVisConverter}, FallbackValue=Collapsed}"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center" Visibility="{Binding Loading, Converter={StaticResource InvertedBoolToVisConverter}, FallbackValue=Visible}">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding SelectedIncomingMonth}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                            <Label Content="{Binding SelectedIncomingYear}" Foreground="Black" FontWeight="Bold" FontSize="14"/>
+                        </StackPanel>
+                        <Label Content="{Binding QIRValues.IncomingCountMTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.IncomingCostMTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Label Content="{Binding QIRValues.IncomingPercentOfSalesMTD}" ContentStringFormat="% of Sales = {0:P}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
+                        <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="IncomingMTD" Style="{DynamicResource DashBoardButtonStyle}">
+                            <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
+                        </Button>
                     </StackPanel>
-                    <Label Content="{Binding QIRValues.IncomingCountMTD}" ContentStringFormat="Count = {0}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.IncomingCostMTD}" ContentStringFormat="Cost = {0:C}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Label Content="{Binding QIRValues.IncomingPercentOfSalesMTD}" ContentStringFormat="% of Sales = {0:P}" Foreground="WhiteSmoke" FontWeight="Bold" FontSize="14"/>
-                    <Button Height="40" Width="50" HorizontalAlignment="Right" Margin="5" Command="{Binding ViewChartCommand}" CommandParameter="IncomingMTD" Style="{DynamicResource DashBoardButtonStyle}">
-                        <Image Source="/OMNI;component/Icons/Charts.ico" Margin="2"/>
-                    </Button>
-                </StackPanel>
+                </Grid>
             </Border>
 
             <!--    Slitter 1 Calibration Metrics  -->

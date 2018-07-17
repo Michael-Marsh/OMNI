@@ -1,8 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using System;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,7 +29,6 @@ namespace OMNI.QMS.Model
         /// <param name="workcenter">Workcenter to filter</param>
         /// <param name="percentage">All others percentage roll up</param>
         /// <returns>List<QIRChart> for charting</returns>
-
         public async static Task<List<QIRChart>> NCMDataAsync(string type, int year, int month, string filter, int? workcenter, int percentage)
         {
             var _ncmCountData = new List<QIRChart>();
@@ -39,27 +39,28 @@ namespace OMNI.QMS.Model
             switch (type)
             {
                 case "Count":
-                    type = "COUNT(q.`NCMCode`)";
+                    type = "COUNT(q.NCMCode)";
                     break;
                 case "Cost":
-                    type = "SUM(q.`TotalCost`)";
+                    type = "SUM(q.TotalCost)";
                     break;
             }
             _dateFilter = month == 0
-                ? $"YEAR(q.`QIRDate`)={year}"
-                : $"MONTH(q.`QIRDate`)={month} AND YEAR(q.`QIRDate`)={year}";
+                ? $"YEAR(q.QIRDate)={year}"
+                : $"MONTH(q.QIRDate)={month} AND YEAR(q.QIRDate)={year}";
             filter = filter == "InternalYTD" || filter == "InternalMTD"
-                ? "q.`SupplierID`=0"
-                : "q.`SupplierID`>0";
+                ? "q.SupplierID=0"
+                : "q.SupplierID>0";
             _workcenterFilter = workcenter == null || workcenter == 0
-                ? $"q.`Origin`>0"
-                : $"q.`Origin`={workcenter}";
-            sqlCmd = $"SELECT q.`NCMCode`, {type}, n.`NCMCode`, n.`Summary` FROM `{App.Schema}`.`qir_metrics_view` AS q, `{App.Schema}`.`ncm` AS n WHERE q.`NCMCode` = n.`NCMCode` AND {_dateFilter} AND {filter} AND {_workcenterFilter} GROUP BY q.`NCMCode`";
+                ? $"q.Origin>0"
+                : $"q.Origin={workcenter}";
+            sqlCmd = $@"USE {App.DataBase};
+                    SELECT q.NCMCode, {type}, n.NCMCode, n.Summary FROM qir_metrics_view AS q, ncm AS n WHERE q.NCMCode = n.NCMCode AND {_dateFilter} AND {filter} AND {_workcenterFilter} GROUP BY q.NCMCode";
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand(sqlCmd, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand(sqlCmd, App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (!reader.HasRows)
                         {
@@ -67,7 +68,7 @@ namespace OMNI.QMS.Model
                         }
                         while (await reader.ReadAsync())
                         {
-                            absoluteList.Add(new NCM { ChartCode = reader.GetString(3), Data = reader.GetInt32(1) });
+                            absoluteList.Add(new NCM { ChartCode = reader.SafeGetString("NCMCode"), Data = reader.SafeGetInt32("NCMCode") });
                         }
                     }
                 }
@@ -124,23 +125,24 @@ namespace OMNI.QMS.Model
         /// <param name="month">Filter month</param>
         /// <param name="year">Filter year</param>
         /// <returns>DataTable of QIRNumbers that match the given select filter</returns>
-        public async static Task<DataTable> GetResultsAsync(string ncmSummary, int? workCenter, int month, int year)
+        public static DataTable GetResults(string ncmSummary, int? workCenter, int month, int year)
         {
             var ncmCode = 0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `NCMCode` FROM `{App.Schema}`.`ncm` WHERE `Summary`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [NCMCode] FROM [ncm] WHERE [Summary]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", ncmSummary);
-                    ncmCode = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    ncmCode = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 var adapterSelect = workCenter == 0
-                    ? $"SELECT `QIRNumber` FROM `{App.Schema}`.`qir_metrics_view` WHERE `NCMCode`=@p1"
-                    : $"SELECT `QIRNumber` FROM `{App.Schema}`.`qir_metrics_view` WHERE `NCMCode`=@p1 AND `Origin`=@p2";
+                    ? $@"USE {App.DataBase}; SELECT [QIRNumber] FROM [qir_metrics_view] WHERE [NCMCode]=@p1"
+                    : $@"USE {App.DataBase}; SELECT [QIRNumber] FROM [qir_metrics_view] WHERE [NCMCode]=@p1 AND [Origin]=@p2";
                 adapterSelect += month == 0
-                     ? $" AND YEAR(`QIRDate`)=@p4"
-                     : $" AND MONTH(`QIRDate`)=@p3 AND YEAR(`QIRDate`)=@p4";
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter(adapterSelect, App.ConAsync))
+                     ? $" AND YEAR([QIRDate])=@p4"
+                     : $" AND MONTH([QIRDate])=@p3 AND YEAR([QIRDate])=@p4";
+                using (SqlDataAdapter adapter = new SqlDataAdapter(adapterSelect, App.SqlConAsync))
                 {
                     if (workCenter == 0)
                     {
@@ -161,7 +163,7 @@ namespace OMNI.QMS.Model
                         adapter.SelectCommand.Parameters.AddWithValue("p4", year);
                     }
                     var _table = new DataTable();
-                    await adapter.FillAsync(_table).ConfigureAwait(false);
+                    adapter.Fill(_table);
                     return _table;
                 }
             }

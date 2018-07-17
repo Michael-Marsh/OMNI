@@ -30,7 +30,7 @@ namespace OMNI.ViewModels
             set { selectedRow = value; UpdateNotes(); }
         }
         public DataTable NotesTable { get; set; }
-        public ObservableCollection<Users> CrewList { get; private set; }
+        public ObservableCollection<Users> CrewList { get; set; }
         private string selectedCrewMember;
         public virtual string SelectedCrewMember
         {
@@ -38,6 +38,14 @@ namespace OMNI.ViewModels
             set { selectedCrewMember = value; OnPropertyChanged(nameof(SelectedCrewMember)); }
         }
         public ICollectionView OpenOrdersView { get; set; }
+        public ObservableCollection<string> SiteList { get; set; }
+        private string selectedSite;
+        public virtual string SelectedSite
+        {
+            get { return selectedSite; }
+            set { selectedSite = value; OnPropertyChanged(nameof(SelectedSite)); }
+        }
+        public bool CanEditSite { get { return CurrentUser.CMMSAdmin; } }
         public string CurrentGroup { get; set; }
         public CMMSActionGridView Module { get; set; }
         public bool OpenOrders { get { return Module == CMMSActionGridView.Assigned; } }
@@ -71,6 +79,8 @@ namespace OMNI.ViewModels
         public CMMSNoticeUCViewModelBase()
         {
             CurrentGroup = "OverAll";
+            SelectedSite = CurrentUser.Site;
+            SiteList = new ObservableCollection<string>(OMNIDataBase.GetSiteList());
             if (NotesTable == null)
             {
                 NotesTable = new DataTable();
@@ -90,7 +100,7 @@ namespace OMNI.ViewModels
         /// </summary>
         public void UpdateNotes()
         {
-            NotesTable = SelectedRow != null ? CMMSWorkOrder.LoadNotesAsync(Convert.ToInt32(((DataRowView)SelectedRow).Row[0])).Result : null;
+            NotesTable = SelectedRow != null ? CMMSWorkOrder.LoadNotes(Convert.ToInt32(((DataRowView)SelectedRow).Row[0])) : null;
             OnPropertyChanged(nameof(NotesTable));
         }
 
@@ -116,6 +126,8 @@ namespace OMNI.ViewModels
             }
             return true;
         }
+
+        #region Open ICommand
 
         /// <summary>
         /// Open Command
@@ -144,6 +156,10 @@ namespace OMNI.ViewModels
                 DashBoardTabControl.WorkSpace.LoadCMMSWorkOrderTabItem(woID);
             }
         }
+
+        #endregion
+
+        #region Group ICommand
 
         /// <summary>
         /// Group Command
@@ -185,6 +201,10 @@ namespace OMNI.ViewModels
             OnPropertyChanged(nameof(AutoOff));
         }
 
+        #endregion
+
+        #region Refresh ICommand
+
         /// <summary>
         /// Refresh Command
         /// </summary>
@@ -216,6 +236,10 @@ namespace OMNI.ViewModels
         }
         private bool RefreshCanExecute(object parameter) => AutoOff;
 
+        #endregion
+
+        #region Complete ICommand
+
         /// <summary>
         /// Complete Command
         /// </summary>
@@ -243,12 +267,12 @@ namespace OMNI.ViewModels
                 var wo = CMMSWorkOrder.LoadAsync(woID).Result;
                 if (ValidateCompletion(wo))
                 {
-                    if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", wo.IDNumber).Result))
+                    if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", wo.IDNumber)))
                     {
                         wo.Status = CMMSStatus.Completed;
                         wo.DateComplete = DateTime.Now;
                         wo.AttachedNotes = true;
-                        wo.UpdateAsync();
+                        wo.Update();
                         using (BackgroundWorker bw = new BackgroundWorker())
                         {
                             try
@@ -256,7 +280,7 @@ namespace OMNI.ViewModels
                                 bw.DoWork += new DoWorkEventHandler(
                                     delegate (object sender, DoWorkEventArgs e)
                                     {
-                                        var email = Users.RetrieveEmailAddressAsync(wo.Submitter).Result;
+                                        var email = Users.RetrieveEmailAddress(wo.Submitter);
                                         if (!email.Equals("Not on File", StringComparison.OrdinalIgnoreCase))
                                         {
                                             wo.ExportToPDF(true);
@@ -279,6 +303,10 @@ namespace OMNI.ViewModels
                 }
             }
         }
+
+        #endregion
+
+        #region Deny ICommand
 
         /// <summary>
         /// Deny Command
@@ -305,7 +333,7 @@ namespace OMNI.ViewModels
             if (woID > 0)
             {
                 var wo = CMMSWorkOrder.LoadAsync(woID).Result;
-                if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", wo.IDNumber).Result))
+                if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", wo.IDNumber)))
                 {
                     wo.Status = CMMSStatus.Denied;
                     wo.DateAssigned = DateTime.MinValue;
@@ -313,8 +341,8 @@ namespace OMNI.ViewModels
                     wo.CrewAssigned = "None";
                     wo.Priority = "--Unassigned--";
                     wo.AttachedNotes = true;
-                    wo.UpdateAsync();
-                    var email = Users.RetrieveEmailAddressAsync(wo.Submitter).Result;
+                    wo.Update();
+                    var email = Users.RetrieveEmailAddress(wo.Submitter);
                     if (email != "Not on File")
                     {
                         EmailForm.SendwithoutAttachment(email, $"Your Maintenance Request # {wo.IDNumber} has been denied.\nPlease refer to your closed work orders in OMNI CMMS for more information.", $"WO # {wo.IDNumber} Denied");
@@ -322,6 +350,10 @@ namespace OMNI.ViewModels
                 }
             }
         }
+
+        #endregion
+
+        #region Note ICommand
 
         /// <summary>
         /// Add Note Command
@@ -345,14 +377,18 @@ namespace OMNI.ViewModels
         private void NoteExecute(object parameter)
         {
             var wo = CMMSWorkOrder.LoadAsync(Convert.ToInt32(((DataRowView)SelectedRow).Row[0])).Result;
-            if (!string.IsNullOrEmpty(OMNIDataBase.AddNoteAsync("cmms_work_order", wo.IDNumber).Result))
+            if (!string.IsNullOrEmpty(OMNIDataBase.AddNote("cmms_work_order", wo.IDNumber)))
             {
                 wo.AttachedNotes = true;
-                wo.UpdateAsync();
+                wo.Update();
                 UpdateNotes();
             }
         }
         private bool NoteCanExecute(object parameter) => SelectedRow == null ? false : true;
+
+        #endregion
+
+        #region Email ICommand
 
         // <summary>
         /// E-mail CMMS Work Order Command
@@ -392,6 +428,10 @@ namespace OMNI.ViewModels
             }
         }
 
+        #endregion
+
+        #region Print ICommand
+
         // <summary>
         /// Print Work Order Command
         /// </summary>
@@ -428,6 +468,8 @@ namespace OMNI.ViewModels
                 ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Object Disposal

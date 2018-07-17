@@ -131,7 +131,7 @@
                                     </DataTrigger>
 
                                     <DataTrigger Binding="{Binding RequestCompletionDate}"
-                                                 Value="{x:Static sys:DateTime.MinValue}">
+                                                 Value="{x:Null}">
                                         <Setter TargetName="RequestedDate"
                                                 Property="Visibility"
                                                 Value="Hidden"/>

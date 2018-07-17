@@ -65,17 +65,17 @@ namespace OMNI.ViewModels
                 {
                     case Module.QIR:
                         _count = idNumber.ToString().Length >= 7 
-                            ? Convert.ToInt32(OMNIDataBase.CountWithComparisonAsync("qir_master", $"`QIRNumber`={idNumber}").Result) 
+                            ? Convert.ToInt32(OMNIDataBase.CountWithComparison("qir_master", $"`QIRNumber`={idNumber}")) 
                             : 0;
                         break;
                     case Module.HDT:
                         _count = idNumber.ToString().Length >= 6
-                            ? Convert.ToInt32(OMNIDataBase.CountWithComparisonAsync("it_ticket_master", $"`TicketNumber`={idNumber}").Result)
+                            ? Convert.ToInt32(OMNIDataBase.CountWithComparison("it_ticket_master", $"`TicketNumber`={idNumber}"))
                             : 0;
                         break;
                     case Module.CMMS:
                         _count = idNumber.ToString().Length >= 4
-                            ? Convert.ToInt32(OMNIDataBase.CountWithComparisonAsync("cmmsworkorder", $"`WorkOrderNumber`={idNumber}").Result)
+                            ? Convert.ToInt32(OMNIDataBase.CountWithComparison("cmmsworkorder", $"`WorkOrderNumber`={idNumber}"))
                             : 0;
                         break;
                 }

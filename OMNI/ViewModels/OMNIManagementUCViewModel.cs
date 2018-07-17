@@ -1,10 +1,10 @@
-using MySql.Data.MySqlClient;
 using OMNI.Commands;
 using OMNI.Enumerations;
 using OMNI.Extensions;
 using OMNI.Models;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Input;
 
@@ -20,9 +20,9 @@ namespace OMNI.ViewModels
         public DataTable Table { get; set; }
         public List<OMNIDataBase> TableList { get; set; }
         private string selectedTable;
-        public string SelectedTable { get { return selectedTable; } set { selectedTable = value; LoadTableAsync(); OnPropertyChanged(nameof(selectedTable)); } }
-        public MySqlCommandBuilder TableCommandBuilder { get; set; }
-        public MySqlDataAdapter TableDataAdapter { get; set; }
+        public string SelectedTable { get { return selectedTable; } set { selectedTable = value; LoadTable(); OnPropertyChanged(nameof(selectedTable)); } }
+        public SqlCommandBuilder TableCommandBuilder { get; set; }
+        public SqlDataAdapter TableDataAdapter { get; set; }
         public DataRowView SelectedRow { get; set; }
         public bool Changes { get; set; }
         private string searchBox;
@@ -89,17 +89,26 @@ namespace OMNI.ViewModels
         /// <summary>
         /// Load a selected table into DataTable for viewing and editing
         /// </summary>
-        private async void LoadTableAsync()
+        private void LoadTable()
         {
             if (Changes && MessageBox.Show("All changes will be lost if you navigate away from this table.\nWould you like to save your changes now?", "Unsaved Changes", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes) == MessageBoxResult.Yes)
             {
-                CommitExecuteAsync(string.Empty);
+                CommitExecute(string.Empty);
             }
             Table = null;
             Table = new DataTable();
-            TableDataAdapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`{SelectedTable}`", App.ConAsync);
-            TableCommandBuilder = new MySqlCommandBuilder(TableDataAdapter);
-            await TableDataAdapter.FillSchemaAsync(Table, SchemaType.Source);
+            if (SelectedTable == DashBoardDataBase.cmmsglaccounts.ToString())
+            {
+                TableDataAdapter = new SqlDataAdapter($@"USE [OMNI];
+                                                    SELECT * FROM [{SelectedTable}] WHERE [Site]='{CurrentUser.Site}'", App.SqlConAsync);
+            }
+            else
+            {
+                TableDataAdapter = new SqlDataAdapter($@"USE [OMNI];
+                                                    SELECT * FROM [{SelectedTable}]", App.SqlConAsync);
+            }
+            TableCommandBuilder = new SqlCommandBuilder(TableDataAdapter);
+            TableDataAdapter.FillSchema(Table, SchemaType.Source);
             foreach (DataColumn col in Table.Columns)
             {
                 if (col.DataType == typeof(sbyte))
@@ -107,7 +116,7 @@ namespace OMNI.ViewModels
                     col.DataType = typeof(bool);
                 }
             }
-            await TableDataAdapter.FillAsync(Table);
+            TableDataAdapter.Fill(Table);
             SearchBox = string.Empty;
             Changes = false;
             OnPropertyChanged(nameof(Changes));
@@ -116,6 +125,8 @@ namespace OMNI.ViewModels
             Table.RowChanged += TableRowChanged;
             Table.ColumnChanged += TableColumnChanged;
         }
+
+        #region Commit Changes ICommand
 
         /// <summary>
         /// Commit Changes Command
@@ -126,7 +137,7 @@ namespace OMNI.ViewModels
             {
                 if (_commit == null)
                 {
-                    _commit = new RelayCommand(CommitExecuteAsync, CommitCanExecute);
+                    _commit = new RelayCommand(CommitExecute, CommitCanExecute);
                 }
                 return _commit;
             }
@@ -136,15 +147,17 @@ namespace OMNI.ViewModels
         /// Commit Changes Command Execution
         /// </summary>
         /// <param name="parameter"></param>
-        private async void CommitExecuteAsync(object parameter)
+        private void CommitExecute(object parameter)
         {
             TableDataAdapter.UpdateCommand = TableCommandBuilder.GetUpdateCommand();
-            await TableDataAdapter.UpdateAsync(Table);
+            TableDataAdapter.Update(Table);
             Table.AcceptChanges();
             Changes = false;
             OnPropertyChanged(nameof(Changes));
         }
         private bool CommitCanExecute(object parameter) => Changes;
+
+        #endregion
 
         /// <summary>
         /// Object Disposable

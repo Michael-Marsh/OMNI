@@ -97,7 +97,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Empty Object</param>
         private void SaveExecute(object parameter)
         {
-            CurrentUser.UpdateUserAsync(FullName, AccountName, Email, NoticeTimer, NoticeHistory);
+            CurrentUser.UpdateUser(FullName, AccountName, Email, NoticeTimer, NoticeHistory);
             ((TabItem)(DashBoardTabControl.WorkSpace.SelectedItem)).Header = $"{AccountName} Account";
         }
 

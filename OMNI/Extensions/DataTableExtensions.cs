@@ -26,11 +26,11 @@ namespace OMNI.Extensions
             {
                 if (counter == 0)
                 {
-                    queryBuilder.Append($"Convert(`{name}`, 'System.String') LIKE '%{query}%'");
+                    queryBuilder.Append($"Convert({name}, 'System.String') LIKE '%{query}%'");
                 }
                 else
                 {
-                    queryBuilder.Append($"OR Convert(`{name}`, 'System.String') LIKE '%{query}%'");
+                    queryBuilder.Append($"OR Convert({name}, 'System.String') LIKE '%{query}%'");
                 }
                 counter++;
             }
@@ -54,11 +54,11 @@ namespace OMNI.Extensions
                 {
                     if (counter == 0)
                     {
-                        queryBuilder.Append($"Convert(`{name}`, 'System.String') LIKE '%{query}%'");
+                        queryBuilder.Append($"Convert({name}, 'System.String') LIKE '%{query}%'");
                     }
                     else
                     {
-                        queryBuilder.Append($"OR Convert(`{name}`, 'System.String') LIKE '%{query}%'");
+                        queryBuilder.Append($"OR Convert({name}, 'System.String') LIKE '%{query}%'");
                     }
                     counter++;
                 }

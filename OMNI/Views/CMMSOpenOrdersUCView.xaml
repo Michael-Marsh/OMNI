@@ -35,9 +35,30 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <StackPanel Grid.Column="0"
+                        Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                
+                <TextBlock Text="Site"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding CanEditSite, Converter={StaticResource BooltoVisConverter}}"/>
+                
+                <ComboBox ItemsSource="{Binding SiteList}"
+                          SelectedItem="{Binding SelectedSite}"
+                          FontSize="20"
+                          FontWeight="Bold"
+                          Width="120"
+                          Margin="10"
+                          Visibility="{Binding CanEditSite, Converter={StaticResource BooltoVisConverter}}"/>
+            </StackPanel>
+            
             <StackPanel Grid.Column="0" 
                         Grid.Row="0"
-                        Orientation="Horizontal">
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Left">
                 
                 <ComboBox Visibility="{Binding OpenOrders, Converter={StaticResource BooltoVisConverter}}" 
                           ItemsSource="{Binding CrewList}" 
@@ -160,7 +181,7 @@
                                     </DataTrigger>
 
                                     <DataTrigger Binding="{Binding RequestedByDate}"
-                                                 Value="{x:Static sys:DateTime.MinValue}">
+                                                 Value="{x:Null}">
                                         <Setter TargetName="RequestedDate"
                                                 Property="Visibility"
                                                 Value="Hidden"/>

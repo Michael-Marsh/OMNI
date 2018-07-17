@@ -16,12 +16,12 @@ namespace OMNI.ViewModels
 
         public bool QualityView { get { return CurrentUser.Quality; } }
         public bool CMMSView { get { return CurrentUser.CMMSAdmin || CurrentUser.CMMSCrew; } }
-        public bool Training { get { return App.TrainingStatus; } }
+        public bool Training { get { return App.DataBase.Contains("Train"); } }
         public bool DeveloperView { get { return CurrentUser.Developer; } }
         public bool DataBaseOnline
         {
-            get { return App.ConConnected; }
-            set { value = App.ConConnected; OnPropertyChanged(nameof(DataBaseOnline)); }
+            get { return App.SqlConAsync.State == System.Data.ConnectionState.Open; }
+            set { value = App.SqlConAsync.State == System.Data.ConnectionState.Open; OnPropertyChanged(nameof(DataBaseOnline)); }
         }
         private static int _progress;
         public static int Progress
@@ -56,6 +56,8 @@ namespace OMNI.ViewModels
             DataBaseOnline = false;
         }
 
+        #region Export ICommand
+
         /// <summary>
         /// DashBoard DataBase Export Command
         /// </summary>
@@ -88,6 +90,10 @@ namespace OMNI.ViewModels
         }
         private bool ExportCanExecute(object parameter) => Exporting ? false : true;
 
+        #endregion
+
+        #region DataBase Edit ICommand
+
         /// <summary>
         /// DashBoard DataBase Edit Command
         /// </summary>
@@ -109,6 +115,10 @@ namespace OMNI.ViewModels
         {
             DashBoardTabControl.WorkSpace.AddDataBaseEditorTabItem((DashBoardDataBase)Enum.Parse(typeof(DashBoardDataBase), parameter.ToString()));
         }
+
+        #endregion
+
+        #region Home ICommand
 
         /// <summary>
         /// DashBoard Home Command
@@ -140,6 +150,10 @@ namespace OMNI.ViewModels
             }
         }
 
+        #endregion
+
+        #region Search ICommand
+
         /// <summary>
         /// Search Command
         /// </summary>
@@ -162,6 +176,8 @@ namespace OMNI.ViewModels
             DashBoardTabControl.WorkSpace.AddSearchResultsTabItem(parameter.ToString());
         }
         private bool SearchCanExecute(object parameter) => string.IsNullOrWhiteSpace(parameter as string) || (parameter as string).IndexOfAny(@"'<>()`~&%$#@[]*".ToCharArray()) >= 0 ? false : true;
+
+        #endregion
 
         protected virtual void Dispose(bool disposing)
         {

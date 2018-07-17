@@ -1,8 +1,9 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 
 namespace OMNI.Models
@@ -129,30 +130,31 @@ namespace OMNI.Models
         public async static Task<List<Users>> UserListAsync()
         {
             var _userList = new List<Users>();
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users`", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT * FROM [users]", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync())
                     {
-                        _userList.Add(CreateUser(reader.GetInt16(nameof(UserID)),
-                           reader.GetString(nameof(DomainName)),
-                           reader.GetString(nameof(FullName)),
-                           reader.GetInt32(nameof(EmployeeNumber)),
-                           reader.GetString("eMail"),
-                           reader.GetBoolean(nameof(SlitterLead)),
-                           reader.GetBoolean(nameof(Quality)),
-                           reader.GetBoolean(nameof(QualityNotice)),
-                           reader.GetBoolean(nameof(Kaizen)),
-                           reader.GetBoolean(nameof(CMMS)),
-                           reader.GetBoolean(nameof(CMMSCrew)),
-                           reader.GetBoolean(nameof(CMMSAdmin)),
-                           reader.GetBoolean(nameof(IT)),
-                           reader.GetBoolean(nameof(ITTeam)),
-                           reader.GetBoolean(nameof(Engineering)),
-                           reader.GetBoolean(nameof(Accounting)),
-                           reader.GetBoolean("OMNIAdministrator"),
-                           reader.GetBoolean(nameof(Developer))));
+                        _userList.Add(CreateUser(reader.SafeGetInt32(nameof(UserID)),
+                           reader.SafeGetString(nameof(DomainName)),
+                           reader.SafeGetString(nameof(FullName)),
+                           reader.SafeGetInt32(nameof(EmployeeNumber)),
+                           reader.SafeGetString("eMail"),
+                           reader.SafeGetBoolean(nameof(SlitterLead)),
+                           reader.SafeGetBoolean(nameof(Quality)),
+                           reader.SafeGetBoolean(nameof(QualityNotice)),
+                           reader.SafeGetBoolean(nameof(Kaizen)),
+                           reader.SafeGetBoolean(nameof(CMMS)),
+                           reader.SafeGetBoolean(nameof(CMMSCrew)),
+                           reader.SafeGetBoolean(nameof(CMMSAdmin)),
+                           reader.SafeGetBoolean(nameof(IT)),
+                           reader.SafeGetBoolean(nameof(ITTeam)),
+                           reader.SafeGetBoolean(nameof(Engineering)),
+                           reader.SafeGetBoolean(nameof(Accounting)),
+                           reader.SafeGetBoolean("OMNIAdministrator"),
+                           reader.SafeGetBoolean(nameof(Developer))));
                     }
                 }
             }
@@ -165,31 +167,39 @@ namespace OMNI.Models
         /// <param name="newList">true = new list / false = loaded list</param>
         /// <param name="workOrder">optional: CMMS Work order to load</param>
         /// <param name="addNone">optional: (default) true = add None to the list / false = do not add None to the list</param>
+        /// <param name="site">optional: User work site</param>
         /// <returns>New CMMS user object list</returns>
-        public async static Task<List<Users>> CMMSUserListAsync(bool newList, int workOrder = 0, bool addNone = true)
+        public async static Task<List<Users>> CMMSUserListAsync(bool newList, int workOrder = 0, bool addNone = true, string site = null)
         {
             var _cmmsUserList = new List<Users>();
+            if (site == null)
+            {
+                site = CurrentUser.Site;
+            }
             if (addNone)
             {
                 _cmmsUserList.Add(CreateCMMSUser("None", false));
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT FullName FROM `{App.Schema}`.`users` WHERE CMMSCrew=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [FullName] FROM [users] WHERE [CMMSCrew]=1 AND [Site]=@p1", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                cmd.Parameters.AddWithValue("p1", site);
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync())
                     {
-                        _cmmsUserList.Add(CreateCMMSUser(reader.GetString(nameof(FullName)), false));
+                        _cmmsUserList.Add(CreateCMMSUser(reader.SafeGetString(nameof(FullName)), false));
                     }
                 }
             }
             if (!newList)
             {
                 var _assigned = string.Empty;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT CrewMembersAssigned FROM `{App.Schema}`.`cmmsworkorder` WHERE WorkOrderNumber=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [CrewMembersAssigned] FROM [cmmsworkorder] WHERE [WorkOrderNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", workOrder);
-                    _assigned = (await cmd.ExecuteScalarAsync()).ToString();
+                    _assigned = (cmd.ExecuteScalar()).ToString();
                 }
                 var counter = 0;
                 foreach (var item in _cmmsUserList)
@@ -209,14 +219,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="workOrder">Work Order number to load list from</param>
         /// <returns>CMMS crew members assigned as user object list</returns>
-        public async static Task<List<Users>> CMMSAssignedCrewListAsync(int workOrder)
+        public static List<Users> CMMSAssignedCrewList(int workOrder)
         {
             var _cmmsUserList = new List<Users>();
             var _crewAssigned = string.Empty;
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT CrewMembersAssigned FROM `{App.Schema}`.`cmmsworkorder` WHERE WorkOrderNumber=@p1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT CrewMembersAssigned FROM [cmmsworkorder] WHERE [WorkOrderNumber]=@p1", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", workOrder);
-                _crewAssigned = (await cmd.ExecuteScalarAsync()).ToString();
+                _crewAssigned = (cmd.ExecuteScalar()).ToString();
             }
             var crewArray = _crewAssigned.Split('/');
             foreach (string s in crewArray)
@@ -231,16 +242,16 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="userFullName">Submitter Full Name</param>
         /// <returns>e-mail address</returns>
-        public async static Task<string> RetrieveEmailAddressAsync(string userFullName)
+        public static string RetrieveEmailAddress(string userFullName)
         {
             try
             {
-                while (App.ConAsync.State.Equals(ConnectionState.Fetching))
+                while (App.SqlConAsync.State.Equals(ConnectionState.Fetching))
                 { }
-                using (MySqlCommand cmd = new MySqlCommand($"`{App.Schema}`.`query_user_eMail`", App.ConAsync) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand($@"{App.DataBase}.query_user_eMail", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("@fullName", userFullName);
-                    return (await cmd.ExecuteScalarAsync()).ToString();
+                    return (cmd.ExecuteScalar()).ToString();
                 }
             }
             catch (Exception)

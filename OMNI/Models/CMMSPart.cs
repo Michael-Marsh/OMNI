@@ -1,9 +1,10 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.Enumerations;
+﻿using OMNI.Enumerations;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -74,31 +75,29 @@ namespace OMNI.Models
             {
                 var _part = new CMMSPart();
                 var _current = string.Empty;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmms_parts` WHERE `PartNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT * FROM [cmms_parts] WHERE [PartNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             _part.PartNumber = partNumber;
-                            _part.Status = (CMMSPartStatus)Enum.Parse(typeof(CMMSPartStatus), reader.GetString(nameof(Status)));
-                            _part.Creator = reader.GetString(nameof(Creator));
-                            _part.DateCreated = reader.GetDateTime(nameof(DateCreated));
-                            _part.OnHand = reader.GetInt32("OnhandQuantity");
-                            _current = reader.GetString(nameof(CurrentRevision));
-                            _part.RecordLockStatus = reader.GetBoolean("Record_Lock");
-                            if (!await reader.IsDBNullAsync(7).ConfigureAwait(false))
-                            {
-                                _part.RecordLockBy = reader.GetString("Record_Lock_By");
-                            }
+                            _part.Status = (CMMSPartStatus)Enum.Parse(typeof(CMMSPartStatus), reader.SafeGetString(nameof(Status)));
+                            _part.Creator = reader.SafeGetString(nameof(Creator));
+                            _part.DateCreated = reader.SafeGetDateTime(nameof(DateCreated));
+                            _part.OnHand = reader.SafeGetInt32("OnhandQuantity");
+                            _current = reader.SafeGetString(nameof(CurrentRevision));
+                            _part.RecordLockStatus = reader.SafeGetBoolean("Record_Lock");
+                            _part.RecordLockBy = reader.SafeGetString("Record_Lock_By");
                         }
                     }
                 }
                 _part.CurrentRevision = await CMMSPartRevision.GetCurrentRevisionAsync(_part.PartNumber, _current).ConfigureAwait(false);
                 if (!_part.RecordLockStatus)
                 {
-                    LockRecordAsync(_part.PartNumber);
+                    LockRecord(_part.PartNumber);
                 }
                 return _part;
             }
@@ -113,14 +112,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="partNumber">CMMS Part Number</param>
         /// <returns>Record lock status as bool</returns>
-        public async static Task<bool> GetRecordLockStatusAsync(int partNumber)
+        public static bool GetRecordLockStatus(int partNumber)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `Record_Lock` FROM `{App.Schema}`.`cmms_parts` WHERE `PartNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [Record_Lock] FROM [cmms_parts] WHERE [PartNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
-                    return Convert.ToBoolean(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    return Convert.ToBoolean(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -133,16 +133,17 @@ namespace OMNI.Models
         /// Lock a CMMS Part record for editing
         /// </summary>
         /// <param name="partNumber">CMMS Part Number</param>
-        public async static void LockRecordAsync(int partNumber)
+        public static void LockRecord(int partNumber)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`cmms_parts` SET `Record_Lock`=@p1, `Record_Lock_By`=@p2 WHERE `PartNumber`=@p3", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        UPDATE [cmms_parts] SET [Record_Lock]=@p1, [Record_Lock_By]=@p2 WHERE [PartNumber]=@p3", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", true);
                     cmd.Parameters.AddWithValue("p2", CurrentUser.FullName);
                     cmd.Parameters.AddWithValue("p3", partNumber);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    cmd.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)
@@ -156,24 +157,26 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="partNumber">CMMS Part Number</param>
         /// <param name="admin">Admininstrator Override for unlocking records</param>
-        public async static void UnlockLockRecordAsync(int partNumber, bool admin)
+        public static void UnlockLockRecord(int partNumber, bool admin)
         {
             try
             {
                 var _lockedBy = string.Empty;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `Record_Lock_By` FROM `{App.Schema}`.`cmms_parts` WHERE `PartNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT [Record_Lock_By] FROM [cmms_parts] WHERE [PartNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
-                    _lockedBy = (await cmd.ExecuteScalarAsync().ConfigureAwait(false)).ToString();
+                    _lockedBy = (cmd.ExecuteScalar()).ToString();
                 }
                 if (admin || _lockedBy == CurrentUser.FullName)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`cmms_parts` SET `Record_Lock`=@p1, `Record_Lock_By`=@p2 WHERE `PartNumber`=@p3", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            UPDATE [cmms_parts] SET [Record_Lock]=@p1, [Record_Lock_By]=@p2 WHERE [PartNumber]=@p3", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", false);
                         cmd.Parameters.AddWithValue("p2", null);
                         cmd.Parameters.AddWithValue("p3", partNumber);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                 }
             }
@@ -195,7 +198,7 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="cmmsPart">CMMSPart Object</param>
         /// <returns>Transaction Success as bool.  true = accepted, false = failed</returns>
-        public async static Task<bool> SubmitAsync(this CMMSPart cmmsPart)
+        public static bool Submit(this CMMSPart cmmsPart)
         {
             cmmsPart.CurrentRevision.RevisionID = DateTime.Today.ToString("ddMMMyy" + "-1");
             cmmsPart.RecordLockStatus = false;
@@ -205,10 +208,10 @@ namespace OMNI.Models
             cmmsPart.CurrentRevision.DefualtLocation = "Test";
             try
             {
-                var Command = $"INSERT INTO `{App.Schema}`.`cmms_parts`";
-                var Columns = "(Status, Creator, DateCreated, OnHandQuantity, CurrentRevision, Record_Lock, Record_Lock_By)";
-                var Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7)";
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO [cmms_parts](Status, Creator, DateCreated, OnHandQuantity, CurrentRevision, Record_Lock, Record_Lock_By)
+                                                        OUTPUT INSERTED.ID
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", cmmsPart.Status.ToString());
                     cmd.Parameters.AddWithValue("p2", cmmsPart.Creator);
@@ -217,14 +220,14 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p5", cmmsPart.CurrentRevision.RevisionID);
                     cmd.Parameters.AddWithValue("p6", cmmsPart.RecordLockStatus);
                     cmd.Parameters.AddWithValue("p7", cmmsPart.RecordLockBy);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    cmmsPart.PartNumber = Convert.ToInt32(cmd.LastInsertedId);
+                    cmd.ExecuteNonQuery();
+                    cmmsPart.PartNumber = Convert.ToInt32(cmd.ExecuteScalar());
                 }
 
-                Command = $"INSERT INTO `{App.Schema}`.`cmms_parts_revision`";
-                Columns = "(revision_id, PartNumber, RevisedBy, Description, SafetyStockQuantity, DefualtLocation)";
-                Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6)";
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO [cmms_parts_revision](revision_id, PartNumber, RevisedBy, Description, SafetyStockQuantity, DefualtLocation)
+                                                        OUTPUT INSERTED.ID
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", cmmsPart.CurrentRevision.RevisionID);
                     cmd.Parameters.AddWithValue("p2", cmmsPart.PartNumber);
@@ -232,7 +235,7 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p4", cmmsPart.CurrentRevision.Description);
                     cmd.Parameters.AddWithValue("p5", cmmsPart.CurrentRevision.SafetyStock);
                     cmd.Parameters.AddWithValue("p6", cmmsPart.CurrentRevision.DefualtLocation);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    cmd.ExecuteNonQuery();
                 }
                 cmmsPart.RevisionList.Add(cmmsPart.CurrentRevision);
                 return true;
@@ -248,33 +251,34 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="cmmsPart">CMMSPart Object</param>
         /// <returns>Transaction Success as nullable bool.  true = accepted, false = failed, null = locked</returns>
-        public async static Task<bool?> UpdateAsync(this CMMSPart cmmsPart)
+        public static bool? Update(this CMMSPart cmmsPart)
         {
             if (!cmmsPart.RecordLockStatus)
             {
                 try
                 {
                     var _revisionIncrement = 0;
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(*) FROM `{App.Schema}`.`cmms_parts_revision` WHERE `revision_id` LIKE '{DateTime.Today.ToString("ddMMMyy")}-%'", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            SELECT COUNT(*) FROM [cmms_parts_revision] WHERE [revision_id] LIKE '{DateTime.Today.ToString("ddMMMyy")}-%'", App.SqlConAsync))
                     {
-                        _revisionIncrement = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                        _revisionIncrement = Convert.ToInt32(cmd.ExecuteScalar());
                     }
                     _revisionIncrement++;
                     cmmsPart.CurrentRevision.RevisionID = DateTime.Today.ToString("ddMMMyy" + $"-{_revisionIncrement}");
                     cmmsPart.CurrentRevision.RevisedBy = CurrentUser.FullName;
                     cmmsPart.CurrentRevision.RevisionDate = DateTime.Now;
-                    using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`cmms_parts` SET `Status`=@p1, `CurrentRevision`=@p2, `OnHandQuantity`=@p3 WHERE `PartNumber`=@p4", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            UPDATE [cmms_parts] SET [Status]=@p1, [CurrentRevision]=@p2, [OnHandQuantity]=@p3 WHERE [PartNumber]=@p4", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", cmmsPart.Status.ToString());
                         cmd.Parameters.AddWithValue("p2", cmmsPart.CurrentRevision.RevisionID);
                         cmd.Parameters.AddWithValue("p3", cmmsPart.OnHand);
                         cmd.Parameters.AddWithValue("p4", cmmsPart.PartNumber);
-                        await cmd.ExecuteNonQueryAsync();
+                        cmd.ExecuteNonQuery();
                     }
-                    var Command = $"INSERT INTO `{App.Schema}`.`cmms_parts_revision`";
-                    const string Columns = "(revision_id, PartNumber, RevisedBy, Description, SafetyStockQuantity, DefualtLocation)";
-                    const string Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6)";
-                    using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            INSERT INTO [cmms_parts_revision](revision_id, PartNumber, RevisedBy, Description, SafetyStockQuantity, DefualtLocation)
+                                                            Values(@p1, @p2, @p3, @p4, @p5, @p6)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", cmmsPart.CurrentRevision.RevisionID);
                         cmd.Parameters.AddWithValue("p2", cmmsPart.PartNumber);
@@ -282,7 +286,7 @@ namespace OMNI.Models
                         cmd.Parameters.AddWithValue("p4", cmmsPart.CurrentRevision.Description);
                         cmd.Parameters.AddWithValue("p5", cmmsPart.CurrentRevision.SafetyStock);
                         cmd.Parameters.AddWithValue("p6", cmmsPart.CurrentRevision.DefualtLocation);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                     cmmsPart.RevisionList.Add(cmmsPart.CurrentRevision);
                     return true;

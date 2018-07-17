@@ -1,6 +1,6 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.CustomControls;
+﻿using OMNI.CustomControls;
 using OMNI.Enumerations;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.QMS.Model;
 using OMNI.QMS.View;
@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -141,18 +142,18 @@ namespace OMNI.Models
             try
             {
                 var _linkParent = new LinkedForms();
-                _linkParent = await formObject.IsParentAsync().ConfigureAwait(false)
+                _linkParent = formObject.IsParent()
                     ? new LinkedForms { LinkIDNumber = Convert.ToInt32(formObject.IDNumber), LinkFormType = formObject.FormModule, LinkSelected = false }
-                    : await formObject.GetParentAsync().ConfigureAwait(false);
+                    : formObject.GetParent();
                 formObject.FormLinkList.Add(_linkParent);
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`child_form` WHERE `ParentFormID`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; SELECT * FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _linkParent.LinkIDNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            formObject.FormLinkList.Add(new LinkedForms { LinkIDNumber = reader.GetInt32("ChildFormNumber"), LinkFormType = (Module)Enum.Parse(typeof(Module), reader.GetString("ChildFormType")), LinkSelected = false });
+                            formObject.FormLinkList.Add(new LinkedForms { LinkIDNumber = reader.SafeGetInt32("ChildFormNumber"), LinkFormType = (Module)Enum.Parse(typeof(Module), reader.SafeGetString("ChildFormType")), LinkSelected = false });
                         }
                     }
                 }
@@ -173,14 +174,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Form's parent status as bool</returns>
-        public async static Task<bool> IsParentAsync(this FormBase formObject)
+        public static bool IsParent(this FormBase formObject)
         {
-            if (App.ConConnected)
+            if (App.SqlConAsync.State == ConnectionState.Open)
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ParentFormNumber`) FROM `{App.Schema}`.`parent_form` WHERE `ParentFormNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        SELECT COUNT([ParentFormNumber]) FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                    return Convert.ToBoolean(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    return Convert.ToBoolean(cmd.ExecuteScalar());
                 }
             }
             return false;
@@ -191,20 +193,20 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Parent Form ID Number as int</returns>
-        public async static Task<LinkedForms> GetParentAsync(this FormBase formObject)
+        public static LinkedForms GetParent(this FormBase formObject)
         {
             var _parentID = 0;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT (`ParentFormID`) FROM `{App.Schema}`.`child_form` WHERE `ChildFormNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT ([ParentFormID]) FROM [child_form] WHERE [ChildFormNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                    _parentID = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    _parentID = Convert.ToInt32(cmd.ExecuteScalar());
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT (`ParentFormType`) FROM `{App.Schema}`.`parent_form` WHERE `ParentFormNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT ([ParentFormType]) FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _parentID);
-                    return new LinkedForms { LinkIDNumber = _parentID, LinkFormType = (Module)Enum.Parse(typeof(Module), Convert.ToString(await cmd.ExecuteScalarAsync().ConfigureAwait(false))), LinkSelected = false };
+                    return new LinkedForms { LinkIDNumber = _parentID, LinkFormType = (Module)Enum.Parse(typeof(Module), Convert.ToString(cmd.ExecuteScalar())), LinkSelected = false };
                 }
             }
             catch (Exception)
@@ -218,14 +220,14 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Form's child status as bool</returns>
-        public async static Task<bool> IsChildAsync(this FormBase formObject)
+        public static bool IsChild(this FormBase formObject)
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ChildFormNumber`) FROM `{App.Schema}`.`child_form` WHERE `ChildFormNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ChildFormNumber]) FROM [child_form] WHERE [ChildFormNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                    return Convert.ToBoolean(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    return Convert.ToBoolean(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -239,7 +241,7 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Form ID Number existence as bool</returns>
-        public async static Task<bool> LinkExistsAsync(this FormBase formObject)
+        public static bool LinkExists(this FormBase formObject)
         {
             if (formObject.IDNumber == null)
             {
@@ -247,15 +249,15 @@ namespace OMNI.Models
             }
             var parent = 0;
             var child = 0;
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ParentFormID`) FROM `{App.Schema}`.`parent_form` WHERE `ParentFormNumber`=@p1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                parent = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                parent = Convert.ToInt32(cmd.ExecuteScalar());
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ChildFormID`) FROM `{App.Schema}`.`child_form` WHERE `ChildFormNumber`=@p1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ChildFormID]) FROM [child_form] WHERE [ChildFormNumber]=@p1", App.SqlConAsync))
             {
                 cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                child = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                child = Convert.ToInt32(cmd.ExecuteScalar());
             }
             return child + parent > 0 ? true : false;
         }
@@ -269,10 +271,10 @@ namespace OMNI.Models
         {
             try
             {
-                var _parentID = await formObject.IsChildAsync().ConfigureAwait(false) ? await formObject.GetParentAsync().ConfigureAwait(false) : null;
+                var _parentID = formObject.IsChild() ? formObject.GetParent() : null;
                 if (_parentID == null)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.`parent_form` WHERE `ParentFormNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -281,21 +283,21 @@ namespace OMNI.Models
                 else
                 {
                     var _childStageList = new List<int>();
-                    using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.`child_form` WHERE `ChildFormNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [child_form] WHERE [ChildFormNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`child_form` WHERE `ParentFormID`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", _parentID);
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 while (await reader.ReadAsync().ConfigureAwait(false))
                                 {
-                                    _childStageList.Add(reader.GetInt32("ChildFormNumber"));
+                                    _childStageList.Add(reader.SafeGetInt32("ChildFormNumber"));
                                 }
                             }
                         }
@@ -305,7 +307,7 @@ namespace OMNI.Models
                         var counter = 1;
                         foreach (var i in _childStageList)
                         {
-                            using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`child_form` SET `ChildStage`=@p1 WHERE `ChildFormNumber`=@p2", App.ConAsync))
+                            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [child_form] SET [ChildStage]=@p1 WHERE [ChildFormNumber]=@p2", App.SqlConAsync))
                             {
                                 cmd.Parameters.AddWithValue("p1", counter);
                                 cmd.Parameters.AddWithValue("p2", i);
@@ -315,14 +317,14 @@ namespace OMNI.Models
                         }
                     }
                     var parentCount = 0;
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ParentFormID`) FROM `{App.Schema}`.`child_form` WHERE `ParentFormID`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", _parentID);
-                        parentCount = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                        parentCount = Convert.ToInt32(cmd.ExecuteScalar());
                     }
                     if (parentCount == 0)
                     {
-                        using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.`parent_form` WHERE `ParentFormNumber`=@p1", App.ConAsync))
+                        using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
                         {
                             cmd.Parameters.AddWithValue("p1", _parentID);
                             await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -363,33 +365,33 @@ namespace OMNI.Models
                         break;
                 }
                 var _stage = 1;
-                if (await ((FormBase)parentObject).IsParentAsync())
+                if (((FormBase)parentObject).IsParent())
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ParentFormID`) FROM `{App.Schema}`.`child_form` WHERE `ParentFormID`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", parentIDNumber);
-                        _stage = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false)) + 1;
+                        _stage = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
                     }
                 }
-                else if (await ((FormBase)parentObject).IsChildAsync())
+                else if (((FormBase)parentObject).IsChild())
                 {
-                    parentIDNumber = (await ((FormBase)parentObject).GetParentAsync().ConfigureAwait(false)).LinkIDNumber;
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT COUNT(`ParentFormID`) FROM `{App.Schema}`.`child_form` WHERE `ParentFormID`=@p1", App.ConAsync))
+                    parentIDNumber = (((FormBase)parentObject).GetParent()).LinkIDNumber;
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", parentIDNumber);
-                        _stage = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false)) + 1;
+                        _stage = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
                     }
                 }
                 else
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`parent_form` (`ParentFormType`, `ParentFormNumber`) VALUES(@p1, @p2)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [parent_form] ([ParentFormType], [ParentFormNumber]) VALUES(@p1, @p2)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", parentFormModule.ToString());
                         cmd.Parameters.AddWithValue("p2", parentIDNumber);
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`child_form` (`ChildFormType`, `ChildFormNumber`, `ChildStage`, `ParentFormID`) VALUES(@p1, @p2, @p3, @p4)", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [child_form] ([ChildFormType], [ChildFormNumber], [ChildStage], [ParentFormID]) VALUES(@p1, @p2, @p3, @p4)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", childFormObject.FormModule.ToString());
                     cmd.Parameters.AddWithValue("p2", childFormObject.IDNumber);
@@ -411,16 +413,17 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="form">FormBase Object</param>
         /// <returns>Formated Notes Table as DataTable</returns>
-        public async static Task<DataTable> GetNotesTableAsync(this FormBase form)
+        public static DataTable GetNotesTable(this FormBase form)
         {
             try
             {
                 using (DataTable _tempTable = new DataTable())
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT `Timestamp`, `Note`, `Submitter` FROM `{App.Schema}`.`{form.FormModule.ToString().ToLower()}_notes` WHERE `IDNumber`=@p1", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                                                                        SELECT [Timestamp], [Note], [Submitter] FROM [{form.FormModule.ToString().ToLower()}_notes] WHERE [IDNumber]=@p1", App.SqlConAsync))
                     {
                         adapter.SelectCommand.Parameters.AddWithValue("p1", form.IDNumber);
-                        await adapter.FillAsync(_tempTable).ConfigureAwait(false);
+                        adapter.Fill(_tempTable);
                         return _tempTable;
                     }
                 }
@@ -446,14 +449,14 @@ namespace OMNI.Models
             {
                 try
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT `{App.Schema}`.`{form.FormModule}_notes` (IDNumber, Note, Submitter) VALUES(@p1, @p2, @p3)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT [{form.FormModule}_notes] (IDNumber, Note, Submitter) VALUES(@p1, @p2, @p3)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", form.IDNumber);
                         cmd.Parameters.AddWithValue("p2", _note);
                         cmd.Parameters.AddWithValue("p3", CurrentUser.FullName);
                         cmd.ExecuteNonQuery();
                     }
-                    form.NotesTable = form.GetNotesTableAsync().Result;
+                    form.NotesTable = form.GetNotesTable();
                 }
                 catch (Exception ex)
                 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using MySql.Data.MySqlClient;
 using OMNI.Enumerations;
 using OMNI.Extensions;
 using OMNI.HDT.Enumeration;
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -81,28 +81,28 @@ namespace OMNI.Models
             var _tempPriority = string.Empty;
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_master` WHERE `TicketNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_master] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", idNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             _ticket.IDNumber = idNumber;
-                            _ticket.Submitter = reader.GetString(nameof(Submitter));
-                            _ticket.Date = reader.GetDateTime("SubmitDate");
-                            _ticket.Location = reader.GetString(nameof(Location));
-                            _ticket.Subject = new TicketSubject { Title = reader.GetString(nameof(Subject)) };
-                            _ticket.Type = (TicketType)Enum.Parse(typeof(TicketType), reader.GetString(nameof(Type)));
-                            _ticket.RequestDate = reader.GetDateTime("RequestCompletionDate");
-                            _ticket.RequestReason = reader.IsDBNull(7) ? string.Empty : reader.GetString("RequestCompletionReason");
-                            _ticket.Description = reader.GetString(nameof(Description));
-                            _ticket.IAR = reader.GetBoolean(nameof(IAR));
-                            _ticket.Status = TicketStatus.Create(reader.GetString(nameof(Status)));
-                            _tempPriority = reader.GetString(nameof(Priority));
-                            _ticket.Confidential = reader.GetBoolean(nameof(Confidential));
-                            _ticket.CompletionDate = reader.GetDateTime("DateCompleted");
-                            _ticket.POC = reader.IsDBNull(14) ? string.Empty : reader.GetString(nameof(POC));
+                            _ticket.Submitter = reader.SafeGetString(nameof(Submitter));
+                            _ticket.Date = reader.SafeGetDateTime("SubmitDate");
+                            _ticket.Location = reader.SafeGetString(nameof(Location));
+                            _ticket.Subject = new TicketSubject { Title = reader.SafeGetString(nameof(Subject)) };
+                            _ticket.Type = (TicketType)Enum.Parse(typeof(TicketType), reader.SafeGetString(nameof(Type)));
+                            _ticket.RequestDate = reader.SafeGetDateTime("RequestCompletionDate");
+                            _ticket.RequestReason = reader.IsDBNull(7) ? string.Empty : reader.SafeGetString("RequestCompletionReason");
+                            _ticket.Description = reader.SafeGetString(nameof(Description));
+                            _ticket.IAR = reader.SafeGetBoolean(nameof(IAR));
+                            _ticket.Status = TicketStatus.Create(reader.SafeGetString(nameof(Status)));
+                            _tempPriority = reader.SafeGetString(nameof(Priority));
+                            _ticket.Confidential = reader.SafeGetBoolean(nameof(Confidential));
+                            _ticket.CompletionDate = reader.SafeGetDateTime("DateCompleted");
+                            _ticket.POC = reader.IsDBNull(14) ? string.Empty : reader.SafeGetString(nameof(POC));
                         }
                     }
                     _ticket.Priority = _tempPriority == "--Unassigned--" ? Priority.Create(6, "--Unassigned--") : Priority.Create(_tempPriority);
@@ -110,50 +110,50 @@ namespace OMNI.Models
                 _ticket.AssignedTo = await ITTeamMember.GetBindingListAsync(false).ConfigureAwait(false);
                 if (_ticket.Priority.Level != 6)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_assignment` WHERE `TicketNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_assignment] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", _ticket.IDNumber);
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync().ConfigureAwait(false))
                             {
-                                _ticket.AssignedTo.First(o => o.Name == reader.GetString("TeamMember")).Assigned = true;
-                                _ticket.AssignedTo.First(o => o.Name == reader.GetString("TeamMember")).AssignDate = reader.GetDateTime("AssignmentDate");
+                                _ticket.AssignedTo.First(o => o.Name == reader.SafeGetString("TeamMember")).Assigned = true;
+                                _ticket.AssignedTo.First(o => o.Name == reader.SafeGetString("TeamMember")).AssignDate = reader.SafeGetDateTime("AssignmentDate");
                             }
                         }
                     }
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_documents` WHERE `TicketNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_documents] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", _ticket.IDNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _ticket.DocumentList.Add(new ITDocument { FileName = reader.GetString("FilePath"), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{reader.GetString("FilePath")}", IsSelected = true });
+                            _ticket.DocumentList.Add(new ITDocument { FileName = reader.SafeGetString("FilePath"), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{reader.SafeGetString("FilePath")}", IsSelected = true });
                         }
                     }
                 }
                 if (_ticket.Type == TicketType.Project)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_projects` WHERE `TicketNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"SELECT * FROM [it_projects] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", _ticket.IDNumber);
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             while (await reader.ReadAsync().ConfigureAwait(false))
                             {
-                                _ticket.Project = new ITProject { ID = reader.GetInt32("TicketNumber"), Title = reader.GetString("Title"), DDD = reader.GetDateTime("DropDeadDate"), PromiseDate = reader.GetDateTime("PromiseDate") };
+                                _ticket.Project = new ITProject { ID = reader.SafeGetInt32("TicketNumber"), Title = reader.SafeGetString("Title"), DDD = reader.SafeGetDateTime("DropDeadDate"), PromiseDate = reader.SafeGetDateTime("PromiseDate") };
                             }
                         }
                     }
                 }
                 else if (_ticket.Type == TicketType.Task)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT `TicketNumber` FROM `{App.Schema}`.`it_project_tasks` WHERE `TicketNumber`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT [TicketNumber] FROM [it_project_tasks] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", _ticket.IDNumber);
-                        _ticket.IDNumber = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                        _ticket.IDNumber = Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
                 return _ticket;
@@ -168,22 +168,27 @@ namespace OMNI.Models
         /// IT Ticket Notice DataTable
         /// </summary>
         /// <param name="noticeType">Type of ITNotice to load</param>
+        /// <param name="distinct">Whether to make the ticket number column a distinct call or not</param>
         /// <returns>NoticeTable</returns>
-        public async static Task<DataTable> GetNoticeDataTableAsync(ITNotice noticeType)
+        public static DataTable GetNoticeDataTable(ITNotice noticeType, bool distinct)
         {
-            var _where = string.Empty;
-            _where = !noticeType.Equals(ITNotice.Closed) ? $"`Status`='{noticeType.GetDescription()}' AND `Type`<>'Project'" : $"(`Status`='{noticeType.GetDescription()}' OR `Status`='Denied') AND `DateCompleted`>={DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")}";
+            var _select = distinct
+                ? $"USE {App.DataBase}; SELECT * FROM [it_ticket_master] WHERE "
+                : $"USE {App.DataBase}; SELECT a.*, b.[TeamMember], b.[AssignmentDate] FROM [it_ticket_master] a LEFT JOIN [it_ticket_assignment] b ON b.[TicketNumber] = a.[TicketNumber] WHERE ";
+            var _where = !noticeType.Equals(ITNotice.Closed)
+                ? $"[Status]='{noticeType.GetDescription()}' AND [Type]!='Project'"
+                : $"([Status]='{noticeType.GetDescription()}' OR [Status]='Denied') AND [DateCompleted]>='{DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")}'";
             if (!CurrentUser.ITTeam)
             {
-                _where += $" AND (`Confidential`=0 OR (`Confidential`=1 AND `Submitter`='{CurrentUser.FullName}'))";
+                _where += $" AND ([Confidential]=0 OR ([Confidential]=1 AND [Submitter]='{CurrentUser.FullName}'))";
             }
             using (DataTable dt = new DataTable())
             {
                 try
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_ticket_master` WHERE {_where}", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(_select + _where, App.SqlConAsync))
                     {
-                        await adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }
@@ -207,17 +212,18 @@ namespace OMNI.Models
                 var _team = string.Empty;
                 if (teamMember != "All")
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"SELECT `TicketNumber` FROM {App.Schema}.`it_ticket_assignment` WHERE `TeamMember`=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            SELECT [TicketNumber] FROM [it_ticket_assignment] WHERE [TeamMember]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", teamMember);
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            _where = "`Status`='Assigned' AND `Type`<>'Project' AND `TicketNumber` IN (";
+                            _where = "Status='Assigned' AND Type<>'Project' AND TicketNumber IN (";
                             var ticketNumbers = new StringBuilder();
                             ticketNumbers.Append(_where);
                             while (await reader.ReadAsync())
                             {
-                                ticketNumbers.Append($"{reader.GetString(0)}, ");
+                                ticketNumbers.Append($"{reader.SafeGetString("TicketNumber")}, ");
                             }
                             _where = $"{ticketNumbers.Remove(ticketNumbers.Length - 2, 2)})";
                         }
@@ -225,17 +231,17 @@ namespace OMNI.Models
                 }
                 else
                 {
-                    _where = "`Status`='Assigned' AND `Type`<>'Project'";
+                    _where = "Status='Assigned' AND Type<>'Project'";
                 }
                 if (!CurrentUser.ITTeam)
                 {
-                    _where += $" AND (`Confidential`=0 OR (`Confidential`=1 AND `Submitter`='{CurrentUser.FullName}'))";
+                    _where += $" AND (Confidential=0 OR (Confidential=1 AND Submitter='{CurrentUser.FullName}'))";
                 }
                 using (DataTable dt = new DataTable())
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_ticket_master` WHERE {_where}", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_ticket_master] WHERE {_where}", App.SqlConAsync))
                     {
-                        await adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }
@@ -250,15 +256,15 @@ namespace OMNI.Models
         /// IT Ticket Notes DataTable
         /// </summary>
         /// <returns>NotesTable</returns>
-        public async static Task<DataTable> GetNotesDataTableAsync()
+        public static DataTable GetNotesDataTable()
         {
             using (DataTable dt = new DataTable())
             {
                 try
                 {
-                    using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_ticket_notes`", App.ConAsync))
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_ticket_notes]", App.SqlConAsync))
                     {
-                        await adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }
@@ -274,18 +280,18 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="ticketNumber">IT Ticket Number</param>
         /// <returns>NotesTable as DataTable. Handle Null return on ticketNumber == 0</returns>
-        public async static Task<DataTable> GetNotesDataTableAsync(int ticketNumber)
+        public static DataTable GetNotesDataTable(int ticketNumber)
         {
             if (ticketNumber == 0)
             {
                 return null;
             }
-            using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_ticket_notes` WHERE `IDNumber`=@p1", App.ConAsync))
+            using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_ticket_notes] WHERE [IDNumber]=@p1", App.SqlConAsync))
             {
                 adapter.SelectCommand.Parameters.AddWithValue("p1", ticketNumber);
                 using (DataTable dt = new DataTable())
                 {
-                    await adapter.FillAsync(dt).ConfigureAwait(false);
+                    adapter.Fill(dt);
                     return dt;
                 }
             }
@@ -296,18 +302,18 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="ticketNumber">IT Ticket Number</param>
         /// <returns>AssignmentTable as DataTable.  Handle Null return on ticketNumber == 0</returns>
-        public async static Task<DataTable> GetAssignmentDataTableAsync(int ticketNumber)
+        public static DataTable GetAssignmentDataTable(int ticketNumber)
         {
             if (ticketNumber == 0)
             {
                 return null;
             }
-            using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_ticket_assignment` WHERE `TicketNumber`=@p1", App.ConAsync))
+            using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_ticket_assignment] WHERE [TicketNumber]=@p1", App.SqlConAsync))
             {
                 adapter.SelectCommand.Parameters.AddWithValue("p1", ticketNumber);
                 using (DataTable dt = new DataTable())
                 {
-                    await adapter.FillAsync(dt).ConfigureAwait(false);
+                    adapter.Fill(dt);
                     return dt;
                 }
             }
@@ -317,15 +323,15 @@ namespace OMNI.Models
         /// Load current IT projects
         /// </summary>
         /// <returns>Projects DataTable</returns>
-        public async static Task<DataTable> GetProjectDataTableAsync()
+        public static DataTable GetProjectDataTable()
         {
             try
             {
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_projects` AS p, `{App.Schema}`.`it_ticket_master` AS m WHERE p.`TicketNumber` = m.`TicketNumber`", App.ConAsync))
+                using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_projects] AS p, [it_ticket_master] AS m WHERE p.[TicketNumber] = m.[TicketNumber]", App.SqlConAsync))
                 {
                     using (DataTable dt = new DataTable())
                     {
-                        await adapter.FillAsync(dt);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }
@@ -341,15 +347,15 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="projectID">Project ID Number to sort by</param>
         /// <returns>Project Tasks DataTable</returns>
-        public async static Task<DataTable> GetProjectTaskDataTableAsync(int projectID)
+        public static DataTable GetProjectTaskDataTable(int projectID)
         {
             try
             {
-                using (MySqlDataAdapter adapter = new MySqlDataAdapter($"SELECT * FROM `{App.Schema}`.`it_project_tasks` AS t, `{App.Schema}`.`it_ticket_master` AS m WHERE t.`TicketNumber` = m.`TicketNumber` AND t.`ProjectID`={projectID}", App.ConAsync))
+                using (SqlDataAdapter adapter = new SqlDataAdapter($"USE {App.DataBase}; SELECT * FROM [it_project_tasks] AS t, [it_ticket_master] AS m WHERE t.[TicketNumber] = m.[TicketNumber] AND t.[ProjectID]={projectID}", App.SqlConAsync))
                 {
                     using (DataTable dt = new DataTable())
                     {
-                        await adapter.FillAsync(dt).ConfigureAwait(false);
+                        adapter.Fill(dt);
                         return dt;
                     }
                 }
@@ -365,7 +371,7 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="mType">Type of metric to calculate</param>
         /// <returns>Count value as int based on metric type</returns>
-        public async static Task<int> GetMetricsAsync(MetricType mType)
+        public static int GetMetrics(MetricType mType)
         {
             try
             {
@@ -373,18 +379,18 @@ namespace OMNI.Models
                 switch (mType)
                 {
                     case MetricType.Completed:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`it_ticket_master` WHERE (`DateCompleted` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [it_ticket_master] WHERE ([DateCompleted] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                     case MetricType.Submission:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`it_ticket_master` WHERE (`SubmitDate` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [it_ticket_master] WHERE ([SubmitDate] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                     case MetricType.ResponseTime:
-                        cmdText = $"SELECT AVG(`ResponseTime`) FROM {App.Schema}.`it_ticket_master` WHERE (`DateCompleted` BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT AVG([ResponseTime]) FROM [it_ticket_master] WHERE ([DateCompleted] BETWEEN '{DateTime.Now.Year}-01-01' AND '{DateTime.Now.AddYears(1).Year}-01-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                 }
-                using (MySqlCommand cmd = new MySqlCommand(cmdText, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand(cmdText, App.SqlConAsync))
                 {
-                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -400,7 +406,7 @@ namespace OMNI.Models
         /// <param name="month">Month of metric</param>
         /// <param name="year">Year of metric</param>
         /// <returns>Count value as int based on metric type</returns>
-        public async static Task<int> GetMetricsAsync(MetricType mType, int month, int year)
+        public static int GetMetrics(MetricType mType, int month, int year)
         {
             try
             {
@@ -410,18 +416,18 @@ namespace OMNI.Models
                 switch (mType)
                 {
                     case MetricType.Completed:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`it_ticket_master` WHERE `Status` IN ('Closed', 'Denied') AND (`SubmitDate` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [it_ticket_master] WHERE [Status] IN ('Closed', 'Denied') AND ([SubmitDate] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                     case MetricType.Submission:
-                        cmdText = $"SELECT COUNT(*) FROM {App.Schema}.`it_ticket_master` WHERE (`SubmitDate` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT COUNT(*) FROM [it_ticket_master] WHERE ([SubmitDate] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                     case MetricType.ResponseTime:
-                        cmdText = $"SELECT AVG(`ResponseTime`) FROM {App.Schema}.`it_ticket_master` WHERE (`DateCompleted` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND (`SubmitDate` BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND `Type` IN ('Ticket', 'Task')";
+                        cmdText = $"USE {App.DataBase}; SELECT AVG([ResponseTime]) FROM [it_ticket_master] WHERE ([DateCompleted] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND ([SubmitDate] BETWEEN '{year}-{month}-01' AND '{nextYear}-{nextMonth}-01') AND [Type] IN ('Ticket', 'Task')";
                         break;
                 }
-                using (MySqlCommand cmd = new MySqlCommand(cmdText, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand(cmdText, App.SqlConAsync))
                 {
-                    return Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -452,13 +458,13 @@ namespace OMNI.Models
             try
             {
                 var _list = new List<TicketSubject>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_type`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_type]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            _list.Add(new TicketSubject { Title = reader.GetString(nameof(Title)) });
+                            _list.Add(new TicketSubject { Title = reader.SafeGetString(nameof(Title)) });
                         }
                     }
                 }
@@ -475,13 +481,13 @@ namespace OMNI.Models
             try
             {
                 var _list = new List<TicketSubject>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_type`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_type]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                    using (SqlDataReader reader = (SqlDataReader)await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _list.Add(new TicketSubject { Title = reader.GetString(nameof(Title)) });
+                            _list.Add(new TicketSubject { Title = reader.SafeGetString(nameof(Title)) });
                         }
                     }
                 }
@@ -515,13 +521,13 @@ namespace OMNI.Models
             try
             {
                 var _list = new List<TicketStatus>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_status`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [it_ticket_status]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            _list.Add(Create(reader.GetString(nameof(Title))));
+                            _list.Add(Create(reader.SafeGetString(nameof(Title))));
                         }
                     }
                 }
@@ -538,13 +544,13 @@ namespace OMNI.Models
             try
             {
                 var _list = new List<TicketStatus>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`it_ticket_status`", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"SELECT * FROM [it_ticket_status]", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _list.Add(Create(reader.GetString(nameof(Title))));
+                            _list.Add(Create(reader.SafeGetString(nameof(Title))));
                         }
                     }
                 }
@@ -592,13 +598,13 @@ namespace OMNI.Models
             {
                 _tempList.Add(new ITTeamMember { Name = "All", AssignDate = DateTime.MinValue });
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `ITTeam`=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [users] WHERE [ITTeam]=1", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        _tempList.Add(new ITTeamMember { Name = reader.GetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
+                        _tempList.Add(new ITTeamMember { Name = reader.SafeGetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
                     }
                 }
             }
@@ -617,13 +623,13 @@ namespace OMNI.Models
             {
                 _tempList.Add(new ITTeamMember { Name = "All", AssignDate = DateTime.MinValue });
             }
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`users` WHERE `ITTeam`=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [users] WHERE [ITTeam]=1", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        _tempList.Add(new ITTeamMember { Name = reader.GetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
+                        _tempList.Add(new ITTeamMember { Name = reader.SafeGetString("FullName"), AssignDate = DateTime.MinValue, Assigned = false });
                     }
                 }
             }
@@ -642,9 +648,9 @@ namespace OMNI.Models
             try
             {
                 var _tempQuery = transactionType
-                    ? $"INSERT INTO `{App.Schema}`.`it_ticket_assignment` (`TicketNumber`, `TeamMember`, `AssignmentDate`) VALUES (@p1, @p2, @p3)"
-                    : $"DELETE FROM `{App.Schema}`.`it_ticket_assignment` WHERE `TeamMember`=@p1 AND `TicketNumber`=@p2";
-                using (MySqlCommand cmd = new MySqlCommand(_tempQuery, App.ConAsync))
+                    ? $"USE {App.DataBase}; INSERT INTO [it_ticket_assignment] ([TicketNumber], [TeamMember], [AssignmentDate]) VALUES (@p1, @p2, @p3)"
+                    : $"USE {App.DataBase}; DELETE FROM [it_ticket_assignment] WHERE [TeamMember]=@p1 AND [TicketNumber]=@p2";
+                using (SqlCommand cmd = new SqlCommand(_tempQuery, App.SqlConAsync))
                 {
                     if (transactionType)
                     {
@@ -709,13 +715,13 @@ namespace OMNI.Models
         public async static Task<BindingList<ITDocument>> GetBindingListAsync()
         {
             var _tempList = new BindingList<ITDocument>();
-            using (MySqlCommand cmd = new MySqlCommand($"SELECT `FilePath` FROM `{App.Schema}`.`it_ticket_documents` WHERE `TicketNumber`=1", App.ConAsync))
+            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT [FilePath] FROM [it_ticket_documents] WHERE [TicketNumber]=1", App.SqlConAsync))
             {
-                using (MySqlDataReader reader = cmd.ExecuteReader())
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        _tempList.Add(new ITDocument { FileName = reader.GetString(nameof(FilePath)), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{reader.GetString(nameof(FilePath))}", IsSelected = true });
+                        _tempList.Add(new ITDocument { FileName = reader.SafeGetString(nameof(FilePath)), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{reader.SafeGetString(nameof(FilePath))}", IsSelected = true });
                     }
                 }
             }
@@ -768,13 +774,13 @@ namespace OMNI.Models
             try
             {
                 var _list = new List<ITProject>();
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT DISTINCT(p.`TicketNumber`), p.`Title` FROM `{App.Schema}`.`it_ticket_master` AS m, `{App.Schema}`.`it_projects` as p WHERE m.`Status`<>'Closed' AND m.`Status`<>'Denied'", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT DISTINCT(p.[TicketNumber]), p.Title FROM [it_ticket_master] m, [it_projects] p WHERE m.[Status]!='Closed' AND m.[Status]!='Denied'", App.SqlConAsync))
                 {
-                    using (MySqlDataReader reader = (MySqlDataReader)await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _list.Add(new ITProject { ID = reader.GetInt32("TicketNumber"), Title = reader.GetString(nameof(Title)) } );
+                            _list.Add(new ITProject { ID = reader.SafeGetInt32("TicketNumber"), Title = reader.SafeGetString(nameof(Title)) } );
                         }
                     }
                 }
@@ -802,28 +808,28 @@ namespace OMNI.Models
             ticket.Priority = new Priority { Description = "--Unassigned--", Level = 6 };
             try
             {
-                var Command = $"INSERT INTO `{App.Schema}`.`it_ticket_master`";
-                const string Columns = "(SubmitDate, Submitter, Location, Subject, Type, RequestCompletionDate, RequestCompletionReason, Description, IAR, Status, Priority, Confidential, DateCompleted, POC)";
-                const string Values = "Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14)";
-
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO
+                                                            [it_ticket_master]([SubmitDate], [Submitter], [Location], [Subject], [Type], [RequestCompletionDate], [RequestCompletionReason], [Description],
+                                                            [IAR], [Status], [Priority], [Confidential], [DateCompleted], [POC])
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
+                                                        SELECT [TicketNumber] FROM [it_ticket_master] WHERE [TicketNumber] = @@IDENTITY;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", ticket.Date.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("p2", ticket.Submitter);
                     cmd.Parameters.AddWithValue("p3", ticket.Location);
                     cmd.Parameters.AddWithValue("p4", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p5", ticket.Type.ToString());
-                    cmd.Parameters.AddWithValue("p6", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss"));
-                    cmd.Parameters.AddWithValue("p7", ticket.RequestReason);
+                    cmd.SafeAddParemeters("p6", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.SafeAddParemeters("p7", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p8", ticket.Description);
                     cmd.Parameters.AddWithValue("p9", ticket.IAR);
                     cmd.Parameters.AddWithValue("p10", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p11", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p12", ticket.Confidential);
-                    cmd.Parameters.AddWithValue("p13", ticket.CompletionDate);
-                    cmd.Parameters.AddWithValue("p14", ticket.POC);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    ticket.IDNumber = Convert.ToInt32(cmd.LastInsertedId);
+                    cmd.SafeAddParemeters("p13", ticket.CompletionDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.SafeAddParemeters("p14", ticket.POC);
+                    ticket.IDNumber = Convert.ToInt32(cmd.ExecuteScalar());
                     if (ticket.DocumentList.Count > 0)
                     {
                         await ticket.AddAttachmentAsync(true).ConfigureAwait(false);
@@ -831,13 +837,13 @@ namespace OMNI.Models
                 }
                 if (ticket.Type == TicketType.Project)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`it_projects` (TicketNumber, PromiseDate, DropDeadDate, Title) Values(@p1, @p2, @p3, @p4)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [it_projects] ([TicketNumber], [PromiseDate], [DropDeadDate], [Title]) Values(@p1, @p2, @p3, @p4)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                         cmd.Parameters.AddWithValue("p2", ticket.Project.PromiseDate);
                         cmd.Parameters.AddWithValue("p3", ticket.Project.DDD);
                         cmd.Parameters.AddWithValue("p4", ticket.Project.Title);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                 }
                 return true;
@@ -853,37 +859,60 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="ticket">ITTicket Object</param>
         /// <returns>Transaction Success as bool.  true = accepted, false = failed</returns>
-        public async static Task<bool> UpdateAsync(this ITTicket ticket)
+        public static bool Update(this ITTicket ticket)
         {
             try
             {
                 if (ticket.Type == TicketType.Project)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"UPDATE `{App.Schema}`.`it_projects` SET `PromiseDate`=@p1, `DropDeadDate`=@p2, `Title`=@p3 WHERE `TicketNumber`=@p4", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [it_projects] SET [PromiseDate]=@p1, [DropDeadDate]=@p2, [Title]=@p3 WHERE [TicketNumber]=@p4", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", ticket.Project.PromiseDate);
                         cmd.Parameters.AddWithValue("p2", ticket.Project.DDD);
                         cmd.Parameters.AddWithValue("p3", ticket.Project.Title);
                         cmd.Parameters.AddWithValue("p4", ticket.IDNumber);
-                        await cmd.ExecuteNonQueryAsync();
+                        cmd.ExecuteNonQuery();
                     }
                 }
-                using (MySqlCommand cmd = new MySqlCommand($@"UPDATE `{App.Schema}`.`it_ticket_master` SET `Location`=@p1, `Subject`=@p2, `Type`=@p3, `RequestCompletionDate`=@p4, `RequestCompletionReason`=@p5, `Description`=@p6, `IAR`=@p7, `Status`=@p8, `Priority`=@p9, `Confidential`=@p10, `DateCompleted`=@p11, `POC`=@p12 WHERE `TicketNumber`=@p13", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        UPDATE
+                                                            [it_ticket_master]
+                                                        SET
+                                                            [Location]=@p1,
+                                                            [Subject]=@p2,
+                                                            [Type]=@p3,
+                                                            [RequestCompletionDate]=@p4,
+                                                            [RequestCompletionReason]=@p5,
+                                                            [Description]=@p6,
+                                                            [IAR]=@p7,
+                                                            [Status]=@p8,
+                                                            [Priority]=@p9,
+                                                            [Confidential]=@p10,
+                                                            [DateCompleted]=@p11,
+                                                            [POC]=@p12
+                                                        WHERE
+                                                            [TicketNumber]=@p13", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", ticket.Location);
                     cmd.Parameters.AddWithValue("p2", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p3", ticket.Type.ToString());
-                    cmd.Parameters.AddWithValue("p4", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    if (ticket.RequestDate == DateTime.MinValue)
+                    { cmd.Parameters.AddWithValue("p4", DBNull.Value); }
+                    else
+                    { cmd.Parameters.AddWithValue("p4", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss")); }
                     cmd.Parameters.AddWithValue("p5", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p6", ticket.Description);
                     cmd.Parameters.AddWithValue("p7", ticket.IAR);
                     cmd.Parameters.AddWithValue("p8", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p9", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p10", ticket.Confidential);
-                    cmd.Parameters.AddWithValue("p11", ticket.CompletionDate);
+                    if (ticket.CompletionDate == DateTime.MinValue)
+                    { cmd.Parameters.AddWithValue("p11", DBNull.Value); }
+                    else
+                    { cmd.Parameters.AddWithValue("p11", ticket.CompletionDate.ToString("yyyy-MM-dd HH:mm:ss")); }
                     cmd.Parameters.AddWithValue("p12", ticket.POC);
                     cmd.Parameters.AddWithValue("p13", ticket.IDNumber);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    cmd.ExecuteNonQuery();
                 }
                 return true;
             }
@@ -898,16 +927,16 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="ticket">ITTicket object</param>
         /// <returns>Transaction Success as bool.  true = accepted, false = failed</returns>
-        public async static Task<bool> AddNotesAsync(this ITTicket ticket)
+        public static bool AddNotes(this ITTicket ticket)
         {
             try
             {
-                var _note = await OMNIDataBase.AddNoteAsync("it_ticket", ticket.IDNumber).ConfigureAwait(false);
+                var _note = OMNIDataBase.AddNote("it_ticket", ticket.IDNumber);
                 if (!string.IsNullOrEmpty(_note))
                 {
                     if (ticket.NotesTable == null)
                     {
-                        ticket.NotesTable = ITTicket.GetNotesDataTableAsync().Result;
+                        ticket.NotesTable = ITTicket.GetNotesDataTable();
                     }
                     ticket.NotesTable.Rows.Add(ticket.IDNumber, DateTime.Now, _note, CurrentUser.FullName);
                     return true;
@@ -930,7 +959,7 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($@"DELETE FROM `{App.Schema}`.`it_ticket_documents` WHERE `TicketNumber`=@p1 AND `FilePath`=@p2", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"DELETE FROM [it_ticket_documents] WHERE [TicketNumber]=@p1 AND [FilePath]=@p2", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                     cmd.Parameters.AddWithValue("p2", ticket.DocumentList[documentListIndex].FileName);
@@ -965,7 +994,7 @@ namespace OMNI.Models
                     {
                         File.Copy(document.FilePath, $"{Properties.Settings.Default.HDTDocumentLocation}{document.FileName}", true);
                         document.FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{document.FileName}";
-                        using (MySqlCommand cmd = new MySqlCommand($@"INSERT INTO `{App.Schema}`.`it_ticket_documents` (`TicketNumber`, `FilePath`) VALUES (@p1, @p2)", App.ConAsync))
+                        using (SqlCommand cmd = new SqlCommand($@"INSERT INTO [it_ticket_documents] ([TicketNumber], [FilePath]) VALUES (@p1, @p2)", App.SqlConAsync))
                         {
                             cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                             cmd.Parameters.AddWithValue("p2", Path.GetFileName(document.FileName));
@@ -983,7 +1012,7 @@ namespace OMNI.Models
                         {
                             File.Copy(fileName, $"{Properties.Settings.Default.HDTDocumentLocation}{Path.GetFileName(fileName)}", true);
                             ticket.DocumentList.Add(new ITDocument { FileName = Path.GetFileName(fileName), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{Path.GetFileName(fileName)}", IsSelected = true });
-                            using (MySqlCommand cmd = new MySqlCommand($@"INSERT INTO `{App.Schema}`.`it_ticket_documents` (`TicketNumber`, `FilePath`) VALUES (@p1, @p2)", App.ConAsync))
+                            using (SqlCommand cmd = new SqlCommand($@"INSERT INTO [it_ticket_documents] ([TicketNumber], [FilePath]) VALUES (@p1, @p2)", App.SqlConAsync))
                             {
                                 cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                                 cmd.Parameters.AddWithValue("p2", Path.GetFileName(fileName));
@@ -1028,7 +1057,7 @@ namespace OMNI.Models
                     {
                         File.Copy(_file, $"{Properties.Settings.Default.HDTDocumentLocation}{Path.GetFileName(_file)}", true);
                         ticket.DocumentList.Add(new ITDocument { FileName = Path.GetFileName(_file), FilePath = $"{Properties.Settings.Default.HDTDocumentLocation}{Path.GetFileName(_file)}", IsSelected = true });
-                        using (MySqlCommand cmd = new MySqlCommand($@"INSERT INTO `{App.Schema}`.`it_ticket_documents` (`TicketNumber`, `FilePath`) VALUES (@p1, @p2)", App.ConAsync))
+                        using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; INSERT INTO [it_ticket_documents] ([TicketNumber], [FilePath]) VALUES (@p1, @p2)", App.SqlConAsync))
                         {
                             cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                             cmd.Parameters.AddWithValue("p2", Path.GetFileName(_file));
@@ -1063,7 +1092,7 @@ namespace OMNI.Models
                 };
                 if (ticket.IDNumber != 0)
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`it_projects` (TicketNumber, PromiseDate, DropDeadDate, Title) VALUES (@p1, @p2, @p3, @p4)", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [it_projects] ([TicketNumber], [PromiseDate], [DropDeadDate], [Title]) VALUES (@p1, @p2, @p3, @p4)", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                         cmd.Parameters.AddWithValue("p2", ticket.Project.PromiseDate);
@@ -1071,7 +1100,7 @@ namespace OMNI.Models
                         cmd.Parameters.AddWithValue("p4", ticket.Project.Title);
                         await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
-                    if (!await ticket.UpdateAsync())
+                    if (!ticket.Update())
                     {
                         ticket.Type = _tempType;
                         return false;
@@ -1096,12 +1125,12 @@ namespace OMNI.Models
             var _tempType = ticket.Type;
             try
             {
-                var _type = ticket.Type == TicketType.Project ? "`it_projects`" : "`it_project_tasks`";
-                var _id = ticket.Type == TicketType.Project ? "`ProjectID`" : "`TaskID`";
+                var _type = ticket.Type == TicketType.Project ? "it_projects" : "it_project_tasks";
+                var _id = ticket.Type == TicketType.Project ? "ProjectID" : "TaskID";
                 ticket.Type = TicketType.Ticket;
-                if (await ticket.UpdateAsync())
+                if (ticket.Update())
                 {
-                    using (MySqlCommand cmd = new MySqlCommand($"DELETE FROM `{App.Schema}`.{_type} WHERE {_id}=@p1", App.ConAsync))
+                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [{_type}] WHERE [{_id}]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                         await cmd.ExecuteNonQueryAsync();
@@ -1134,18 +1163,18 @@ namespace OMNI.Models
             {
                 ticket.Type = TicketType.Task;
                 var _id = 0;
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT `ProjectID` FROM `{App.Schema}`.`it_projects` WHERE `TicketNumber`=@p1", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT [ProjectID] FROM [it_projects] WHERE [TicketNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", projectID);
-                    _id = Convert.ToInt32(await cmd.ExecuteScalarAsync().ConfigureAwait(false));
+                    _id = Convert.ToInt32(cmd.ExecuteScalar());
                 }
-                using (MySqlCommand cmd = new MySqlCommand($"INSERT INTO `{App.Schema}`.`it_project_tasks` (TicketNumber, ProjectID) VALUES (@p1, @p2)", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [it_project_tasks] ([TicketNumber], [ProjectID]) VALUES (@p1, @p2)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", ticket.IDNumber);
                     cmd.Parameters.AddWithValue("p2", _id);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-                if (!await ticket.UpdateAsync())
+                if (!ticket.Update())
                 {
                     ticket.Type = _tempType;
                     return false;

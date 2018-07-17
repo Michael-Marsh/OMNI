@@ -1,7 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using OMNI.Extensions;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace OMNI.Models
 {
@@ -28,22 +29,22 @@ namespace OMNI.Models
         {
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmms_parts_revision` WHERE `PartNumber`=@p1 AND `revision_id`=@p2", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; SELECT * FROM [cmms_parts_revision] WHERE [PartNumber]=@p1 AND [revision_id]=@p2", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
                     cmd.Parameters.AddWithValue("p2", currentRevision);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             return new CMMSPartRevision
                             {
                                 RevisionID = currentRevision,
-                                RevisedBy = reader.GetString(nameof(RevisedBy)),
-                                RevisionDate = reader.GetDateTime(nameof(RevisionDate)),
-                                Description = reader.GetString(nameof(Description)),
-                                SafetyStock = reader.GetInt32("SafetyStockQuantity"),
-                                DefualtLocation = reader.GetString(nameof(DefualtLocation))
+                                RevisedBy = reader.SafeGetString(nameof(RevisedBy)),
+                                RevisionDate = reader.SafeGetDateTime(nameof(RevisionDate)),
+                                Description = reader.SafeGetString(nameof(Description)),
+                                SafetyStock = reader.SafeGetInt32("SafetyStockQuantity"),
+                                DefualtLocation = reader.SafeGetString(nameof(DefualtLocation))
                             };
                         }
                     }
@@ -66,21 +67,21 @@ namespace OMNI.Models
             var _revisionList = new List<CMMSPartRevision>();
             try
             {
-                using (MySqlCommand cmd = new MySqlCommand($"SELECT * FROM `{App.Schema}`.`cmms_parts_revision` WHERE `PartNumber`=@p1 ORDER BY `RevisionDate` DESC", App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmms_parts_revision] WHERE [PartNumber]=@p1 ORDER BY [RevisionDate] DESC", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
                             _revisionList.Add(new CMMSPartRevision
                             {
-                                RevisionID = reader.GetString("revision_id"),
-                                RevisedBy = reader.GetString(nameof(RevisedBy)),
-                                RevisionDate = reader.GetDateTime(nameof(RevisionDate)),
-                                Description = reader.GetString(nameof(Description)),
-                                SafetyStock = reader.GetInt32("SafetyStockQuantity"),
-                                DefualtLocation = reader.GetString(nameof(DefualtLocation))
+                                RevisionID = reader.SafeGetString("revision_id"),
+                                RevisedBy = reader.SafeGetString(nameof(RevisedBy)),
+                                RevisionDate = reader.SafeGetDateTime(nameof(RevisionDate)),
+                                Description = reader.SafeGetString(nameof(Description)),
+                                SafetyStock = reader.SafeGetInt32("SafetyStockQuantity"),
+                                DefualtLocation = reader.SafeGetString(nameof(DefualtLocation))
                             });
                         }
                     }

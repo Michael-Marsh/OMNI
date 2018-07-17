@@ -1,12 +1,9 @@
-﻿using MySql.Data.MySqlClient;
-using OMNI.Enumerations;
-using OMNI.Helpers;
+﻿using OMNI.Enumerations;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace OMNI.Models
 {
@@ -77,23 +74,22 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="slitter">Slitter Object</param>
         /// <returns>Transaction Success as bool.  true = accepted / false = rejected</returns>
-        public async static Task<bool> SubmitAsync(this Slitter slitter)
+        public static bool Submit(this Slitter slitter)
         {
             try
             {
-                var Command = $"INSERT INTO `{App.Schema}`.`calibration_slitter`";
-                const string Columns = "(SlitterID, CalibrationDate, SlitterDirection, Submitter, Notes)";
-                const string Values = "Values(@p1, @p2, @p3, @p4, @p5)";
-
-                using (MySqlCommand cmd = new MySqlCommand(Command + Columns + Values, App.ConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                        INSERT INTO [calibration_slitter](SlitterID, CalibrationDate, SlitterDirection, Submitter, Notes)
+                                                        OUTPUT INSERTED.ID
+                                                        Values(@p1, @p2, @p3, @p4, @p5)", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", slitter.MachineID);
                     cmd.Parameters.AddWithValue("p2", slitter.CalibrationDate.ToString("yyyy-MM-dd"));
                     cmd.Parameters.AddWithValue("p3", slitter.Direction);
                     cmd.Parameters.AddWithValue("p4", slitter.Submitter);
                     cmd.Parameters.AddWithValue("p5", slitter.Notes);
-                    await cmd.ExecuteNonQueryAsync();
-                    var slitterCalID = Convert.ToInt32(cmd.LastInsertedId);
+                    cmd.ExecuteNonQuery();
+                    var slitterCalID = Convert.ToInt32(cmd.ExecuteScalar());
                 }
                 return true;
             }

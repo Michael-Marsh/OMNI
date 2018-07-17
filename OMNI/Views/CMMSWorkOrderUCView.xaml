@@ -416,6 +416,16 @@
                         VerticalAlignment="Top" 
                         Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
 
+                <Label Content="Site" 
+                       Foreground="WhiteSmoke" 
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+
+                <Label Content="{Binding CurrentSite}"
+                       Foreground="Black"
+                       FontWeight="Bold" 
+                       FontSize="18"/>
+                
                 <Label Content="Status" 
                        Foreground="WhiteSmoke" 
                        FontWeight="Bold" 

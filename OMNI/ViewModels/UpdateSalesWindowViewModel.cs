@@ -79,7 +79,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter">Update Sales Window</param>
         private void UpdateExecute(object parameter)
         {
-            OMNIDataBase.UpdateSalesAsync(SelectedMonth, SelectedYear, (int)SalesNumber, Validate);
+            OMNIDataBase.UpdateSales(SelectedMonth, SelectedYear, (int)SalesNumber, Validate);
             var win = parameter as UpdateSalesWindowView;
             win.Close();
         }

@@ -1,4 +1,5 @@
 ﻿using IBMU2.UODOTNET;
+using OMNI.Extensions;
 using OMNI.Models;
 using System;
 using System.Collections.Generic;
@@ -141,13 +142,10 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                                                        SELECT SUM([Sales]) FROM [dbo].[SA-INIT] WHERE [Inv_So_Date]>='{startDate}' AND [Inv_So_Date]<='{endDate}' AND [Record_Type]='SL'", App.SqlConAsync))
                 {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($"SELECT SUM([Sales]) FROM [dbo].[SA-INIT] WHERE [Inv_So_Date]>='{startDate}' AND [Inv_So_Date]<='{endDate}' AND [Record_Type]='SL'", con))
-                    {
-                        return Convert.ToInt32(cmd.ExecuteScalar());
-                    }
+                    return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
             catch (Exception)
@@ -169,26 +167,23 @@ namespace OMNI.Helpers
             {
                 try
                 {
-                    using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                    using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                                                            SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", App.SqlConAsync))
                     {
-                        con.Open();
-                        using (SqlCommand cmd = new SqlCommand($"SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", con))
+                        cmd.Parameters.AddWithValue("p1", partNumber);
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                         {
-                            cmd.Parameters.AddWithValue("p1", partNumber);
-                            using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                            if (reader.HasRows)
                             {
-                                if (reader.HasRows)
+                                while (await reader.ReadAsync().ConfigureAwait(false))
                                 {
-                                    while (await reader.ReadAsync().ConfigureAwait(false))
-                                    {
-                                        _results[0] = await reader.IsDBNullAsync(0) ? partNumber : reader.GetString(0);
-                                        _results[1] = await reader.IsDBNullAsync(1) ? "O" : reader.GetString(1).Trim();
-                                    }
+                                    _results[0] = await reader.IsDBNullAsync(0) ? partNumber : reader.GetString(0);
+                                    _results[1] = await reader.IsDBNullAsync(1) ? "O" : reader.GetString(1).Trim();
                                 }
-                                else
-                                {
-                                    return "Invalid";
-                                }
+                            }
+                            else
+                            {
+                                return "Invalid";
                             }
                         }
                     }
@@ -215,27 +210,24 @@ namespace OMNI.Helpers
             {
                 try
                 {
-                    using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                    using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                                                            SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", App.SqlConAsync))
                     {
-                        con.Open();
-                        using (SqlCommand cmd = new SqlCommand($"SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", con))
+                        cmd.Parameters.AddWithValue("p1", partNumber);
+                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                         {
-                            cmd.Parameters.AddWithValue("p1", partNumber);
-                            using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                            if (reader.HasRows)
                             {
-                                if (reader.HasRows)
+                                while (await reader.ReadAsync().ConfigureAwait(false))
                                 {
-                                    while (await reader.ReadAsync().ConfigureAwait(false))
-                                    {
-                                        _results[0] = await reader.IsDBNullAsync(0) ? "Invalid" : reader.GetString(0);
-                                        _results[1] = await reader.IsDBNullAsync(1) ? "O" : reader.GetString(1).Trim();
-                                    }
+                                    _results[0] = await reader.IsDBNullAsync(0) ? "Invalid" : reader.GetString(0);
+                                    _results[1] = await reader.IsDBNullAsync(1) ? "O" : reader.GetString(1).Trim();
                                 }
-                                else
-                                {
-                                    _results[0] = "Invalid";
-                                    _results[1] = "O";
-                                }
+                            }
+                            else
+                            {
+                                _results[0] = "Invalid";
+                                _results[1] = "O";
                             }
                         }
                     }
@@ -271,14 +263,11 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                                                        SELECT [Engineering_Status] FROM [dbo].[IPL-INIT] WHERE [Part_Nbr] = @p1;", App.SqlConAsync))
                 {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($"SELECT [Engineering_Status] FROM [dbo].[IPL-INIT] WHERE [Part_Nbr] = @p1;", con))
-                    {
-                        cmd.Parameters.AddWithValue("p1", partNumber);
-                        return cmd.ExecuteScalar().ToString();
-                    }
+                    cmd.Parameters.AddWithValue("p1", partNumber);
+                    return cmd.ExecuteScalar().ToString();
                 }
             }
             catch (Exception)
@@ -297,23 +286,20 @@ namespace OMNI.Helpers
             try
             {
                 var _tempList = new List<string>();
-                using (SqlConnection con = new SqlConnection(Properties.Settings.Default.omniMSSQLConnectionString))
+                using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                                                        SELECT [Url] FROM [dbo].[IM-INIT_Url_Codes] WHERE [ID1] = @p1;", App.SqlConAsync))
                 {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand($"SELECT [Url] FROM [dbo].[IM-INIT_Url_Codes] WHERE [ID1] = @p1;", con))
+                    cmd.Parameters.AddWithValue("p1", partNumber);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("p1", partNumber);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.HasRows)
                         {
-                            if (reader.HasRows)
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    _tempList.Add(reader.GetString(0));
-                                }
+                                _tempList.Add(reader.SafeGetString("Url"));
                             }
-                            return _tempList;
                         }
+                        return _tempList;
                     }
                 }
             }

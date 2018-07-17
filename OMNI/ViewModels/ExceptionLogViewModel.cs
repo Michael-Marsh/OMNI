@@ -44,9 +44,12 @@ namespace OMNI.ViewModels
             {
                 _tempPosition = ExceptionView.CurrentPosition;
             }
-            ExceptionTable = OMNIException.UnhandledExceptionsTableAsync().Result;
-            ExceptionView = CollectionViewSource.GetDefaultView(ExceptionTable);
-            ExceptionView.MoveCurrentToPosition(_tempPosition);
+            ExceptionTable = OMNIException.UnhandledExceptionsTable();
+            if (ExceptionView != null)
+            {
+                ExceptionView = CollectionViewSource.GetDefaultView(ExceptionTable);
+                ExceptionView.MoveCurrentToPosition(_tempPosition);
+            }
             OnPropertyChanged(nameof(ExceptionView));
         }
 
