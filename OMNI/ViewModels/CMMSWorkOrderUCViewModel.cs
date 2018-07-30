@@ -105,7 +105,7 @@ namespace OMNI.ViewModels
         public BindingList<AttachedDocuments> DocumentList { get; set; }
         public string GLAccount
         {
-            get { return SelectedWorkCenter != null ? $"01-00-{SelectedWorkCenter.GLAccount}" : null; }
+            get { return SelectedWorkCenter != null ? CurrentUser.Site == "WCCO" ? $"01-00-{SelectedWorkCenter.GLAccount}" : $"02-00-{SelectedWorkCenter.GLAccount}" : null; }
         }
 
         public DataTable NotesTable { get; set; }

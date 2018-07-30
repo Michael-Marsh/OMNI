@@ -7,7 +7,7 @@ namespace OMNI.Enumerations
         [Description("QMSWorkCenter")]
         QMS = 0,
         [Description("CalWorkCenter")]
-        QMSCalibration = 1,
+        QMSCal = 1,
         [Description("HDTWorkCenter")]
         HDT = 2
     }

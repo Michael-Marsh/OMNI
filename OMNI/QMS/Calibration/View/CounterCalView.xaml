@@ -1,0 +1,265 @@
+﻿<UserControl x:Class="OMNI.QMS.Calibration.View.CounterCalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OMNI.QMS.Calibration.View"
+             xmlns:vm="clr-namespace:OMNI.QMS.Calibration.ViewModel"
+             xmlns:converter="clr-namespace:OMNI.Converters">
+
+    <UserControl.DataContext>
+        <vm:CounterCalViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooltoVisConverter"/>
+        <converter:InvertedBooltoVisibility x:Key="InvertedBooltoVisConverter"/>
+        <converter:CharacterCounter x:Key="CharCounter"/>
+        <converter:IntToVisibility x:Key="IntToVisConverter"/>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Command="{Binding SubmitCommand}" Gesture="Enter"/>
+    </UserControl.InputBindings>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid AllowDrop="True">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+
+                <Button Content="Submit"
+                        Command="{Binding SubmitCommand}"
+                        Style="{DynamicResource HeaderButtonStyle}"
+                        ToolTip="Submit CalCheck or Calibration results to the database.&#10;(Enter)"/>
+
+            </StackPanel>
+
+            <!--    Column 0    -->
+
+            <Grid Grid.Row="1">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="200"/>
+                </Grid.RowDefinitions>
+
+                <!--    Row 0   -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Visibility="{Binding CalID, Converter={StaticResource IntToVisConverter}}">
+                    <Label Content="Cal ID Number"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <TextBox Text="{Binding CalID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="16"
+                             Width="200"
+                             Margin="5"/>
+
+                    <Label Content="Out of Tolerance"
+                           Visibility="{Binding CounterCal.ValidCal, Converter={StaticResource InvertedBooltoVisConverter}}"
+                           Foreground="Crimson"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           FontStyle="Italic"/>
+                </StackPanel>
+                
+                <!--    Row 1   -->
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Label Content="Submitted by:"
+                           Foreground="GhostWhite"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <TextBox Text="{Binding CounterCal.Submitter}"
+                             FontSize="16"
+                             Width="200"
+                             Margin="5"
+                             IsEnabled="False"/>
+
+                    <Label Content="Submit Date"
+                           Foreground="WhiteSmoke"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <DatePicker SelectedDate="{Binding CounterCal.CalDate}"
+                                Margin="10,5,0,5"
+                                Width="150"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                FirstDayOfWeek="Monday"
+                                Focusable="False"
+                                ToolTip="Enter or Select the date."/>
+
+                </StackPanel>
+
+                <!--    Row 2   -->
+                <StackPanel Grid.Row="2"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Left">
+                    
+                    <Label Content="Machine"
+                           Foreground="WhiteSmoke"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <ComboBox ItemsSource="{Binding CounterCal.MachineList}"
+                              SelectedItem="{Binding SelectedMachine, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              DisplayMemberPath="Name"
+                              Margin="5"
+                              Width="250"
+                              ToolTip="Select the slitter for this calcheck or calibration."
+                              FontWeight="Bold"
+                              FontSize="16"
+                              Cursor="Hand"
+                              TabIndex="0"
+                              Style="{DynamicResource RequiredComboBox}"/>
+                </StackPanel>
+
+                <!--    Row 3   -->
+
+                <StackPanel Grid.Row="3" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Interval"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,25,0"/>
+                        <Label Content="40 FT"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,60,0"/>
+                        <Label Content="80 FT"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,50,0"/>
+                        <Label Content="120 FT"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,25,0"/>
+                        <Label Content="160 FT"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,25,0"/>
+                        <Label Content="200 FT"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"
+                               Margin="0,0,25,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Reverse"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"/>
+                        <ListBox ItemsSource="{Binding CounterCal.ReverseCalData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontWeight="Bold"
+                                 Cursor="Hand"
+                                 BorderThickness="0"
+                                 Background="Transparent">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+
+                                    <TextBox Width="100"
+                                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Forward"
+                               Foreground="WhiteSmoke"
+                               FontWeight="Bold"
+                               FontSize="18"/>
+                        <ListBox ItemsSource="{Binding CounterCal.ForwardCalData, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 FontWeight="Bold"
+                                 Cursor="Hand"
+                                 BorderThickness="0"
+                                 Background="Transparent">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+
+                                    <TextBox Width="100"
+                                             Style="{DynamicResource RequiredActiveTextBox}"/>
+
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </StackPanel>
+                
+                <Label Content="Comments"
+                       Foreground="WhiteSmoke"
+                       FontWeight="Bold"
+                       FontSize="18"/>
+
+                <!--    Row 4   -->
+
+                <DockPanel Grid.Row="4" HorizontalAlignment="Left">
+
+                    <Label DockPanel.Dock="Top"
+                           Content="Comments"
+                           Foreground="WhiteSmoke"
+                           FontWeight="Bold"
+                           FontSize="18"/>
+
+                    <TextBox x:Name="CalNotes"
+                             DockPanel.Dock="Top"
+                             Text="{Binding CounterCal.Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="5"
+                             VerticalScrollBarVisibility="Auto"
+                             SpellCheck.IsEnabled="True"
+                             MaxHeight="110"
+                             MaxLines="4"
+                             Width="670"
+                             FontSize="16"
+                             MaxLength="255"
+                             TabIndex="5"
+                             AcceptsReturn="True"
+                             AcceptsTab="True"
+                             TextWrapping="WrapWithOverflow"
+                             ToolTip="Add any comments that you may have for this calcheck or calibration."
+                             Style="{DynamicResource OptionalTextBox}"/>
+
+                    <Label DockPanel.Dock="Bottom"
+                           Visibility="{Binding IsFocused, Converter={StaticResource BooltoVisConverter}, ElementName=Problem, Mode=OneWay}"
+                           HorizontalAlignment="Right"
+                           Content="{Binding Text, ConverterParameter={x:Reference CalNotes}, Converter={StaticResource CharCounter}, ElementName=CalNotes}"
+                           ContentStringFormat="Characters Left: {0}"
+                           Foreground="Black"
+                           FontWeight="Bold"/>
+
+                </DockPanel>
+                
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

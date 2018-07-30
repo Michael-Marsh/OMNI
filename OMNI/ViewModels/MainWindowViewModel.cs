@@ -103,8 +103,8 @@ namespace OMNI.ViewModels
         public static Action MainWindowUpdateTick { get; set; }
         public bool DataBaseOnline
         {
-            get { return App.SqlConAsync.State == System.Data.ConnectionState.Open; }
-            set { value = App.SqlConAsync.State == System.Data.ConnectionState.Open; OnPropertyChanged(nameof(DataBaseOnline)); }
+            get { return App.SqlConAsync.State == System.Data.ConnectionState.Open || App.SqlConAsync.State == System.Data.ConnectionState.Connecting; }
+            set { value = App.SqlConAsync.State == System.Data.ConnectionState.Open || App.SqlConAsync.State == System.Data.ConnectionState.Connecting; OnPropertyChanged(nameof(DataBaseOnline)); }
         }
 
         RelayCommand _login;
@@ -119,6 +119,8 @@ namespace OMNI.ViewModels
         public MainWindowViewModel()
         {
             var _test = UseSSO();
+            while (App.SqlConAsync.State == System.Data.ConnectionState.Connecting)
+            { }
             if (!string.IsNullOrEmpty(_test) && CurrentUser.Exists(_test.Substring(_test.LastIndexOf('\\') + 1)))
             {
                 CurrentUser.LogInAsync(_test.Substring(_test.LastIndexOf('\\') + 1));

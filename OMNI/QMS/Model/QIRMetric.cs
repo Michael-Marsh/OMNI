@@ -93,15 +93,18 @@ namespace OMNI.QMS.Model
                 {
                     _monthlySales = M2k.GetLiveSales($"{DateTime.Today.Month}-1-{DateTime.Today.Year}", DateTime.Today.ToString("MM-dd-yyyy"));
                 }
+                var startDate = Convert.ToDateTime($"01/{_month}-{year}");
+                var lastDay = Convert.ToDateTime($"{_month}/01/{year}").LastDayOfMonth();
+                var endDate = Convert.ToDateTime($"{_month}/{lastDay}/{year}");
                 using (DataTable dt = new DataTable())
                 {
-                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{App.DataBase}];
                                                                         SELECT
                                                                             [TotalCost], [SupplierID]
                                                                         FROM
                                                                             [qir_metrics_view]
                                                                         WHERE
-                                                                            [QIRDate] BETWEEN '{year}-{_month}-01' AND '{year}-{_month}-{Convert.ToDateTime($"01/{_month}/{year}").LastDayOfMonth()}'", App.SqlConAsync))
+                                                                            [QIRDate] BETWEEN '{startDate}' AND '{endDate}';", App.SqlConAsync))
                     {
                         adapter.Fill(dt);
                     }

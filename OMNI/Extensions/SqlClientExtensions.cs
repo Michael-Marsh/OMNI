@@ -68,7 +68,7 @@ namespace OMNI.Extensions
         /// <param name="value">The value to add to set to the inputed parameter</param>
         public static void SafeAddParemeters(this SqlCommand cmd, string param, object value)
         {
-            if (value == null || (value.GetType() == typeof(DateTime) && (DateTime)value == DateTime.MinValue))
+            if (value == null || (value.GetType() == typeof(DateTime) && Convert.ToDateTime(value) == DateTime.MinValue) || string.IsNullOrWhiteSpace(value.ToString()))
             {
                 cmd.Parameters.AddWithValue(param, DBNull.Value);
             }

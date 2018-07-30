@@ -18,9 +18,9 @@ namespace OMNI.ViewModels
 
         public int? QIRNotice { get { return QualityNotice ? OMNIDataBase.CountNullValues("qir_notice", IdNumber.ToString()) : 0; } }
         public int? ExceptionInbox { get { return Developer ? OMNIDataBase.CountWithValues("exceptionlog", "Handled", "0") : 0; } }
-        public int? CMMSInbox { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", "[Status] IN ('Pending', 'Reviewing')") : 0; } }
-        public int? CMMSOpen { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", $"[Status]='Assigned'") : 0; } }
-        public int? CMMSNotice { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", "[Status] NOT IN ('Completed', 'Denied')") : 0; } }
+        public int? CMMSInbox { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", $"[Status] IN ('Pending', 'Reviewing') AND [Site]='{Site}'") : 0; } }
+        public int? CMMSOpen { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", $"[Status]='Assigned' AND [Site]='{Site}'") : 0; } }
+        public int? CMMSNotice { get { return CMMSView ? OMNIDataBase.CountWithComparison("cmmsworkorder", $"[Status] NOT IN ('Completed', 'Denied') AND [Site]='{Site}'") : 0; } }
         public int? ITInbox { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Status]='Pending' AND [Type]<>'Project'") : 0; } }
         public int? ITOpen { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Status]='Assigned' AND [Type]<>'Project'") : 0; } }
         public int? ITProject { get { return IT ? OMNIDataBase.CountWithComparison("it_ticket_master", "[Type]<>'Ticket'") : 0; } }
@@ -125,10 +125,14 @@ namespace OMNI.ViewModels
                     case DashBoardAction.ReviewImport:
                         ReviewImportViewModel.Open();
                         break;
-                    case DashBoardAction.TapeMeasureCalibration:
+                    case DashBoardAction.TMCal:
+                        //TODO: Build tapemeasure dashboardtabitem
                         break;
-                    case DashBoardAction.SlitterCalibration:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.SlitterCalibration);
+                    case DashBoardAction.SlitCal:
+                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.SlitCal);
+                        break;
+                    case DashBoardAction.InstCal:
+                        //TODO: Build intrument dashboardtabitem
                         break;
                     case DashBoardAction.QIRNotice:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.QIRNotice);

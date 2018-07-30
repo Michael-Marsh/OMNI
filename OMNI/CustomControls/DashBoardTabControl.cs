@@ -1,6 +1,7 @@
 ﻿using OMNI.Enumerations;
 using OMNI.Extensions;
 using OMNI.Models;
+using OMNI.QMS.Calibration.View;
 using OMNI.QMS.View;
 using OMNI.QMS.ViewModel;
 using OMNI.ViewModels;
@@ -399,11 +400,11 @@ namespace OMNI.CustomControls
             }
         }
 
-        public static TabItem SlitterCalibration
+        public static TabItem SlitCal
         {
             get
             {
-                return new TabItem { Header = "Slitter Cal.", Content = new SlitterCalibrationUCView() as UserControl };
+                return new TabItem { Header = "Slitter Cal.", Content = new CounterCalView() as UserControl };
             }
         }
 

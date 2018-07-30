@@ -815,19 +815,19 @@ namespace OMNI.Models
                                                         Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14);
                                                         SELECT [TicketNumber] FROM [it_ticket_master] WHERE [TicketNumber] = @@IDENTITY;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("p1", ticket.Date.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.Parameters.AddWithValue("p1", ticket.Date);
                     cmd.Parameters.AddWithValue("p2", ticket.Submitter);
                     cmd.Parameters.AddWithValue("p3", ticket.Location);
                     cmd.Parameters.AddWithValue("p4", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p5", ticket.Type.ToString());
-                    cmd.SafeAddParemeters("p6", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.SafeAddParemeters("p6", ticket.RequestDate);
                     cmd.SafeAddParemeters("p7", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p8", ticket.Description);
                     cmd.Parameters.AddWithValue("p9", ticket.IAR);
                     cmd.Parameters.AddWithValue("p10", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p11", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p12", ticket.Confidential);
-                    cmd.SafeAddParemeters("p13", ticket.CompletionDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                    cmd.SafeAddParemeters("p13", ticket.CompletionDate);
                     cmd.SafeAddParemeters("p14", ticket.POC);
                     ticket.IDNumber = Convert.ToInt32(cmd.ExecuteScalar());
                     if (ticket.DocumentList.Count > 0)
@@ -896,21 +896,15 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p1", ticket.Location);
                     cmd.Parameters.AddWithValue("p2", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p3", ticket.Type.ToString());
-                    if (ticket.RequestDate == DateTime.MinValue)
-                    { cmd.Parameters.AddWithValue("p4", DBNull.Value); }
-                    else
-                    { cmd.Parameters.AddWithValue("p4", ticket.RequestDate.ToString("yyyy-MM-dd HH:mm:ss")); }
-                    cmd.Parameters.AddWithValue("p5", ticket.RequestReason);
+                    cmd.SafeAddParemeters("p4", ticket.RequestDate);
+                    cmd.SafeAddParemeters("p5", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p6", ticket.Description);
                     cmd.Parameters.AddWithValue("p7", ticket.IAR);
                     cmd.Parameters.AddWithValue("p8", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p9", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p10", ticket.Confidential);
-                    if (ticket.CompletionDate == DateTime.MinValue)
-                    { cmd.Parameters.AddWithValue("p11", DBNull.Value); }
-                    else
-                    { cmd.Parameters.AddWithValue("p11", ticket.CompletionDate.ToString("yyyy-MM-dd HH:mm:ss")); }
-                    cmd.Parameters.AddWithValue("p12", ticket.POC);
+                    cmd.SafeAddParemeters("p11", ticket.CompletionDate);
+                    cmd.SafeAddParemeters("p12", ticket.POC);
                     cmd.Parameters.AddWithValue("p13", ticket.IDNumber);
                     cmd.ExecuteNonQuery();
                 }

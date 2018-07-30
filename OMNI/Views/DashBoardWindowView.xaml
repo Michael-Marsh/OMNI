@@ -24,7 +24,8 @@
 
     <Grid>
 
-        <!--    Logo Space   -->
+        <!--#region Logo-->
+        
         <Grid x:Name="LogoSpace"
               HorizontalAlignment="Left"
               VerticalAlignment="Top"
@@ -119,8 +120,10 @@
             </Ellipse>
 
         </Grid>
+        
+        <!--#endregion-->
 
-        <!--    DataBase Space      -->
+        <!--#region Database Space-->
 
         <ScrollViewer x:Name="DataBaseSpace" 
                       Margin="210,0,0,0" 
@@ -304,8 +307,10 @@
 
             </StackPanel>
         </ScrollViewer>
+        
+        <!--#endregion-->
 
-        <!--    Action Space     -->
+        <!--#region Action Space-->
 
         <ScrollViewer Name="ActionSV"
                       Margin="0,80,0,0" 
@@ -331,7 +336,8 @@
                         Orientation="Vertical"
                         HorizontalAlignment="Left">
 
-                <!--    Update Notice   -->
+                <!--#region OMNI Update-->
+                
                 <Label Visibility="{Binding CanUpdate, Converter={StaticResource BooltoVisConvert}}" 
                        Content="Update Available" 
                        Foreground="Black" 
@@ -347,21 +353,20 @@
                         ToolTip="OMNI will need to restart in order for the update to take affect.&#10;It's very important that you save any of your progress or it will be permentantly lost."
                         CommandParameter="UpdateOMNI" 
                         Style="{DynamicResource DashBoardButtonStyle}"/>
+                
+                <!--#endregion-->
 
                 <TreeView Style="{DynamicResource ActiveTreeView}"
                           Width="210">
 
                     <TreeView.Resources>
-
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" 
                                          Color="Transparent"/>
-
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" 
                                          Color="Black"/>
-
                     </TreeView.Resources>
-
-                    <!--    User Account    -->
+                    
+                    <!--#region User Account Interface-->
                     <TreeViewItem Header="{Binding AccountName, Mode=OneWay, BindsDirectlyToSource=True}" 
                                   Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -393,8 +398,9 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
-
-                    <!--    Quality     -->
+                    <!--#endregion-->
+                    
+                    <!--#region QMS Core Module Interface-->
                     <TreeViewItem Visibility="{Binding QualityNotice, Converter={StaticResource BooltoVisConvert}}" 
                                   Header="Quality" Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -425,8 +431,9 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
+                    <!--#endregion-->
 
-                    <!--    Calibration     -->
+                    <!--#region QMS Calibration Module Interface-->
                     <TreeViewItem Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
                                   Header="Calibration" 
                                   Style="{DynamicResource ActiveTreeViewItem}">
@@ -437,7 +444,7 @@
                                 Margin="5" 
                                 Height="35"
                                 Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="Instruments" 
+                                CommandParameter="InstCal" 
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                         <Button Content="Tape Measure"
@@ -446,21 +453,22 @@
                                 Margin="5"
                                 Height="35" 
                                 Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="TapeMeasure"
+                                CommandParameter="TMCal"
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
-                        <Button Content="Slitter"
+                        <Button Content="Digital Counter"
                                 FontSize="14" 
                                 Width="120" 
                                 Margin="5"
                                 Height="35" 
                                 Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="29"
+                                CommandParameter="SlitCal"
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
-
-                    <!--    CMMS    -->
+                    <!--#endregion-->
+                    
+                    <!--#region CMMS Core Module Interface-->
                     <TreeViewItem Visibility="{Binding CMMSView, Converter={StaticResource BooltoVisConvert}}" 
                                   Header="CMMS" 
                                   Style="{DynamicResource ActiveTreeViewItem}">
@@ -561,8 +569,9 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
-
-                    <!--    HelpDesk     -->
+                    <!--#endregion-->
+                    
+                    <!--#region HDT Core Module Interface-->
                     <TreeViewItem Header="Help Desk" Style="{DynamicResource ActiveTreeViewItem}"
                                   Visibility="{Binding IT, Converter={StaticResource BooltoVisConvert}}">
 
@@ -659,8 +668,9 @@
                         </StackPanel>
 
                     </TreeViewItem>
-
-                    <!--    Engineering     -->
+                    <!--#endregion-->
+                    
+                    <!--#region Eng Core Module Interface-->
                     <TreeViewItem Visibility="{Binding Engineering, Converter={StaticResource BooltoVisConvert}}" 
                                   Header="Engineering" Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -700,8 +710,9 @@
 
                         </StackPanel>
                     </TreeViewItem>
+                    <!--#endregion-->
 
-                    <!--    Kaizen      -->
+                    <!--#region Kaizen Module Interface-->
                     <TreeViewItem Visibility="{Binding Kaizen, Converter={StaticResource BooltoVisConvert}}"
                                   Header="Kaizen" Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -741,8 +752,9 @@
 
                         </StackPanel>
                     </TreeViewItem>
+                    <!--#endregion-->
 
-                    <!--    Developer      -->
+                    <!--#region Developer Interface-->
                     <TreeViewItem Visibility="{Binding Developer, Converter={StaticResource BooltoVisConvert}}" 
                                   Header="Developer" Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -751,7 +763,7 @@
                             <Button Content="Exception Log" 
                                     FontSize="14" 
                                     Width="110" 
-                                    Margin="5" 
+                                    Margin="5"
                                     Height="35"
                                     Command="{Binding ActionSpaceCommand}" 
                                     CommandParameter="2" 
@@ -801,12 +813,15 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
+                    <!--#endregion-->
 
                 </TreeView>
             </StackPanel>
         </ScrollViewer>
+        
+        <!--#endregion-->
 
-        <!--    Work Space     -->
+        <!--#region Work Space-->
 
         <Grid Margin="210,80,0,0" 
               Background="#FF888B8B"
@@ -931,5 +946,8 @@
                 </Controls:DashBoardTabControl.InputBindings>
             </Controls:DashBoardTabControl>
         </Grid>
+        
+        <!--#endregion-->
+        
     </Grid>
 </Window>

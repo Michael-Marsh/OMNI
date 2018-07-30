@@ -94,7 +94,7 @@ namespace OMNI.QMS.ViewModel
             if (NoticeDataTable == null)
             {
                 Loading = true;
-                Task.Run(() => RefreshNoticeView());
+                RefreshNoticeView();
             }
             CurrentFilter = QIRNoticeModule.Default;
         }

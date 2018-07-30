@@ -28,7 +28,7 @@
 
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding SubmitCommand}" Gesture="Enter"/>
-        <KeyBinding Command="{Binding AttachPhotoCommand}" Gesture="Alt+A"/>
+        <KeyBinding Command="{Binding AttachDocumentCommand}" Gesture="Alt+A"/>
         <KeyBinding Command="{Binding NoteCommand}" Gesture="Alt+S"/>
         <KeyBinding Command="{Binding SubmitCommand}" CommandParameter="{Binding SecondaryCommandType}" Gesture="Alt+C"/>
         <KeyBinding Command="{Binding SubmitCommand}" CommandParameter="Deny" Gesture="Alt+D"/>

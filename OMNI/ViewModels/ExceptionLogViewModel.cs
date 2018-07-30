@@ -39,17 +39,10 @@ namespace OMNI.ViewModels
         /// </summary>
         public void ExceptionLogTick()
         {
-            var _tempPosition = 0;
-            if (ExceptionView != null)
-            {
-                _tempPosition = ExceptionView.CurrentPosition;
-            }
+            var t = ExceptionView == null ? 0 : ExceptionView.CurrentPosition;
             ExceptionTable = OMNIException.UnhandledExceptionsTable();
-            if (ExceptionView != null)
-            {
-                ExceptionView = CollectionViewSource.GetDefaultView(ExceptionTable);
-                ExceptionView.MoveCurrentToPosition(_tempPosition);
-            }
+            ExceptionView = CollectionViewSource.GetDefaultView(ExceptionTable);
+            ExceptionView.MoveCurrentToPosition(t);
             OnPropertyChanged(nameof(ExceptionView));
         }
 
@@ -88,7 +81,7 @@ namespace OMNI.ViewModels
         {
             if (disposing)
             {
-                ExceptionTable.Dispose();
+                ExceptionTable?.Dispose();
                 _handled = null;
                 UpdateTimer.Remove(ExceptionLogTick);
             }

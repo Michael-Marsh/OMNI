@@ -357,8 +357,8 @@ namespace OMNI.QMS.Model
                     cmd.Parameters.AddWithValue("p6", _qir.Found);
                     cmd.Parameters.AddWithValue("p7", _qir.MaterialCost);
                     cmd.Parameters.AddWithValue("p8", _qir.MaterialCost * _qir.CurrentRevision.MaterialLost);
-                    cmd.Parameters.AddWithValue("p9", _qir.UOM);
-                    cmd.SafeAddParemeters("p10", DBNull.Value);
+                    cmd.SafeAddParemeters("p9", _qir.UOM);
+                    cmd.SafeAddParemeters("p10", _qir.PIC);
                     cmd.Parameters.AddWithValue("p11", _qir.CurrentRevision.Disposition.Status.ToString());
                     _idNumber = Convert.ToInt32(cmd.ExecuteScalar());
                 }

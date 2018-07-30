@@ -42,11 +42,13 @@ namespace OMNI.Enumerations
         [Description("Review Import")]
         ReviewImport = 28,
         [Description("Slitter Calibration")]
-        SlitterCalibration = 29,
+        SlitCal = 29,
         [Description("Tape Measure Calibration")]
-        TapeMeasureCalibration = 30,
+        TMCal = 30,
         [Description("IT Notice")]
-        ITNotice = 31
+        ITNotice = 31,
+        [Description("Instrument Calibration")]
+        InstCal = 32
 
     }
 }

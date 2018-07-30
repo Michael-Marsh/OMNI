@@ -48,9 +48,12 @@ namespace OMNI.Models
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while (await reader.ReadAsync())
+                        if (reader.HasRows)
                         {
-                            _workCenterList.Add(new WorkCenter { IDNumber = reader.SafeGetInt32("WorkCenterNumber"), Name = reader.SafeGetString("WorkCenterName") });
+                            while (await reader.ReadAsync())
+                            {
+                                _workCenterList.Add(new WorkCenter { IDNumber = reader.SafeGetInt32("WorkCenterNumber"), Name = reader.SafeGetString("WorkCenterName") });
+                            }
                         }
                     }
                 }

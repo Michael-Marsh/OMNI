@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>4.0.0.1</ApplicationVersion>
+    <ApplicationRevision>64</ApplicationRevision>
+    <ApplicationVersion>4.0.4.64</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -233,13 +233,19 @@
     <Compile Include="Helpers\DragIconInfo.cs" />
     <Compile Include="Interfaces\INotice.cs" />
     <Compile Include="Models\InventorySkew.cs" />
+    <Compile Include="QMS\Calibration\Converter\SpecToBorder.cs" />
+    <Compile Include="QMS\Calibration\Model\CalBase.cs" />
+    <Compile Include="QMS\Calibration\Model\Counter.cs" />
+    <Compile Include="QMS\Calibration\ViewModel\CounterCalViewModel.cs" />
+    <Compile Include="QMS\Calibration\View\CounterCalView.xaml.cs">
+      <DependentUpon>CounterCalView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="QMS\Converter\QIRIDNumbertoVisibility.cs" />
     <Compile Include="Converters\RequiredWidthCutoff.cs" />
     <Compile Include="Converters\VisibilityToNullableBoolean.cs" />
     <Compile Include="CustomControls\CommandComboBox.cs" />
     <Compile Include="CustomControls\DashBoardTabControl.cs" />
     <Compile Include="CustomControls\MultiItemDataGrid.cs" />
-    <Compile Include="Enumerations\CalType.cs" />
     <Compile Include="Enumerations\CMMSActionGridView.cs" />
     <Compile Include="Enumerations\CMMSPartAction.cs" />
     <Compile Include="Enumerations\CMMSPartTransactionType.cs" />
@@ -274,7 +280,6 @@
     <Compile Include="Helpers\MapForm.cs" />
     <Compile Include="Helpers\PrintForm.cs" />
     <Compile Include="Helpers\UpdateTimer.cs" />
-    <Compile Include="Models\Calibration.cs" />
     <Compile Include="Models\CMMSPart.cs" />
     <Compile Include="Models\CMMSPartLocation.cs" />
     <Compile Include="Models\CMMSPartRevision.cs" />
@@ -354,7 +359,6 @@
     <Compile Include="ViewModels\PlateSearchViewModel.cs" />
     <Compile Include="ViewModels\RegistrationWindowViewModel.cs" />
     <Compile Include="ViewModels\ReviewImportViewModel.cs" />
-    <Compile Include="ViewModels\SlitterCalibrationUCViewModel.cs" />
     <Compile Include="ViewModels\UpdateSalesWindowViewModel.cs" />
     <Compile Include="ViewModels\UserAccountUCViewModel.cs" />
     <Compile Include="ViewModels\FormSearchUCViewModel.cs" />
@@ -449,9 +453,6 @@
     <Compile Include="Views\ReviewImportWindowView.xaml.cs">
       <DependentUpon>ReviewImportWindowView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SlitterCalibrationUCView.xaml.cs">
-      <DependentUpon>SlitterCalibrationUCView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\TemplateWindowView.xaml.cs">
       <DependentUpon>TemplateWindowView.xaml</DependentUpon>
     </Compile>
@@ -500,6 +501,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Resource>
+    <Page Include="QMS\Calibration\View\CounterCalView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="QMS\View\QIREZFormWindowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -633,10 +638,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ReviewImportWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SlitterCalibrationUCView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

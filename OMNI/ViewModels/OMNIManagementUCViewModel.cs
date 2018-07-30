@@ -97,7 +97,7 @@ namespace OMNI.ViewModels
             }
             Table = null;
             Table = new DataTable();
-            if (SelectedTable == DashBoardDataBase.cmmsglaccounts.ToString())
+            if (SelectedTable == DashBoardDataBase.cmms_glaccounts.ToString())
             {
                 TableDataAdapter = new SqlDataAdapter($@"USE [OMNI];
                                                     SELECT * FROM [{SelectedTable}] WHERE [Site]='{CurrentUser.Site}'", App.SqlConAsync);
@@ -111,7 +111,7 @@ namespace OMNI.ViewModels
             TableDataAdapter.FillSchema(Table, SchemaType.Source);
             foreach (DataColumn col in Table.Columns)
             {
-                if (col.DataType == typeof(sbyte))
+                if (col.DataType == typeof(System.Int16))
                 {
                     col.DataType = typeof(bool);
                 }

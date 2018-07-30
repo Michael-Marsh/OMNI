@@ -76,7 +76,7 @@ namespace OMNI.Models
             {
                 using (var _table = new DataTable())
                 {
-                    using (SqlCommand cmd = new SqlCommand($"{App.DataBase}.query_unhandled_exceptions", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
+                    using (SqlCommand cmd = new SqlCommand($"[{App.DataBase}].[dbo].[query_unhandled_exceptions]", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                     {
                         using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                         {

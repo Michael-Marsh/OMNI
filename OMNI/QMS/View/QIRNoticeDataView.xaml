@@ -20,6 +20,7 @@
               VirtualizingPanel.IsVirtualizing="True"
               VirtualizingPanel.VirtualizationMode="Recycling"
               Background="Transparent">
+
         <DataGrid.Columns>
             <DataGridTemplateColumn Width="280">
                 <DataGridTemplateColumn.CellTemplate>
@@ -104,7 +105,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type GroupItem}">
-                                    <Expander BorderBrush="Black" IsExpanded="False" Background="#FF135185" Foreground="Black" BorderThickness="1">
+                                    <Expander BorderBrush="Black" Background="#FF135185" Foreground="Black" BorderThickness="1">
                                         <i:Interaction.Behaviors>
                                             <behaviors:ExpanderState GroupName="{Binding Name}"/>
                                         </i:Interaction.Behaviors>
@@ -116,6 +117,7 @@
                                         </Expander.Header>
                                         <Expander.Style>
                                             <Style TargetType="{x:Type Expander}">
+                                                <Setter Property="IsExpanded" Value="false"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Text, ElementName=ExpanderName}" Value="Today">
                                                         <Setter Property="IsExpanded" Value="True"/>

@@ -246,9 +246,7 @@ namespace OMNI.Models
         {
             try
             {
-                while (App.SqlConAsync.State.Equals(ConnectionState.Fetching))
-                { }
-                using (SqlCommand cmd = new SqlCommand($@"{App.DataBase}.query_user_eMail", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand($@"[{App.DataBase}].[dbo].[query_user_eMail]", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
                 {
                     cmd.Parameters.AddWithValue("@fullName", userFullName);
                     return (cmd.ExecuteScalar()).ToString();

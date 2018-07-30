@@ -221,7 +221,7 @@ namespace OMNI.Models
 
         public string GLAccount { get; set; }
         public string Description { get; set; }
-        public string Group { get; set; }
+        public string Category { get; set; }
 
         #endregion
 
@@ -230,9 +230,9 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="glNumber">GL account number</param>
         /// <param name="description">GL Description</param>
-        /// <param name="group">GL Group</param>
+        /// <param name="category">GL Category</param>
         /// <returns>CMMS GL account Object</returns>
-        public static CMMSGLAccount Create(string glNumber, string description, string group) => new CMMSGLAccount { GLAccount = glNumber, Description = description, Group = group };
+        public static CMMSGLAccount Create(string glNumber, string description, string category) => new CMMSGLAccount { GLAccount = glNumber, Description = description, Category = category };
 
         /// <summary>
         /// List of CMMS GL Accounts
@@ -244,13 +244,13 @@ namespace OMNI.Models
 
             try
             {
-                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmmsglaccounts] WHERE [Site]='{CurrentUser.Site}'", App.SqlConAsync))
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [cmms_glaccounts] WHERE [Site]='{CurrentUser.Site}'", App.SqlConAsync))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            _glList.Add(Create(reader.SafeGetString(nameof(GLAccount)), reader.SafeGetString(nameof(Description)), reader.SafeGetString(nameof(Group))));
+                            _glList.Add(Create(reader.SafeGetString(nameof(GLAccount)), reader.SafeGetString(nameof(Description)), reader.SafeGetString(nameof(Category))));
                         }
                     }
                 }
@@ -433,10 +433,10 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p6", wo.Quality);
                     cmd.Parameters.AddWithValue("p7", wo.Production);
                     cmd.Parameters.AddWithValue("p8", wo.CrewAssigned);
-                    cmd.Parameters.AddWithValue("p9", wo.RequestDate);
-                    cmd.Parameters.AddWithValue("p10", wo.RequestedDateReason);
-                    cmd.Parameters.AddWithValue("p11", wo.DateAssigned);
-                    cmd.Parameters.AddWithValue("p12", wo.DateComplete);
+                    cmd.SafeAddParemeters("p9", wo.RequestDate);
+                    cmd.SafeAddParemeters("p10", wo.RequestedDateReason);
+                    cmd.SafeAddParemeters("p11", wo.DateAssigned);
+                    cmd.SafeAddParemeters("p12", wo.DateComplete);
                     cmd.Parameters.AddWithValue("p13", wo.MachineDown);
                     cmd.Parameters.AddWithValue("p14", "");
                     cmd.Parameters.AddWithValue("p15", wo.AttachedNotes);
