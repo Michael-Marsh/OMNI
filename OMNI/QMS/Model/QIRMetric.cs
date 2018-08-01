@@ -88,39 +88,58 @@ namespace OMNI.QMS.Model
             if (!string.IsNullOrEmpty(month) && year != 0 && metric != null)
             {
                 var _month = Convert.ToDateTime($"01/{month}/2000").Month;
+                var startDate = Convert.ToDateTime($"{_month}/01/{year}");
+                var lastDay = Convert.ToDateTime($"{_month}/01/{year}").LastDayOfMonth();
+                var endDate = Convert.ToDateTime($"{_month}/{lastDay}/{year}");
                 var _monthlySales = OMNIDataBase.MonthlySalesAsync(month, year).Result[0];
                 if (_monthlySales == 0)
                 {
-                    _monthlySales = M2k.GetLiveSales($"{DateTime.Today.Month}-1-{DateTime.Today.Year}", DateTime.Today.ToString("MM-dd-yyyy"));
+                    _monthlySales = M2k.GetLiveSales(startDate.ToShortDateString(), endDate.ToShortDateString());
                 }
-                var startDate = Convert.ToDateTime($"01/{_month}-{year}");
-                var lastDay = Convert.ToDateTime($"{_month}/01/{year}").LastDayOfMonth();
-                var endDate = Convert.ToDateTime($"{_month}/{lastDay}/{year}");
-                using (DataTable dt = new DataTable())
+                var _cost = 0.0;
+                var _count = 0;
+                var _supFilter = string.Empty;
+                switch (mType)
                 {
-                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{App.DataBase}];
-                                                                        SELECT
-                                                                            [TotalCost], [SupplierID]
-                                                                        FROM
-                                                                            [qir_metrics_view]
-                                                                        WHERE
-                                                                            [QIRDate] BETWEEN '{startDate}' AND '{endDate}';", App.SqlConAsync))
+                    case QMSMetricType.Internal:
+                        _supFilter = "[SupplierID] = 0";
+                        break;
+                    case QMSMetricType.Incoming:
+                        _supFilter = "[SupplierID] > 0";
+                        break;
+                }
+                using (SqlCommand cmd = new SqlCommand($@"USE OMNI;
+                                                        SELECT
+                                                            SUM([TotalCost]) AS 'Cost', COUNT([QIRNumber]) AS 'Count'
+                                                        FROM
+                                                            [qir_metrics_view]
+                                                        WHERE
+                                                            {_supFilter} AND [QIRDate] BETWEEN '{startDate}' AND '{endDate}';", App.SqlConAsync))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        adapter.Fill(dt);
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                _cost = reader.SafeGetDouble("Cost");
+                                _count = reader.SafeGetInt32("Count");
+                            }
+                        }
                     }
-                    switch (mType)
-                    {
-                        case QMSMetricType.Internal:
-                            metric.InternalCountMTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") == 0);
-                            metric.InternalCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID = 0"));
-                            metric.InternalPercentOfSalesMTD = _monthlySales != 0 ? (metric.InternalCostMTD / _monthlySales).ToString("P3") : "No Sales";
-                            break;
-                        case QMSMetricType.Incoming:
-                            metric.IncomingCountMTD = dt.AsEnumerable().Count(r => r.Field<int>("SupplierID") > 0);
-                            metric.IncomingCostMTD = Convert.ToDouble(dt.Compute("SUM(TotalCost)", "SupplierID > 0"));
-                            metric.IncomingPercentOfSalesMTD = _monthlySales != 0 ? (metric.IncomingCostMTD / _monthlySales).ToString("P3") : "No Sales";
-                            break;
-                    }
+                }
+                switch (mType)
+                {
+                    case QMSMetricType.Internal:
+                        metric.InternalCountMTD = _count;
+                        metric.InternalCostMTD = _cost;
+                        metric.InternalPercentOfSalesMTD = _monthlySales != 0 ? (metric.InternalCostMTD / _monthlySales).ToString("P3") : "No Sales";
+                        break;
+                    case QMSMetricType.Incoming:
+                        metric.IncomingCountMTD = _count;
+                        metric.IncomingCostMTD = _cost;
+                        metric.IncomingPercentOfSalesMTD = _monthlySales != 0 ? (metric.IncomingCostMTD / _monthlySales).ToString("P3") : "No Sales";
+                        break;
                 }
             }
         }

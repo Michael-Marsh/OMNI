@@ -202,16 +202,12 @@
                            FontWeight="Bold" 
                            FontSize="18"/>
 
-                    <DatePicker SelectedDate="{Binding WorkOrder.Date, Mode=OneWay}"
-                                IsEnabled="{Binding CanEdit}"
-                                Margin="10,0,0,0" 
-                                Width="170"
-                                Height="38" 
-                                FontSize="22" 
-                                FontWeight="Bold"
-                                FirstDayOfWeek="Monday"
-                                Focusable="False" 
-                                ToolTip="Submission Date is preloaded and protected, the calendar is present only as reference."/>
+                    <TextBox Text="{Binding WorkOrder.Date, Mode=OneWay, StringFormat=d}"
+                             IsEnabled="False"
+                             Margin="5" 
+                             Width="120"
+                             FontSize="16"
+                             Style="{DynamicResource ActiveTextBox}"/>
 
                 </StackPanel>
 

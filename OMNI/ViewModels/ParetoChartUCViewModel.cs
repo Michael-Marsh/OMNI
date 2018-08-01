@@ -37,7 +37,10 @@ namespace OMNI.ViewModels
             {
                 selectedPercentage = value;
                 OnPropertyChanged(nameof(SelectedPercentage));
-                BuildChart(Year, Month, Filter, value);
+                if (!Loading)
+                {
+                    BuildChart(Year, Month, Filter, value);
+                }
             }
         }
         public ObservableCollection<WorkCenter> WorkCenterList { get; private set; }
@@ -49,7 +52,10 @@ namespace OMNI.ViewModels
             {
                 selectedWorkCenter = value;
                 OnPropertyChanged(nameof(SelectedWorkCenter));
-                BuildChart(Year, Month, Filter, SelectedPercentage);
+                if (!Loading)
+                {
+                    BuildChart(Year, Month, Filter, SelectedPercentage);
+                }
             }
         }
         public bool NoChart { get; set; }
@@ -100,7 +106,7 @@ namespace OMNI.ViewModels
             get { return _selectedQIRNumberCount; }
             set { if (value != _selectedQIRNumberCount && value != null) { OpenQIR(Convert.ToInt32(((DataRowView)value).Row[0])); } _selectedQIRNumberCount = value; OnPropertyChanged(nameof(SelectedQIRNumberCount)); }
         }
-
+        public bool Loading = false;
         RelayCommand _refresh;
 
         #endregion
@@ -110,6 +116,7 @@ namespace OMNI.ViewModels
         /// </summary>
         public ParetoChartUCViewModel(int year, int month, string filter)
         {
+            Loading = true;
             Year = year;
             Month = month;
             Filter = filter;
@@ -124,6 +131,7 @@ namespace OMNI.ViewModels
                     ParetoPercentage.Add(i);
                 }
             }
+            Loading = false;
             SelectedPercentage = ParetoPercentage.Last();
         }
 
@@ -165,7 +173,8 @@ namespace OMNI.ViewModels
                     Y_AxisCount.Add(o.Cumulative);
                 }
                 Y_AxisCount = Y_AxisCount.OrderBy(i => i).ToList();
-                MaxCount = X_AxisCount.Sum(o => o.Value);
+                var _tempMax = DataCollection[0].Absolute > DataCollection[DataCollection.Count - 1].Absolute ? DataCollection[0].Absolute : DataCollection[DataCollection.Count - 1].Absolute;
+                MaxCount = Convert.ToInt32(_tempMax * 1.50);
                 DataCollection = QIRChart.NCMDataAsync("Cost", chartYear, chartMonth, chartFilter, SelectedWorkCenter, SelectedPercentage).Result;
                 X_AxisCost = new List<KeyValuePair<string, int>>();
                 Y_AxisCost = new List<double>();
@@ -175,7 +184,8 @@ namespace OMNI.ViewModels
                     Y_AxisCost.Add(o.Cumulative);
                 }
                 Y_AxisCost = Y_AxisCost.OrderBy(i => i).ToList();
-                MaxCost = X_AxisCost.Sum(o => o.Value);
+                _tempMax = DataCollection[0].Absolute > DataCollection[DataCollection.Count - 1].Absolute ? DataCollection[0].Absolute : DataCollection[DataCollection.Count - 1].Absolute;
+                MaxCost = Convert.ToInt32(_tempMax * 1.50);
                 OnPropertyChanged(nameof(X_AxisCount));
                 OnPropertyChanged(nameof(Y_AxisCount));
                 OnPropertyChanged(nameof(X_AxisCost));

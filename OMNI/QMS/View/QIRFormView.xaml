@@ -1,14 +1,10 @@
 ﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:cmd="clr-namespace:OMNI.Commands"
              xmlns:cvtr="clr-namespace:OMNI.QMS.Converters"
              xmlns:bcvtr="clr-namespace:OMNI.Converters"
-             xmlns:local="clr-namespace:OMNI.QMS.View" x:Class="OMNI.QMS.View.QIRFormView"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             xmlns:local="clr-namespace:OMNI.QMS.View" x:Class="OMNI.QMS.View.QIRFormView">
 
     <UserControl.Resources>
         <cmd:NewLinkCommand x:Key="NewLinkCommand"/>

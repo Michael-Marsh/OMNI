@@ -31,90 +31,67 @@ namespace OMNI.QMS.Model
         /// <returns>List<QIRChart> for charting</returns>
         public async static Task<List<QIRChart>> NCMDataAsync(string type, int year, int month, string filter, int? workcenter, int percentage)
         {
-            var _ncmCountData = new List<QIRChart>();
-            var absoluteList = new List<NCM>();
-            var _dateFilter = string.Empty;
-            var _workcenterFilter = string.Empty;
-            var sqlCmd = string.Empty;
+            var _tempList = new List<QIRChart>();
+            var _dateFilter = month == 0 ? $"YEAR(a.QIRDate)={year}" : $"MONTH(a.QIRDate)={month} AND YEAR(a.QIRDate)={year}";
+            var _wcFilter = workcenter == null || workcenter == 0 ? $"a.Origin>0" : $"a.Origin={workcenter}";
+            percentage = percentage == 0 ? 80 : percentage;
             switch (type)
             {
                 case "Count":
-                    type = "COUNT(q.NCMCode)";
+                    type = "COUNT(a.NCMCode)";
                     break;
                 case "Cost":
-                    type = "SUM(q.TotalCost)";
+                    type = "SUM(a.TotalCost)";
                     break;
             }
-            _dateFilter = month == 0
-                ? $"YEAR(q.QIRDate)={year}"
-                : $"MONTH(q.QIRDate)={month} AND YEAR(q.QIRDate)={year}";
-            filter = filter == "InternalYTD" || filter == "InternalMTD"
-                ? "q.SupplierID=0"
-                : "q.SupplierID>0";
-            _workcenterFilter = workcenter == null || workcenter == 0
-                ? $"q.Origin>0"
-                : $"q.Origin={workcenter}";
-            sqlCmd = $@"USE {App.DataBase};
-                    SELECT q.NCMCode, {type}, n.NCMCode, n.Summary FROM qir_metrics_view AS q, ncm AS n WHERE q.NCMCode = n.NCMCode AND {_dateFilter} AND {filter} AND {_workcenterFilter} GROUP BY q.NCMCode";
+            filter = filter == "InternalYTD" || filter == "InternalMTD" ? "a.SupplierID=0" : "a.SupplierID>0";
+            var cmdText = $@"USE OMNI;
+                                SELECT
+                                    {type} AS 'NCMCount', b.NCMCode, b.Summary,
+	                                ROUND(CAST({type} AS float) / CAST(SUM({type}) OVER() AS float) * 100, 0) AS 'Percent'
+                                FROM
+                                    dbo.qir_metrics_view a
+                                RIGHT JOIN
+                                    dbo.ncm b ON b.NCMCode = a.NCMCode
+                                WHERE
+                                    {_dateFilter} AND {filter} AND {_wcFilter}
+                                GROUP BY
+                                    b.NCMCode, b.Summary
+                                ORDER BY
+                                    NCMCount DESC;";
             try
             {
-                using (SqlCommand cmd = new SqlCommand(sqlCmd, App.SqlConAsync))
+                using (SqlCommand cmd = new SqlCommand(cmdText, App.SqlConAsync))
                 {
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        if (!reader.HasRows)
+                        if (reader.HasRows)
                         {
-                            return null;
-                        }
-                        while (await reader.ReadAsync())
-                        {
-                            absoluteList.Add(new NCM { ChartCode = reader.SafeGetString("NCMCode"), Data = reader.SafeGetInt32("NCMCode") });
+                            var other = 0;
+                            var _abs = 0;
+                            while (await reader.ReadAsync())
+                            {
+                                if (other <= percentage)
+                                {
+                                    other += reader.SafeGetInt32("Percent");
+                                    _tempList.Add(new QIRChart { NCMCode = reader.SafeGetString("Summary"), Absolute = reader.SafeGetInt32("NCMCount"), Cumulative = other });
+                                }
+                                else
+                                {
+                                    _abs += reader.SafeGetInt32("NCMCount");
+                                }
+                            }
+                            _tempList.Add(new QIRChart { NCMCode = "Others", Absolute = _abs, Cumulative = 100 });
                         }
                     }
                 }
+                return _tempList;
             }
             catch (Exception ex)
             {
                 ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
+                return null;
             }
-            absoluteList = absoluteList.OrderByDescending(o => o.Data).ToList();
-            var counter = 0;
-            var _temp = 0;
-            var cumulativeList = new List<int>();
-            foreach (NCM n in absoluteList)
-            {
-                if (counter == 0)
-                {
-                    cumulativeList.Add((int)Math.Round(((double)n.Data / (double)absoluteList.Sum(o => o.Data)) * 100, 0));
-                }
-                else
-                {
-                    cumulativeList.Add((int)Math.Round(((double)n.Data / (double)absoluteList.Sum(o => o.Data)) * 100 + cumulativeList[counter - 1], 0));
-                }
-                if (cumulativeList[counter] >= percentage)
-                {
-                    break;
-                }
-                counter++;
-            }
-            counter++;
-            if (counter < absoluteList.Count)
-            {
-                while (counter != absoluteList.Count)
-                {
-                    _temp += absoluteList[counter].Data;
-                    absoluteList.RemoveAt(counter);
-                }
-                absoluteList.Add(new NCM { ChartCode = "All Others", Data = _temp });
-                cumulativeList.Add(100);
-            }
-            counter = 0;
-            foreach (NCM n in absoluteList)
-            {
-                _ncmCountData.Add(new QIRChart { NCMCode = n.ChartCode, Absolute = n.Data, Cumulative = cumulativeList[counter] });
-                counter++;
-            }
-            return _ncmCountData;
         }
 
         /// <summary>

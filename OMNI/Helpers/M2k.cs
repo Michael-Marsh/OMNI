@@ -76,11 +76,11 @@ namespace OMNI.Helpers
         /// <param name="attribute">Name of the attribute to modidy</param>
         /// <param name="newValue">The new value to input into manage</param>
         /// <param name="recordID">Record ID</param>
-        public static void ModifyRecord(string fileName, int attribute, string newValue, string recordID)
+        public static void ModifyRecord(string fileName, int attribute, string newValue, string recordID, string db = "MAIN")
         {
             try
             {
-                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.MAIN", "udcs"))
+                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.{db}", "udcs"))
                 {
                     using (UniFile uFile = uSession.CreateUniFile(fileName))
                     {
