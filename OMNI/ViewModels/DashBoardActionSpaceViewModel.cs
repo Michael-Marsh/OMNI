@@ -27,6 +27,7 @@ namespace OMNI.ViewModels
         public bool CanUpdate { get { return App.IsUpdateAvailable; } }
         public bool CMMSView { get { return CMMS || CMMSCrew || CMMSAdmin; } }
         public bool ElevatedCMMSView { get { return CMMSAdmin || CMMSCrew; } }
+        public bool QMSCal { get { return Quality || SlitterLead; } }
 
         RelayCommand _action;
 

@@ -434,7 +434,7 @@
                     <!--#endregion-->
 
                     <!--#region QMS Calibration Module Interface-->
-                    <TreeViewItem Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
+                    <TreeViewItem Visibility="{Binding QMSCal, Converter={StaticResource BooltoVisConvert}}"
                                   Header="Calibration" 
                                   Style="{DynamicResource ActiveTreeViewItem}">
 
@@ -444,7 +444,8 @@
                                 Margin="5" 
                                 Height="35"
                                 Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="InstCal" 
+                                CommandParameter="InstCal"
+                                Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                         <Button Content="Tape Measure"
@@ -454,6 +455,7 @@
                                 Height="35" 
                                 Command="{Binding ActionSpaceCommand}" 
                                 CommandParameter="TMCal"
+                                Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                         <Button Content="Digital Counter"

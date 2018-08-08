@@ -820,15 +820,15 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p3", ticket.Location);
                     cmd.Parameters.AddWithValue("p4", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p5", ticket.Type.ToString());
-                    cmd.SafeAddParemeters("p6", ticket.RequestDate);
-                    cmd.SafeAddParemeters("p7", ticket.RequestReason);
+                    cmd.SafeAddParameters("p6", ticket.RequestDate);
+                    cmd.SafeAddParameters("p7", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p8", ticket.Description);
                     cmd.Parameters.AddWithValue("p9", ticket.IAR);
                     cmd.Parameters.AddWithValue("p10", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p11", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p12", ticket.Confidential);
-                    cmd.SafeAddParemeters("p13", ticket.CompletionDate);
-                    cmd.SafeAddParemeters("p14", ticket.POC);
+                    cmd.SafeAddParameters("p13", ticket.CompletionDate);
+                    cmd.SafeAddParameters("p14", ticket.POC);
                     ticket.IDNumber = Convert.ToInt32(cmd.ExecuteScalar());
                     if (ticket.DocumentList.Count > 0)
                     {
@@ -896,15 +896,15 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p1", ticket.Location);
                     cmd.Parameters.AddWithValue("p2", ticket.Subject.Title);
                     cmd.Parameters.AddWithValue("p3", ticket.Type.ToString());
-                    cmd.SafeAddParemeters("p4", ticket.RequestDate);
-                    cmd.SafeAddParemeters("p5", ticket.RequestReason);
+                    cmd.SafeAddParameters("p4", ticket.RequestDate);
+                    cmd.SafeAddParameters("p5", ticket.RequestReason);
                     cmd.Parameters.AddWithValue("p6", ticket.Description);
                     cmd.Parameters.AddWithValue("p7", ticket.IAR);
                     cmd.Parameters.AddWithValue("p8", ticket.Status.Title);
                     cmd.Parameters.AddWithValue("p9", ticket.Priority.Description);
                     cmd.Parameters.AddWithValue("p10", ticket.Confidential);
-                    cmd.SafeAddParemeters("p11", ticket.CompletionDate);
-                    cmd.SafeAddParemeters("p12", ticket.POC);
+                    cmd.SafeAddParameters("p11", ticket.CompletionDate);
+                    cmd.SafeAddParameters("p12", ticket.POC);
                     cmd.Parameters.AddWithValue("p13", ticket.IDNumber);
                     cmd.ExecuteNonQuery();
                 }

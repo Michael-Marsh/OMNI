@@ -204,16 +204,16 @@ namespace OMNI.QMS.Model
                     cmd.Parameters.AddWithValue("p4", idNumber);
                     cmd.Parameters.AddWithValue("p5", rev.Shift);
                     cmd.Parameters.AddWithValue("p6", rev.LotNumber);
-                    cmd.SafeAddParemeters("p7", rev.DiamondNumber);
+                    cmd.SafeAddParameters("p7", rev.DiamondNumber);
                     cmd.Parameters.AddWithValue("p8", rev.NCMCode);
                     cmd.Parameters.AddWithValue("p9", rev.Origin);
                     cmd.Parameters.AddWithValue("p10", rev.MaterialLost);
                     cmd.Parameters.AddWithValue("p11", rev.Cause);
                     cmd.Parameters.AddWithValue("p12", rev.SupplierID);
                     cmd.Parameters.AddWithValue("p13", rev.Disposition.Description);
-                    cmd.SafeAddParemeters("p14", rev.Problem);
-                    cmd.SafeAddParemeters("p15", rev.CauseReason);
-                    cmd.SafeAddParemeters("p16", rev.DispositionReason);
+                    cmd.SafeAddParameters("p14", rev.Problem);
+                    cmd.SafeAddParameters("p15", rev.CauseReason);
+                    cmd.SafeAddParameters("p16", rev.DispositionReason);
                     cmd.ExecuteNonQuery();
                 }
                 rev.RevNumber = rev.RevDate.ToString($"yyyyMMMdd-{_increment}");

@@ -497,23 +497,22 @@ namespace OMNI.Models
         {
             var uId = new Random();
             var suffix = uId.Next(128, 512);
+            from = _skew.OnHand.Count > 1 || nonLot ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
             if (!nonLot)
             {
-                //String Format for lot tracable = false
+                //String Format for non lot tracable = false
                 //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
                 //Must meet this format in order to work with M2k
 
-                from = _skew.OnHand.Count > 1 ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
                 var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~10~{_skew.LotNumber.ToUpper()}|P~99~COMPLETE";
                 File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
             }
             else
             {
-                //String Format for lot tracable = true
+                //String Format for non lot tracable = true
                 //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
                 //Must meet this format in order to work with M2k
 
-                from = _skew.OnHand.Count > 1 ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
                 var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}|P~99~COMPLETE";
                 File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
             }

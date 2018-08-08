@@ -260,18 +260,11 @@ namespace OMNI.ViewModels
         {
             if (ValidLot && Quantity > 0 && !string.IsNullOrEmpty(ToLoc))
             {
-                if (Skew.OnHand.Count > 1 || LotType)
+                if (ToLoc.ToUpper()[ToLoc.Length - 1] != 'N' || (ToLoc.ToUpper()[ToLoc.Length - 1] == 'N' && !string.IsNullOrEmpty(NonReason)))
                 {
-                    return !string.IsNullOrEmpty(FromLoc) && !string.IsNullOrEmpty(NonReason);
+                    return Skew.OnHand.Count > 1 || LotType ? !string.IsNullOrEmpty(FromLoc) : true;
                 }
-                else if (ToLoc.ToUpper()[ToLoc.Length - 1] == 'N')
-                {
-                    return !string.IsNullOrEmpty(NonReason) && NonReason?.Length > 5;
-                }
-                else
-                {
-                    return true;
-                }
+
             }
             return false;
         }

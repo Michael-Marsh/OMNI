@@ -7,7 +7,7 @@ namespace OMNI.QMS.Calibration.Model
     {
         #region Properties
 
-        public int IDNumber { get; set; }
+        public int? IDNumber { get; set; }
         public DateTime CalDate { get; set; }
         public string Notes { get; set; }
         public string Submitter { get; set; }
@@ -22,7 +22,7 @@ namespace OMNI.QMS.Calibration.Model
         {
             Submitter = CurrentUser.FullName;
             CalDate = DateTime.Now;
-            IDNumber = 0;
+            IDNumber = null;
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace OMNI.QMS.Calibration.Model
         /// </summary>
         /// <param name="o">CalBase object</param>
         /// <returns>ID Number</returns>
-        public virtual int Submit(CalBase o)
+        public virtual int? Submit(object o)
         {
             return 0;
         }
@@ -40,7 +40,7 @@ namespace OMNI.QMS.Calibration.Model
         /// </summary>
         /// <param name="o">CalBase object</param>
         /// <returns>Validation results as bool</returns>
-        public virtual bool ValidateCal(CalBase o)
+        public virtual bool ValidateCal(object o)
         {
             return false;
         }

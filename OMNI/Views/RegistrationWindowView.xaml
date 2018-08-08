@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="OMNI.Views.RegistrationWindowView"
         mc:Ignorable="d"
-        Title="New OMNI User Registration" Height="390" Width="300" ResizeMode="NoResize" Icon="/OMNI;component/Icons/CSC.ico" WindowStartupLocation="CenterOwner">
+        Title="New OMNI User Registration" Height="420" Width="300" ResizeMode="NoResize" Icon="/OMNI;component/Icons/CSC.ico" WindowStartupLocation="CenterOwner">
 
     <Window.InputBindings>
         <KeyBinding Command="{Binding CreateCommand}"
@@ -66,7 +66,8 @@
                      FontSize="18"
                      Width="200"
                      Height="38"
-                     TabIndex="2"/>
+                     TabIndex="2"
+                     Style="{DynamicResource OptionalTextBox}"/>
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
@@ -76,14 +77,16 @@
                              IsChecked="{Binding WCCO, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              FontSize="18"
                              FontWeight="Bold"
-                             Foreground="WhiteSmoke"/>
+                             Foreground="WhiteSmoke"
+                             Style="{DynamicResource LinkRadioButton}"/>
                 
                 <RadioButton Content="CSI"
                              IsChecked="{Binding CSI, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Margin="15,0,0,0"
                              FontSize="18"
                              FontWeight="Bold"
-                             Foreground="WhiteSmoke"/>
+                             Foreground="WhiteSmoke"
+                             Style="{DynamicResource LinkRadioButton}"/>
             </StackPanel>
             
             <Button Command="{Binding CreateCommand}"

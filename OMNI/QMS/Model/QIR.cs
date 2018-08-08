@@ -30,9 +30,11 @@ namespace OMNI.QMS.Model
             set
             {
                 value = value.ToUpper();
-                if (CurrentRevision.LotNumber == "N/A" && WONumber == "N/A" && !string.IsNullOrEmpty(value) && LoadM2kData)
+                if ((CurrentRevision.LotNumber == "N/A" || string.IsNullOrEmpty(CurrentRevision.LotNumber)) && (WONumber == "N/A" || string.IsNullOrEmpty(WONumber)) && !string.IsNullOrEmpty(value) && LoadM2kData)
                 {
                     LoadM2kData = false;
+                    CurrentRevision.LotNumber = WONumber = "N/A";
+                    OnPropertyChanged(nameof(CurrentRevision));
                     this.GetQIRFromM2k(value, M2kDataQuery.PartNumber);
                     LoadM2kData = true;
                 }
@@ -352,13 +354,13 @@ namespace OMNI.QMS.Model
                     cmd.Parameters.AddWithValue("p1", _qir.CurrentRevision.RevDate.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("p2", _qir.CurrentRevision.RevSubmitter);
                     cmd.Parameters.AddWithValue("p3", _qir.QIRFormType.ToString());
-                    cmd.SafeAddParemeters("p4", _qir.PartNumber);
-                    cmd.SafeAddParemeters("p5", _qir.WONumber);
+                    cmd.SafeAddParameters("p4", _qir.PartNumber);
+                    cmd.SafeAddParameters("p5", _qir.WONumber);
                     cmd.Parameters.AddWithValue("p6", _qir.Found);
                     cmd.Parameters.AddWithValue("p7", _qir.MaterialCost);
                     cmd.Parameters.AddWithValue("p8", _qir.MaterialCost * _qir.CurrentRevision.MaterialLost);
-                    cmd.SafeAddParemeters("p9", _qir.UOM);
-                    cmd.SafeAddParemeters("p10", _qir.PIC);
+                    cmd.SafeAddParameters("p9", _qir.UOM);
+                    cmd.SafeAddParameters("p10", _qir.PIC);
                     cmd.Parameters.AddWithValue("p11", _qir.CurrentRevision.Disposition.Status.ToString());
                     _idNumber = Convert.ToInt32(cmd.ExecuteScalar());
                 }
@@ -403,13 +405,13 @@ namespace OMNI.QMS.Model
                 {
                     cmd.Parameters.AddWithValue("p1", _tempRev.RevDate.ToString("yyyy-MM-dd HH:mm:ss"));
                     cmd.Parameters.AddWithValue("p2", CurrentUser.FullName);
-                    cmd.SafeAddParemeters("p3", _qir.PartNumber);
+                    cmd.SafeAddParameters("p3", _qir.PartNumber);
                     cmd.Parameters.AddWithValue("p4", _qir.WONumber);
                     cmd.Parameters.AddWithValue("p5", _qir.Found);
                     cmd.Parameters.AddWithValue("p6", _qir.MaterialCost);
                     cmd.Parameters.AddWithValue("p7", _qir.MaterialCost * _qir.CurrentRevision.MaterialLost);
                     cmd.Parameters.AddWithValue("p8", _qir.UOM);
-                    cmd.SafeAddParemeters("p9", _qir.PIC);
+                    cmd.SafeAddParameters("p9", _qir.PIC);
                     cmd.Parameters.AddWithValue("p10", _qir.CurrentRevision.Disposition.Status.ToString());
                     cmd.Parameters.AddWithValue("p11", _qir.IDNumber);
                     cmd.ExecuteNonQuery();

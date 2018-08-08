@@ -2,6 +2,7 @@
 using OMNI.Helpers;
 using OMNI.QMS.Calibration.Model;
 using OMNI.ViewModels;
+using System;
 using System.Windows.Input;
 
 namespace OMNI.QMS.Calibration.ViewModel
@@ -18,13 +19,29 @@ namespace OMNI.QMS.Calibration.ViewModel
         }
         public int SelectedMachine
         {
-            get { return CounterCal.Machine; }
-            set { CounterCal.Machine = value; OnPropertyChanged(nameof(SelectedMachine)); }
+            get { return CounterCal != null ? CounterCal.Machine : 0; }
+            set
+            {
+                if (CounterCal.Machine != value)
+                {
+                    CounterCal.CalData = CounterData.GetCounterDataList(value);
+                    OnPropertyChanged(nameof(CounterCal));
+                }
+                CounterCal.Machine = value;
+                OnPropertyChanged(nameof(SelectedMachine));
+            }
         }
-        public int CalID
+        public int? CalID
         {
-            get { return CounterCal.IDNumber; }
-            set { CounterCal.IDNumber = value; OnPropertyChanged(nameof(CalID)); }
+            get { return CounterCal?.IDNumber ?? null; }
+            set
+            {
+                if (value != null)
+                {
+                    CounterCal = new Counter(Convert.ToInt32(value));
+                }
+                OnPropertyChanged(nameof(CalID));
+            }
         }
 
         RelayCommand _submit;
@@ -80,14 +97,14 @@ namespace OMNI.QMS.Calibration.ViewModel
         private void SubmitExecute(object parameter)
         {
             CalID = CounterCal.Submit(CounterCal);
-            if (CalID == 0)
+            if (CalID == null)
             {
                 ExceptionWindow.Show("Submission Interference", "OMNI is currently unavailabe to submit this calcheck to the database\nPlease contact IT for further assistance");
             }
         }
         private bool SubmitCanExecute(object parameter)
         {
-            return CalID == 0;
+            return CalID == 0 && SelectedMachine != 0 && CounterCal.ValidateCal(CounterCal);
         }
 
         #endregion
@@ -100,7 +117,9 @@ namespace OMNI.QMS.Calibration.ViewModel
         {
             if (disposing)
             {
-
+                counter = null;
+                CounterCal = null;
+                _submit = null;
             }
         }
     }

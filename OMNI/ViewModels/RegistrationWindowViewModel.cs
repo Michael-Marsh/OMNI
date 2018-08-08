@@ -5,6 +5,7 @@ using OMNI.Models;
 using OMNI.Views;
 using System.Windows;
 using System.Windows.Input;
+using System;
 
 namespace OMNI.ViewModels
 {
@@ -16,8 +17,18 @@ namespace OMNI.ViewModels
         public string FullName { get; set; }
         public int? UserId { get; set; }
         public string Email { get; set; }
-        public bool WCCO { get; set; }
-        public bool CSI { get; set; }
+        public bool wcco;
+        public bool WCCO
+        {
+            get { return wcco; }
+            set { wcco = value; OnPropertyChanged(nameof(WCCO)); }
+        }
+        public bool csi;
+        public bool CSI
+        {
+            get { return csi; }
+            set { csi = value; OnPropertyChanged(nameof(CSI)); }
+        }
         public Window Win { get; set; }
 
         RelayCommand _create;
@@ -39,6 +50,17 @@ namespace OMNI.ViewModels
         {
             DomainName = userName;
             Win = new RegistrationWindowView { DataContext = this };
+            switch(Environment.UserDomainName)
+            {
+                case "AD":
+                    WCCO = true;
+                    CSI = false;
+                    break;
+                case "CSI":
+                    WCCO = false;
+                    CSI = true;
+                    break;
+            }
             Win.ShowDialog();
         }
 
@@ -96,9 +118,10 @@ namespace OMNI.ViewModels
                 Win.Close();
             }
         }
-        private bool CreateCanExecute(object parameter) => string.IsNullOrEmpty(FullName) || UserId == null
-                ? false
-                : true;
+        private bool CreateCanExecute(object parameter)
+        {
+            return !string.IsNullOrEmpty(FullName) && UserId != null && (WCCO || CSI);
+        }
 
         #endregion
 
