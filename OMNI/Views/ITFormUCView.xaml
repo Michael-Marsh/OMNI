@@ -7,6 +7,7 @@
              xmlns:Commands="clr-namespace:OMNI.Commands"
              xmlns:ViewModels="clr-namespace:OMNI.ViewModels"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:OMNI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="900" d:DesignWidth="1425">
 
@@ -94,12 +95,12 @@
                         <MenuItem Header="New Link"
                                   ToolTip="Create a new form link."
                                   Command="{StaticResource NewLinkCommand}"
-                                  CommandParameter="{Binding Ticket}"/>
+                                  CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ITFormUCView}}}"/>
                         <Separator/>
                         <MenuItem Header="Delete Link"
                                   ToolTip="Delete any links this form has."
                                   Command="{Binding DeleteLinkCommand}"
-                                  CommandParameter="{Binding Ticket}"/>
+                                  CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ITFormUCView}}}"/>
 
                     </MenuItem>
                 </Menu>
@@ -168,7 +169,7 @@
 
             <ListBox Grid.ColumnSpan="3" Grid.Row="1"
                      HorizontalAlignment="Left"
-                     ItemsSource="{Binding Ticket.FormLinkList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     ItemsSource="{Binding FormLinks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      FontWeight="Bold"
                      Cursor="Hand"
                      Background="Transparent"

@@ -105,7 +105,7 @@ namespace OMNI.ViewModels
         /// <param name="parameter"></param>
         private void LinkSubmitExecute(object parameter)
         {
-            if (!((FormBase)ChildFormObject).CreateLinkAsync(Convert.ToInt32(ParentFormNumber), (Module)Enum.Parse(typeof(Module), SelectedFormType)).Result)
+            if (!((FormBase)ChildFormObject).CreateLink(Convert.ToInt32(ParentFormNumber), (Module)Enum.Parse(typeof(Module), SelectedFormType)))
             {
                 ExceptionWindow.Show("Link Failure", "Unable to link this form at this time.\nPlease Contact IT for further assistance.");
             }

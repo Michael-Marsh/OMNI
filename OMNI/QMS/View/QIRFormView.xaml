@@ -72,12 +72,12 @@
 
                         <MenuItem Header="New Link"
                               ToolTip="Create a new form link."
-                              CommandParameter="{Binding Qir}"
+                              CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:QIRFormView}}}"
                               Command="{StaticResource NewLinkCommand}"/>
                         <Separator/>
                         <MenuItem Header="Delete Link"
                               ToolTip="Delete any links this form has."
-                              CommandParameter="{Binding Qir}"
+                              CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:QIRFormView}}}"
                               Command="{StaticResource DeleteLinkCommand}"/>
 
                     </MenuItem>
@@ -100,7 +100,7 @@
             <!--#region Form Link-->
             <ListBox Grid.ColumnSpan="3" Grid.Row="1"
                      HorizontalAlignment="Left"
-                     ItemsSource="{Binding Qir.FormLinkList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     ItemsSource="{Binding FormLinks}"
                      FontWeight="Bold"
                      Cursor="Hand"
                      Background="Transparent"

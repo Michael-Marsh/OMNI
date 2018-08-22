@@ -96,5 +96,8 @@
     <Setting Name="MoveFileLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage\Manage\ROI\WCCO.MAIN\BTI.TRANSACTIONS\</Value>
     </Setting>
+    <Setting Name="PdfDefaultPassword" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">technology#1</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

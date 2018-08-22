@@ -402,7 +402,7 @@ namespace OMNI.Models
             {
                 try
                 {
-                    using (PdfReader reader = new PdfReader(Properties.Settings.Default.TravelCardDocument))
+                    using (PdfReader reader = new PdfReader(Properties.Settings.Default.TravelCardDocument, PdfEncodings.ConvertToBytes(Properties.Settings.Default.PdfDefaultPassword, "ASCII")))
                     {
                         using (PdfStamper stamp = new PdfStamper(reader, new FileStream($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf", FileMode.Create)))
                         {
@@ -513,7 +513,7 @@ namespace OMNI.Models
                 //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
                 //Must meet this format in order to work with M2k
 
-                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}|P~99~COMPLETE";
+                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}~99~COMPLETE";
                 File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
             }
             return suffix;

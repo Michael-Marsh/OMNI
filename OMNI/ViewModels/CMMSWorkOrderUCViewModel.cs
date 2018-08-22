@@ -25,6 +25,7 @@ namespace OMNI.ViewModels
         #region Properties
 
         public CMMSWorkOrder WorkOrder { get; set; }
+        public ObservableCollection<LinkedForms> FormLinks { get; set; }
         public bool SearchMode { get; set; }
         public bool SearchEntered { get; set; }
         public bool SearchHide { get; set; }
@@ -147,6 +148,10 @@ namespace OMNI.ViewModels
             if (WorkOrder == null)
             {
                 WorkOrder = new CMMSWorkOrder();
+            }
+            if (FormLinks == null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(WorkOrder.FormLinkList);
             }
             SelectedWorkCenter = !string.IsNullOrEmpty(WorkOrder.Workcenter) ? WorkCenterList.FirstOrDefault(o => o.Description == WorkOrder.Workcenter) : null;
             WorkOrder.Date = DateTime.Now;
@@ -366,7 +371,7 @@ namespace OMNI.ViewModels
             OnPropertyChanged(nameof(IsClosed));
             if (!FormBase.FormChangeInProgress && WorkOrder.LinkExists())
             {
-                var noUseYet = WorkOrder.GetLinkListAsync().Result;
+                var noUseYet = WorkOrder.GetLinkList();
             }
         }
 
@@ -440,6 +445,18 @@ namespace OMNI.ViewModels
                 Running = false;
                 OnPropertyChanged(nameof(_complete.CanExecute));
             });
+        }
+
+        /// <summary>
+        /// TODO: move to its own usercontrol
+        /// </summary>
+        public void UpdateUILinkList()
+        {
+            if (WorkOrder != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(WorkOrder.FormLinkList);
+                OnPropertyChanged(nameof(WorkOrder));
+            }
         }
 
         /// <summary>

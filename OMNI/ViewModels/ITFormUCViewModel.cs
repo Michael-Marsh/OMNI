@@ -23,6 +23,7 @@ namespace OMNI.ViewModels
         #region Properties
 
         public ITTicket Ticket { get; set; }
+        public ObservableCollection<LinkedForms> FormLinks { get; set; }
         private int? searchIDNumber;
         public int? SearchIDNumber
         {
@@ -119,6 +120,10 @@ namespace OMNI.ViewModels
             if (ProjectList == null)
             {
                 ProjectList = new ObservableCollection<ITProject>(ITProject.GetListAsync().Result);
+            }
+            if (FormLinks == null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Ticket.FormLinkList);
             }
             Ticket.AssignedTo.ListChanged += AssignedToChanged;
             Ticket.DocumentList.ListChanged += DocumentListChanged;
@@ -229,7 +234,19 @@ namespace OMNI.ViewModels
             Ticket.NotesTable = ITTicket.GetNotesDataTable(Convert.ToInt32(Ticket.IDNumber));
             if (!FormBase.FormChangeInProgress && Ticket.LinkExists())
             {
-                var noUseYet = Ticket.GetLinkListAsync().Result;
+                var noUseYet = Ticket.GetLinkList();
+            }
+        }
+
+        /// <summary>
+        /// TODO: move to its own usercontrol
+        /// </summary>
+        public void UpdateUILinkList()
+        {
+            if (Ticket != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Ticket.FormLinkList);
+                OnPropertyChanged(nameof(Ticket));
             }
         }
 
@@ -296,9 +313,10 @@ namespace OMNI.ViewModels
                     if (emailSubmitter)
                     {
                         var _tempEmail = Users.RetrieveEmailAddress(Ticket.Submitter);
+                        var _commandText = commandAction == "Note Added" ? $"{commandAction} /n {Ticket.NotesTable.Rows[Ticket.NotesTable.Rows.Count - 1]["Note"]}" : commandAction;
                         if (_tempEmail != "Not on File")
                         {
-                            EmailForm.SendwithoutAttachment(_tempEmail, $"Action has been taken on your ticket #{Ticket.IDNumber}, log into OMNI to view the changes.", $"HDT #{Ticket.IDNumber} {commandAction}");
+                            EmailForm.SendwithoutAttachment(_tempEmail, $"Action has been taken on your ticket #{Ticket.IDNumber}, log into OMNI to view the changes.", $"HDT #{Ticket.IDNumber} {_commandText}");
                         }
                     }
                     if (emailTeam)
@@ -310,7 +328,7 @@ namespace OMNI.ViewModels
                         {
                             emailBody += $"\n\n{Ticket.Submitter} has requested IT's immediate assistance.";
                         }
-                        EmailForm.SendwithoutAttachment("itteam@wccobelt.com", emailBody, $"HDT #{Ticket.IDNumber} {commandAction}");
+                        EmailForm.SendwithoutAttachment("itsupport@wccobelt.com", emailBody, $"HDT #{Ticket.IDNumber} {commandAction}");
                     }
                     if (emailAssignee)
                     {
@@ -402,7 +420,7 @@ namespace OMNI.ViewModels
                         Ticket.DocumentList.ListChanged += DocumentListChanged;
                         if (!FormBase.FormChangeInProgress && Ticket.LinkExists())
                         {
-                            var noUseYet = Ticket.GetLinkListAsync().Result;
+                            var noUseYet = Ticket.GetLinkList();
                         }
                     }
                     break;

@@ -8,12 +8,10 @@ using OMNI.QMS.ViewModel;
 using OMNI.ViewModels;
 using OMNI.Views;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -56,11 +54,11 @@ namespace OMNI.Models
         /// <param name="e">BindingList Change Events</param>
         public static void FormSelectionChanged(object sender, ListChangedEventArgs e)
         {
+            var _tempList = (BindingList<LinkedForms>)sender;
             if (e.ListChangedType == ListChangedType.ItemChanged && !FormChangeInProgress)
             {
                 try
                 {
-                    var _tempList = (BindingList<LinkedForms>)sender;
                     FormChangeInProgress = true;
                     var _oldHeader = _tempList[_tempList.IndexOf(_tempList.FirstOrDefault(l => l.LinkSelected && l.LinkIDNumber != _tempList[e.NewIndex].LinkIDNumber))].LinkIDNumber;
                     _tempList[_tempList.IndexOf(_tempList.FirstOrDefault(l => l.LinkSelected && l.LinkIDNumber != _tempList[e.NewIndex].LinkIDNumber))].LinkSelected = false;
@@ -137,7 +135,7 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Transaction Success as bool.  true = accepted, false = failed</returns>
-        public async static Task<bool> GetLinkListAsync(this FormBase formObject)
+        public static bool GetLinkList(this FormBase formObject)
         {
             try
             {
@@ -151,7 +149,7 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p1", _linkParent.LinkIDNumber);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while (await reader.ReadAsync().ConfigureAwait(false))
+                        while (reader.Read())
                         {
                             formObject.FormLinkList.Add(new LinkedForms { LinkIDNumber = reader.SafeGetInt32("ChildFormNumber"), LinkFormType = (Module)Enum.Parse(typeof(Module), reader.SafeGetString("ChildFormType")), LinkSelected = false });
                         }
@@ -267,69 +265,34 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="formObject">Form Object</param>
         /// <returns>Transaction Success as bool.  true = accepted / false = rejected</returns>
-        public async static Task<bool> DeleteLinkAsync(this FormBase formObject)
+        public static bool DeleteLink(this FormBase formObject)
         {
             try
             {
-                var _parentID = formObject.IsChild() ? formObject.GetParent() : null;
-                if (_parentID == null)
+                var pId = 0;
+                if (formObject.FormLinkList[0].LinkIDNumber == formObject.IDNumber || formObject.FormLinkList.Count == 2)
                 {
-                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
+                    pId = formObject.IsChild() ? formObject.GetParent().LinkIDNumber : Convert.ToInt32(formObject.IDNumber);
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            BEGIN TRAN;
+                                                            DELETE FROM [parent_form] WHERE [ParentFormNumber]=@p1
+                                                            DELETE FROM [child_form] WHERE [ParentFormID]=@p1;
+                                                            COMMIT;", App.SqlConAsync))
                     {
-                        cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.Parameters.AddWithValue("p1", pId);
+                        cmd.ExecuteNonQuery();
                     }
+                    formObject.FormLinkList = new BindingList<LinkedForms>();
                 }
                 else
                 {
-                    var _childStageList = new List<int>();
-                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [child_form] WHERE [ChildFormNumber]=@p1", App.SqlConAsync))
+                    using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                            DELETE FROM [child_form] WHERE [ChildFormNumber]=@p1;", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", formObject.IDNumber);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
-                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT * FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
-                    {
-                        cmd.Parameters.AddWithValue("p1", _parentID);
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                while (await reader.ReadAsync().ConfigureAwait(false))
-                                {
-                                    _childStageList.Add(reader.SafeGetInt32("ChildFormNumber"));
-                                }
-                            }
-                        }
-                    }
-                    if (_childStageList.Count > 0)
-                    {
-                        var counter = 1;
-                        foreach (var i in _childStageList)
-                        {
-                            using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; UPDATE [child_form] SET [ChildStage]=@p1 WHERE [ChildFormNumber]=@p2", App.SqlConAsync))
-                            {
-                                cmd.Parameters.AddWithValue("p1", counter);
-                                cmd.Parameters.AddWithValue("p2", i);
-                                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                                counter++;
-                            }
-                        }
-                    }
-                    var parentCount = 0;
-                    using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
-                    {
-                        cmd.Parameters.AddWithValue("p1", _parentID);
-                        parentCount = Convert.ToInt32(cmd.ExecuteScalar());
-                    }
-                    if (parentCount == 0)
-                    {
-                        using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; DELETE FROM [parent_form] WHERE [ParentFormNumber]=@p1", App.SqlConAsync))
-                        {
-                            cmd.Parameters.AddWithValue("p1", _parentID);
-                            await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
-                    }
+                    formObject.FormLinkList.Remove(formObject.FormLinkList.First(o => o.LinkIDNumber == formObject.IDNumber));
                 }
                 return true;
             }
@@ -346,8 +309,7 @@ namespace OMNI.Models
         /// <param name="parentIDNumber">Parent Form ID Number</param>
         /// <param name="parentFormModule">Parent Form Module</param>
         /// <returns>Transaction Success as bool.  true = accepted / false = rejected</returns>
-        public async static Task<bool> CreateLinkAsync(this FormBase childFormObject, int parentIDNumber, Module parentFormModule)
-
+        public static bool CreateLink(this FormBase childFormObject, int parentIDNumber, Module parentFormModule)
         {
             try
             {
@@ -355,10 +317,10 @@ namespace OMNI.Models
                 switch (parentFormModule)
                 {
                     case Module.CMMS:
-                        parentObject = await CMMSWorkOrder.LoadAsync(parentIDNumber);
+                        parentObject = CMMSWorkOrder.LoadAsync(parentIDNumber).Result;
                         break;
                     case Module.HDT:
-                        parentObject = await ITTicket.GetITTicketAsync(parentIDNumber);
+                        parentObject = ITTicket.GetITTicketAsync(parentIDNumber).Result;
                         break;
                     case Module.QIR:
                         parentObject = new QIR(parentIDNumber, true);
@@ -375,7 +337,7 @@ namespace OMNI.Models
                 }
                 else if (((FormBase)parentObject).IsChild())
                 {
-                    parentIDNumber = (((FormBase)parentObject).GetParent()).LinkIDNumber;
+                    parentIDNumber = ((FormBase)parentObject).GetParent().LinkIDNumber;
                     using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT COUNT([ParentFormID]) FROM [child_form] WHERE [ParentFormID]=@p1", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", parentIDNumber);
@@ -388,7 +350,7 @@ namespace OMNI.Models
                     {
                         cmd.Parameters.AddWithValue("p1", parentFormModule.ToString());
                         cmd.Parameters.AddWithValue("p2", parentIDNumber);
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        cmd.ExecuteNonQuery();
                     }
                 }
                 using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; INSERT INTO [child_form] ([ChildFormType], [ChildFormNumber], [ChildStage], [ParentFormID]) VALUES(@p1, @p2, @p3, @p4)", App.SqlConAsync))
@@ -397,9 +359,9 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p2", childFormObject.IDNumber);
                     cmd.Parameters.AddWithValue("p3", _stage);
                     cmd.Parameters.AddWithValue("p4", parentIDNumber);
-                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
+                    cmd.ExecuteNonQuery();
                 }
-                await childFormObject.GetLinkListAsync().ConfigureAwait(false);
+                childFormObject.GetLinkList();
                 return true;
             }
             catch (Exception)

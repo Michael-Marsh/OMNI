@@ -6,6 +6,7 @@ using OMNI.QMS.Enumeration;
 using OMNI.QMS.Model;
 using OMNI.ViewModels;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Input;
 
@@ -16,6 +17,7 @@ namespace OMNI.QMS.ViewModel
         #region Properties
 
         public QIR Qir { get; set; }
+        public ObservableCollection<LinkedForms> FormLinks { get; set; }
         private string selectedDisposition;
         public string SelectedDisposition
         {
@@ -60,7 +62,7 @@ namespace OMNI.QMS.ViewModel
                     OnPropertyChanged(nameof(Lot));
                     if (Qir.LinkExists())
                     {
-                        var _remove = Qir.GetLinkListAsync().Result;
+                        var _remove = Qir.GetLinkList();
                     }
                 }
                 else
@@ -117,6 +119,10 @@ namespace OMNI.QMS.ViewModel
             Qir = new QIR();
             TempID = Qir.IDNumber;
             ReadOnly = CurrentUser.Quality;
+            if (FormLinks == null && Qir.FormLinkList != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Qir.FormLinkList);
+            }
         }
 
         /// <summary>
@@ -129,6 +135,10 @@ namespace OMNI.QMS.ViewModel
             Qir = new QIR(qirEZ);
             TempID = Qir.IDNumber;
             ReadOnly = true;
+            if (FormLinks == null && Qir.FormLinkList != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Qir.FormLinkList);
+            }
         }
 
         /// <summary>
@@ -144,7 +154,23 @@ namespace OMNI.QMS.ViewModel
             ReadOnly = CurrentUser.Quality;
             if (Qir.LinkExists())
             {
-                var _remove = Qir.GetLinkListAsync().Result;
+                var _remove = Qir.GetLinkList();
+            }
+            if (FormLinks == null && Qir.FormLinkList != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Qir.FormLinkList);
+            }
+        }
+
+        /// <summary>
+        /// TODO: move to its own usercontrol
+        /// </summary>
+        public void UpdateUILinkList()
+        {
+            if (Qir != null)
+            {
+                FormLinks = new ObservableCollection<LinkedForms>(Qir.FormLinkList);
+                OnPropertyChanged(nameof(FormLinks));
             }
         }
 

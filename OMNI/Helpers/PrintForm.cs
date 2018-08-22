@@ -18,7 +18,7 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (PdfDocument doc = new PdfDocument(documentName))
+                using (PdfDocument doc = new PdfDocument(documentName, "technology#1"))
                 {
                     using (PrintDialog pdialog = new PrintDialog { AllowPrintToFile = true, AllowSomePages = true })
                     {

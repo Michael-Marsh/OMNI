@@ -6,6 +6,7 @@
              xmlns:Converters="clr-namespace:OMNI.Converters"
              xmlns:ViewModels="clr-namespace:OMNI.ViewModels" x:Class="OMNI.Views.CMMSWorkOrderUCView"
              xmlns:Commands="clr-namespace:OMNI.Commands"
+             xmlns:local="clr-namespace:OMNI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="890" d:DesignWidth="1275">
 
@@ -88,12 +89,12 @@
                         <MenuItem Header="New Link"
                                   ToolTip="Create a new form link."
                                   Command="{StaticResource NewLinkCommand}"
-                                  CommandParameter="{Binding WorkOrder}"/>
+                                  CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:CMMSWorkOrderUCView}}}"/>
                         <Separator/>
                         <MenuItem Header="Delete Link"
                                   ToolTip="Delete any links this form has."
                                   Command="{StaticResource DeleteLinkCommand}"
-                                  CommandParameter="{Binding WorkOrder}"/>
+                                  CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:CMMSWorkOrderUCView}}}"/>
 
                     </MenuItem>
                 </Menu>
@@ -112,7 +113,7 @@
 
             <ListBox Grid.ColumnSpan="3" Grid.Row="1"
                      HorizontalAlignment="Left"
-                     ItemsSource="{Binding WorkOrder.FormLinkList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     ItemsSource="{Binding FormLinks, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      FontWeight="Bold"
                      Cursor="Hand"
                      Background="Transparent"
