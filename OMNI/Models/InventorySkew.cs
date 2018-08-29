@@ -154,58 +154,43 @@ namespace OMNI.Models
                         }
                     }
                 }
-                var _tempDiamond = $"'{_lotTrim}|P*%';";
-                var _tempDmdList = new List<string>();
-                while (DiamondNumber == null)
+                //Diamond Number population
+                //Requires a Lot structure crawl
+                var _found = false;
+                while (!_found)
                 {
-                    var cmdString = $"USE [{CurrentUser.Site.ToUpper()}_MAIN]; SELECT DISTINCT([Component_Lot]) FROM [dbo].[Lot Structure] WHERE [Ls_ID] LIKE ";
-                    if (_tempDmdList.Count == 1)
+                    using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                                                            SELECT
+                                                                SUBSTRING(a.[Component_Lot],0,LEN(a.[Component_Lot]) - 1) as 'Comp_Lot', b.[Inventory_Type] as 'Type'
+                                                            FROM
+	                                                            [dbo].[Lot Structure] a
+                                                            RIGHT OUTER JOIN
+	                                                            [dbo].[IM-INIT] b ON b.[Part_Number] = a.[Comp_Pn]
+                                                            WHERE
+	                                                            a.[Parent_Lot] = CONCAT(@p1,'|P');", App.SqlConAsync))
                     {
-                        cmdString += $"'{_tempDmdList[0]}|P*%'";
-                    }
-                    else if (_tempDmdList.Count > 1)
-                    {
-                        _tempDiamond = string.Empty;
-                        foreach (string s in _tempDmdList)
-                        {
-                            if (!_tempDiamond.Contains(s))
-                            {
-                                _tempDiamond += _tempDiamond == string.Empty ? $"'{s}|P*%'" : $" OR [Ls_ID] LIKE '{s}|P*%'";
-                            }
-                        }
-                        cmdString += $"{_tempDiamond};";
-                    }
-                    else
-                    {
-                        cmdString += _tempDiamond;
-                    }
-                    _tempDmdList.Clear();
-                    using (SqlCommand cmd = new SqlCommand(cmdString, App.SqlConAsync))
-                    {
+                        cmd.Parameters.AddWithValue("p1", lotNbr);
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 while (reader.Read())
                                 {
-                                    _tempDmdList.Add(reader.GetString(0).Replace("|P", "").TrimEnd());
+                                    if (reader.SafeGetString("Type") == "RR")
+                                    {
+                                        DiamondNumber = reader.SafeGetString("Comp_Lot");
+                                        _found = true;
+                                    }
+                                    else
+                                    {
+                                        lotNbr = reader.SafeGetString("Comp_Lot");
+                                    }
                                 }
                             }
                             else
                             {
-                                _tempDmdList.Clear();
-                                DiamondNumber = "";
-                            }
-                        }
-                        if (_tempDmdList.Count == 1)
-                        {
-                            DiamondNumber = _tempDmdList[0].Contains("-") ? null : _tempDmdList[0];
-                        }
-                        else
-                        {
-                            foreach (string s in _tempDmdList)
-                            {
-                                DiamondNumber = s.Contains("-") ? null : DiamondNumber == null ? s : $"{DiamondNumber} / {s}";
+                                _found = true;
+                                DiamondNumber = string.Empty;
                             }
                         }
                     }
@@ -218,7 +203,7 @@ namespace OMNI.Models
                     }
                     using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
                                                                             SELECT 
-                                                                                l.[Lot_Number], o.[Oh_Qtys], o.[Loc] 
+                                                                                SUBSTRING(l.[Lot_Number],0,LEN(l.[Lot_Number]) - 1) as 'Lot_Number', o.[Oh_Qtys], o.[Loc] 
                                                                             FROM 
                                                                                 [dbo].[LOT-INIT] l 
                                                                             RIGHT JOIN 

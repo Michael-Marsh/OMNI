@@ -313,10 +313,22 @@ namespace OMNI.ViewModels
                     if (emailSubmitter)
                     {
                         var _tempEmail = Users.RetrieveEmailAddress(Ticket.Submitter);
-                        var _commandText = commandAction == "Note Added" ? $"{commandAction} /n {Ticket.NotesTable.Rows[Ticket.NotesTable.Rows.Count - 1]["Note"]}" : commandAction;
+                        var emailBody = $"Action has been taken on your ticket #{Ticket.IDNumber}, log into OMNI to see a detailed view the changes.";
+                        switch (commandAction)
+                        {
+                            case "Note Added":
+                                emailBody += $"\n\nNote Description:\n{Ticket.NotesTable.Rows[Ticket.NotesTable.Rows.Count - 1]["Note"]}";
+                                break;
+                            case "Completed":
+                                emailBody += $"\n\nClosing Notes:\n{Ticket.NotesTable.Rows[Ticket.NotesTable.Rows.Count - 1]["Note"]}";
+                                break;
+                            case "Re-Opened":
+                                emailBody += $"\n\nReasoning:\n{Ticket.NotesTable.Rows[Ticket.NotesTable.Rows.Count - 1]["Note"]}";
+                                break;
+                        }
                         if (_tempEmail != "Not on File")
                         {
-                            EmailForm.SendwithoutAttachment(_tempEmail, $"Action has been taken on your ticket #{Ticket.IDNumber}, log into OMNI to view the changes.", $"HDT #{Ticket.IDNumber} {_commandText}");
+                            EmailForm.SendwithoutAttachment(_tempEmail, emailBody, $"HDT #{Ticket.IDNumber} {commandAction}");
                         }
                     }
                     if (emailTeam)
