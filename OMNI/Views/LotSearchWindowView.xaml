@@ -20,6 +20,7 @@
         <cvtr:IntToVisibility x:Key="IntToVisConverter"/>
         <cvtr:MultiBoolToVisibility x:Key="MultiBoolToVisConverter"/>
         <cvtr:ReasonToVisibility x:Key="ReasonToVisConverter"/>
+        <cvtr:NegativeIntToBool x:Key="NegIntToBoolConverter"/>
         <cmd:PartSearchCommand x:Key="PartSearchCommand"/>
     </Window.Resources>
 
@@ -35,6 +36,7 @@
             <RowDefinition Height="60"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -374,20 +376,6 @@
                 </DataGrid>
             </Expander>
 
-            <Expander Header="LOT.IT.HIST"
-                      FontSize="18"
-                      Visibility="Collapsed"
-                      FontWeight="Bold"
-                      Foreground="WhiteSmoke"
-                      Margin="20,0,0,0"
-                      IsTabStop="False">
-                <DataGrid ItemsSource="{Binding Skew.LotHistory}" IsReadOnly="True" AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Lot Number" Binding="{Binding Lot_Number}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Expander>
-
         </StackPanel>
 
         <!--    Row 7   -->
@@ -460,6 +448,55 @@
                      Style="{DynamicResource RequiredActiveTextBox}"/>
 
         </StackPanel>
+        
+        <!--    Row 10  -->
+
+        <Expander Grid.Row="10" Grid.Column="0"
+                  Header="LOT.IT.HIST"
+                  Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}"
+                  FontSize="13"
+                  FontWeight="Bold"
+                  Foreground="WhiteSmoke"
+                  IsTabStop="False">
+            <DataGrid ItemsSource="{Binding Skew.LotHistory}" IsReadOnly="True" AutoGenerateColumns="False" AlternatingRowBackground="LightSteelBlue">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date and Time" Binding="{Binding TranDateTime, StringFormat='MM/dd/yyyy       HH:mm'}"/>
+                    <DataGridTextColumn Header="User" Binding="{Binding Submitter}"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding TranType}" Width="*"/>
+                    <DataGridTextColumn Header="Code" Binding="{Binding TranCode}"/>
+                    <DataGridTextColumn Header="Lot Number" Binding="{Binding LotNumber}"/>
+                    <DataGridTextColumn Header="Location" Binding="{Binding TranLoc}"/>
+                    <DataGridTextColumn Header="Qty" Binding="{Binding TranQty}">
+                        <DataGridTextColumn.CellStyle>
+                            <Style TargetType="{x:Type DataGridCell}">
+                                <Setter Property="Foreground" Value="Black"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TranQty, Converter={StaticResource NegIntToBoolConverter}}" Value="true">
+                                        <Setter Property="Foreground" Value="Crimson"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Run Total" Binding="{Binding OnHand}"/>
+                    <DataGridTextColumn Header="Reference" Binding="{Binding Reference}"/>
+                    <DataGridTemplateColumn Header="Crew">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Crew}"
+                                         FontSize="12"
+                                         IsReadOnly="True"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         MaxWidth="200"
+                                         TextWrapping="Wrap"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Sales Order" Binding="{Binding SalesOrder}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Expander>
 
         <!--#endregion-->
 

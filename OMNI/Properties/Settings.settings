@@ -20,9 +20,6 @@
     <Setting Name="WCCODocumentLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\Document Center\Production\</Value>
     </Setting>
-    <Setting Name="DocumentIndexHelpFile" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\AID3016 - Document Index Search Guide.pdf</Value>
-    </Setting>
     <Setting Name="SmtpDefaultClient" Type="System.String" Scope="Application">
       <Value Profile="(Default)">smtp.office365.com</Value>
     </Setting>

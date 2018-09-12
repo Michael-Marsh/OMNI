@@ -79,16 +79,6 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\AID3016 - Document Index Search Guide" +
-            ".pdf")]
-        public string DocumentIndexHelpFile {
-            get {
-                return ((string)(this["DocumentIndexHelpFile"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("smtp.office365.com")]
         public string SmtpDefaultClient {
             get {

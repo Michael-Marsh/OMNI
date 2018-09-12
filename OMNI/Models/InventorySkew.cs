@@ -218,7 +218,9 @@ namespace OMNI.Models
                 {
                     QIRList = new List<QIR>();
                 }
-                QIRList.Load(lotNbr);
+                QIRList.Load(LotNumber);
+                //IT.LOT.HIST
+                LotHistory = GetLotHistoryTable(LotNumber, "LotNumber");
             }
             catch (Exception ex) { ExceptionWindow.Show("Unhandled Exception", ex.Message); }
         }
@@ -362,11 +364,50 @@ namespace OMNI.Models
                         }
                     }
                 }
+                _temp.LotHistory = GetLotHistoryTable(partNrb, "PartNbr");
                 return _temp;
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Get a DataTable of historical transactions of lots based on part or lot number
+        /// </summary>
+        /// <param name="searchNbr">Either Part Number or Lot Number</param>
+        /// <param name="searchColumn">Column to run the search on</param>
+        /// <returns>DataTable of historical lot transactions</returns>
+        public static DataTable GetLotHistoryTable(string searchNbr, string searchColumn)
+        {
+            try
+            {
+                using (DataTable dt = new DataTable())
+                {
+                    if (!string.IsNullOrEmpty(searchNbr))
+                    {
+
+                        using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                                                                            SELECT 
+                                                                                *
+                                                                            FROM
+                                                                                [dbo].[LotHistory]
+                                                                            WHERE
+                                                                                [{searchColumn}] = @p1 AND (CAST([TranDateTime] as DATE) > DATEADD(YEAR, -3, GETDATE()))
+                                                                            ORDER BY
+                                                                                [TranDateTime] DESC;", App.SqlConAsync))
+                        {
+                            adapter.SelectCommand.Parameters.AddWithValue("p1", searchNbr);
+                            adapter.Fill(dt);
+                        }
+                    }
+                    return dt;
+                }
+            }
+            catch (Exception)
+            {
+                return new DataTable();
             }
         }
     }

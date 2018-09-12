@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>135</ApplicationRevision>
-    <ApplicationVersion>4.0.11.135</ApplicationVersion>
+    <ApplicationRevision>155</ApplicationRevision>
+    <ApplicationVersion>4.0.13.155</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -212,6 +212,7 @@
     <Compile Include="Converters\InvertedFormCommandtoVisibility.cs" />
     <Compile Include="Converters\MultiBoolToVisibility.cs" />
     <Compile Include="Converters\MultiOnHandToVisibility.cs" />
+    <Compile Include="Converters\NegativeIntToBool.cs" />
     <Compile Include="Converters\PartActionToVisibility.cs" />
     <Compile Include="Converters\PriorityLeveltoVisibility.cs" />
     <Compile Include="Converters\ReasonToVisibility.cs" />

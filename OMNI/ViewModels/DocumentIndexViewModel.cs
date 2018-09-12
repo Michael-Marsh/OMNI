@@ -76,8 +76,6 @@ namespace OMNI.ViewModels
             }
         }
 
-        #region View Command Interfaces
-
         public DataTable LoadDocumentTable()
         {
             using (DataTable dt = new DataTable())
@@ -103,6 +101,8 @@ namespace OMNI.ViewModels
                 return dt;
             }
         }
+
+        #region View Command Interfaces
 
         /// <summary>
         /// Open Command
@@ -163,7 +163,7 @@ namespace OMNI.ViewModels
         {
             try
             {
-                Process.Start(Properties.Settings.Default.DocumentIndexHelpFile);
+                Process.Start(OMNIDataBase.GetDocIndexHelpLocation());
             }
             catch (Exception ex)
             {

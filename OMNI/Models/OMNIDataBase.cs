@@ -493,6 +493,27 @@ namespace OMNI.Models
         }
 
         /// <summary>
+        /// Get the file location of the document help guide by site
+        /// </summary>
+        /// <returns></returns>
+        public static string GetDocIndexHelpLocation()
+        {
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
+                                                    SELECT [DocIndexGuide] FROM [dbo].[company] WHERE [companyName]=@p1", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", CurrentUser.Site);
+                    return cmd.ExecuteScalar().ToString();
+                }
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Developer Methods
         /// </summary>
         public static void UpdateUsers()

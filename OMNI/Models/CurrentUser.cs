@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Data.SqlClient;
 using System.DirectoryServices.AccountManagement;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace OMNI.Models
 {
