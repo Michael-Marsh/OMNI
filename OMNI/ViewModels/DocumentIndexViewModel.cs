@@ -62,17 +62,29 @@ namespace OMNI.ViewModels
             {
                 DocumentTable = LoadDocumentTable();
             }
-            switch (Environment.UserDomainName)
+            if (string.IsNullOrEmpty(CurrentUser.Site))
             {
-                case "AD":
-                    WCCOSite = true;
-                    break;
-                case "CSI":
-                    CSISite = true;
-                    break;
-                default:
-                    WCCOSite = true;
-                    break;
+                switch (Environment.UserDomainName)
+                {
+                    case "AD":
+                        WCCOSite = true;
+                        break;
+                    case "CSI":
+                        CSISite = true;
+                        break;
+                }
+            }
+            else
+            {
+                switch (CurrentUser.Site)
+                {
+                    case "WCCO":
+                        WCCOSite = true;
+                        break;
+                    case "CSI":
+                        CSISite = true;
+                        break;
+                }
             }
         }
 

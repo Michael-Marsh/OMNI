@@ -249,7 +249,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\192.168.16.4\\FileStorage\\Published Documents\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\CSI-PRIME\\FileStorage\\Published Documents\\")]
         public string CSIDocumentLocation {
             get {
                 return ((string)(this["CSIDocumentLocation"]));

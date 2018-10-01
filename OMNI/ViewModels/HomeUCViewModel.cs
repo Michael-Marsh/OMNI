@@ -181,8 +181,13 @@ namespace OMNI.ViewModels
         {
             if (!string.IsNullOrEmpty(month) && year != 0)
             {
+                var _monthNbr = DateTime.ParseExact(month, "MMMM", CultureInfo.CurrentCulture).Month;
+                var _lastDay = DateTime.DaysInMonth(year, _monthNbr);
                 var i = OMNIDataBase.MonthlySalesAsync(month, year).Result;
-                MonthlySales = Convert.ToBoolean(i[1]) ? i[0] : M2k.GetLiveSales($"{DateTime.Today.Month}-1-{DateTime.Today.Year}", DateTime.Today.ToString("MM-dd-yyyy"));
+                MonthlySales = Convert.ToBoolean(i[1])
+                    ? i[0]
+                    : M2k.GetLiveSales($"{_monthNbr}-01-{year}", $"{_monthNbr}-{_lastDay}-{year}");
+
                 if (QIRValues == null)
                 {
                     QIRValues = new QIRMetric(MonthlySales);

@@ -42,7 +42,7 @@ namespace OMNI.ViewModels
             var t = ExceptionView == null ? 0 : ExceptionView.CurrentPosition;
             ExceptionTable = OMNIException.UnhandledExceptionsTable();
             ExceptionView = CollectionViewSource.GetDefaultView(ExceptionTable);
-            ExceptionView.MoveCurrentToPosition(t);
+            ExceptionView?.MoveCurrentToPosition(t);
             OnPropertyChanged(nameof(ExceptionView));
         }
 
