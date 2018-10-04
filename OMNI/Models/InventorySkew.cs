@@ -157,8 +157,10 @@ namespace OMNI.Models
                 //Diamond Number population
                 //Requires a Lot structure crawl
                 var _found = false;
+                var _lot = $"a.[Parent_Lot] = '{lotNbr}|P'";
                 while (!_found)
                 {
+                    _lot += ";";
                     using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
                                                             SELECT
                                                                 SUBSTRING(a.[Component_Lot],0,LEN(a.[Component_Lot]) - 1) as 'Comp_Lot', b.[Inventory_Type] as 'Type'
@@ -167,9 +169,9 @@ namespace OMNI.Models
                                                             RIGHT OUTER JOIN
 	                                                            [dbo].[IM-INIT] b ON b.[Part_Number] = a.[Comp_Pn]
                                                             WHERE
-	                                                            a.[Parent_Lot] = CONCAT(@p1,'|P');", App.SqlConAsync))
+	                                                            {_lot}", App.SqlConAsync))
                     {
-                        cmd.Parameters.AddWithValue("p1", lotNbr);
+                        _lot = string.Empty;
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
                             if (reader.HasRows)
@@ -178,12 +180,26 @@ namespace OMNI.Models
                                 {
                                     if (reader.SafeGetString("Type") == "RR")
                                     {
-                                        DiamondNumber = reader.SafeGetString("Comp_Lot");
+                                        if (string.IsNullOrEmpty(DiamondNumber))
+                                        {
+                                            DiamondNumber = reader.SafeGetString("Comp_Lot");
+                                        }
+                                        else
+                                        {
+                                            DiamondNumber += $"/{reader.SafeGetString("Comp_Lot")}";
+                                        }
                                         _found = true;
                                     }
-                                    else
+                                    else if (reader.SafeGetString("Type") != "HM")
                                     {
-                                        lotNbr = reader.SafeGetString("Comp_Lot");
+                                        if (string.IsNullOrEmpty(_lot))
+                                        {
+                                            _lot = $"a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
+                                        }
+                                        else
+                                        {
+                                            _lot += $"AND a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
+                                        }
                                     }
                                 }
                             }
