@@ -116,7 +116,7 @@ namespace OMNI.Helpers
                     {
                         using (UniDynArray udArray = uFile.Read(recordID))
                         {
-                            udArray.Delete(attribute);
+                            udArray.Remove(attribute);
                             uFile.Write(recordID, udArray);
                         }
                     }

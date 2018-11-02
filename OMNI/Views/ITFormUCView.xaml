@@ -99,7 +99,7 @@
                         <Separator/>
                         <MenuItem Header="Delete Link"
                                   ToolTip="Delete any links this form has."
-                                  Command="{Binding DeleteLinkCommand}"
+                                  Command="{StaticResource DeleteLinkCommand}"
                                   CommandParameter="{Binding DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:ITFormUCView}}}"/>
 
                     </MenuItem>

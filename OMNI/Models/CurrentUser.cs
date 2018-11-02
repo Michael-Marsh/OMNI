@@ -180,7 +180,7 @@ namespace OMNI.Models
         {
             if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
                 return false;
-            if ((userName == "DeV" && password == "MCM2017") || userName == "johnf")
+            if ((userName == "Devmin" && password == "McM2015"))
                 return true;
             try
             {

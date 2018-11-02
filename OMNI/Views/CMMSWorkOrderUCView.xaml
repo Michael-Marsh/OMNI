@@ -531,6 +531,16 @@
                           Style="{DynamicResource CheckBoxStyle}" 
                           IsTabStop="False"/>
 
+                <CheckBox Content="Rush Action Required"
+                          FontSize="18"
+                          ToolTip="Only check this box if the machine is down.&#10;This function will automatically send emails to all the appropriate staff members."
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Center"
+                          IsChecked="{Binding WorkOrder.Rush, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
+                          Style="{DynamicResource CheckBoxStyle}" 
+                          IsTabStop="False"/>
+
                 <CheckBox Content="Lock Out/Tag Out"
                           FontSize="18"
                           ToolTip="Check if Lock out or Tag out was required."

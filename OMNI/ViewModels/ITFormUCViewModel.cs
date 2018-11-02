@@ -232,9 +232,9 @@ namespace OMNI.ViewModels
             PrimaryCommandType = FormCommand.Update;
             SecondaryCommandType = Ticket.CompletionDate == DateTime.MinValue ? FormCommand.Complete : FormCommand.ReOpen;
             Ticket.NotesTable = ITTicket.GetNotesDataTable(Convert.ToInt32(Ticket.IDNumber));
-            if (!FormBase.FormChangeInProgress && Ticket.LinkExists())
+            if (Ticket.FormLinkList.Count > 0)
             {
-                var noUseYet = Ticket.GetLinkList();
+                UpdateUILinkList();
             }
         }
 
@@ -245,8 +245,17 @@ namespace OMNI.ViewModels
         {
             if (Ticket != null)
             {
+                if (Ticket.LinkExists())
+                {
+                    Ticket.GetLinkList();
+                }
+                else
+                {
+                    Ticket.FormLinkList.Clear();
+                }
                 FormLinks = new ObservableCollection<LinkedForms>(Ticket.FormLinkList);
                 OnPropertyChanged(nameof(Ticket));
+                OnPropertyChanged(nameof(FormLinks));
             }
         }
 

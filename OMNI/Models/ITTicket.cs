@@ -35,7 +35,6 @@ namespace OMNI.Models
         public BindingList<ITTeamMember> AssignedTo { get; set; }
         public bool CanAssign { get { return CurrentUser.ITTeam && CompletionDate == DateTime.MinValue; } }
         public bool CanEdit { get { return (CurrentUser.ITTeam || CurrentUser.FullName == Submitter) && CompletionDate == DateTime.MinValue; } }
-        public DataTable NotesTable { get; set; }
         public string POC { get; set; }
         public BindingList<ITDocument> DocumentList { get; set; }
         public ITProject Project { get; set; }
@@ -155,6 +154,10 @@ namespace OMNI.Models
                         cmd.Parameters.AddWithValue("p1", _ticket.IDNumber);
                         _ticket.IDNumber = Convert.ToInt32(cmd.ExecuteScalar());
                     }
+                }
+                if (_ticket.LinkExists())
+                {
+                    _ticket.GetLinkList();
                 }
                 return _ticket;
             }

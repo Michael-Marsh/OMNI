@@ -54,6 +54,7 @@ namespace OMNI.Models
         /// <param name="e">BindingList Change Events</param>
         public static void FormSelectionChanged(object sender, ListChangedEventArgs e)
         {
+            //TODO: Review this method to see if you can seperate the view objects to a converter at the top level
             var _tempList = (BindingList<LinkedForms>)sender;
             if (e.ListChangedType == ListChangedType.ItemChanged && !FormChangeInProgress)
             {
@@ -139,6 +140,10 @@ namespace OMNI.Models
         {
             try
             {
+                if (formObject.FormLinkList.Count > 0)
+                {
+                    formObject.FormLinkList.Clear();
+                }
                 var _linkParent = new LinkedForms();
                 _linkParent = formObject.IsParent()
                     ? new LinkedForms { LinkIDNumber = Convert.ToInt32(formObject.IDNumber), LinkFormType = formObject.FormModule, LinkSelected = false }
