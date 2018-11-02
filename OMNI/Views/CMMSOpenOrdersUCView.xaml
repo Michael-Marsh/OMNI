@@ -162,6 +162,10 @@
                                            ToolTip="Submitter has requested a completion date."
                                            Visibility="Visible"
                                            Source="/OMNI;component/Icons/TimeSensitive.ico"/>
+                                    <Image Name="RushActionIcon"
+                                           ToolTip="Rush Action Has been requested."
+                                           Visibility="Hidden"
+                                           Source="/OMNI;component/Icons/Warning.ico" />
                                 </StackPanel>
 
                                 <DataTemplate.Triggers>
@@ -185,6 +189,13 @@
                                         <Setter TargetName="RequestedDate"
                                                 Property="Visibility"
                                                 Value="Hidden"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger Binding="{Binding Rush}"
+                                                 Value="1">
+                                        <Setter TargetName="RushActionIcon"
+                                                Property="Visibility"
+                                                Value="Visible" />
                                     </DataTrigger>
 
                                 </DataTemplate.Triggers>

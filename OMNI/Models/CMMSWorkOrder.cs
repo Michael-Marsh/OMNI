@@ -33,6 +33,7 @@ namespace OMNI.Models
         public DateTime DateComplete { get; set; }
         public bool AttachedNotes { get; set; }
         public bool LockOut { get; set; }
+        public bool Rush { get; set; }
 
         #endregion
 
@@ -86,6 +87,7 @@ namespace OMNI.Models
                             _wo.MachineDown = reader.SafeGetBoolean(nameof(MachineDown));
                             _wo.AttachedNotes = reader.SafeGetBoolean(nameof(AttachedNotes));
                             _wo.LockOut = reader.SafeGetBoolean("Lockout");
+                            _wo.Rush = reader.SafeGetBoolean("Rush");
                         }
                     }
                 }
@@ -365,8 +367,8 @@ namespace OMNI.Models
                 using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
                                                         INSERT INTO
                                                         [cmmsworkorder]([Status], [Priority], [Date], [Submitter], [WorkCenter], [Description], [Safety], [Quality], [Production], [CrewMembersAssigned], [RequestedByDate],
-                                                        [RequestDateReason], [DateAssigned], [DateCompleted], [MachineDown], [PartsUsed], [AttachedNotes], [Lockout], [Site])
-                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19);
+                                                        [RequestDateReason], [DateAssigned], [DateCompleted], [MachineDown], [PartsUsed], [AttachedNotes], [Lockout], [Site], [Rush])
+                                                        Values(@p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @20);
                                                         SELECT [WorkOrderNumber] FROM [cmmsworkorder] WHERE [WorkOrderNumber] = @@IDENTITY;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", wo.Status.ToString());
@@ -388,6 +390,7 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p17", wo.AttachedNotes);
                     cmd.Parameters.AddWithValue("p18", wo.LockOut);
                     cmd.Parameters.AddWithValue("p19", CurrentUser.Site);
+                    cmd.Parameters.AddWithValue("p20", wo.Rush);
                     return Convert.ToInt32(cmd.ExecuteScalar());
                 }
             }
@@ -423,7 +426,8 @@ namespace OMNI.Models
                                                             [MachineDown]=@p13,
                                                             [PartsUsed]=@p14,
                                                             [AttachedNotes]=@p15,
-                                                            [Lockout]=@p16 WHERE [WorkOrderNumber]=@p17", App.SqlConAsync))
+                                                            [Lockout]=@p16
+                                                            [Rush]=@p17 WHERE [WorkOrderNumber]=@p18", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", wo.Status.ToString());
                     cmd.Parameters.AddWithValue("p2", wo.Priority);
@@ -441,7 +445,8 @@ namespace OMNI.Models
                     cmd.Parameters.AddWithValue("p14", "");
                     cmd.Parameters.AddWithValue("p15", wo.AttachedNotes);
                     cmd.Parameters.AddWithValue("p16", wo.LockOut);
-                    cmd.Parameters.AddWithValue("p17", wo.IDNumber);
+                    cmd.Parameters.AddWithValue("p17", wo.Rush);
+                    cmd.Parameters.AddWithValue("p18", wo.IDNumber);
                     cmd.ExecuteNonQuery();
                 }
             }

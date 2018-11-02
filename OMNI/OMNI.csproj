@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>182</ApplicationRevision>
-    <ApplicationVersion>4.0.17.182</ApplicationVersion>
+    <ApplicationRevision>186</ApplicationRevision>
+    <ApplicationVersion>4.0.18.186</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
