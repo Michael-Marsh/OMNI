@@ -426,7 +426,7 @@ namespace OMNI.Models
                                                             [MachineDown]=@p13,
                                                             [PartsUsed]=@p14,
                                                             [AttachedNotes]=@p15,
-                                                            [Lockout]=@p16
+                                                            [Lockout]=@p16,
                                                             [Rush]=@p17 WHERE [WorkOrderNumber]=@p18", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", wo.Status.ToString());

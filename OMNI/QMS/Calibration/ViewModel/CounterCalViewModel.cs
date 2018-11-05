@@ -39,6 +39,7 @@ namespace OMNI.QMS.Calibration.ViewModel
                 if (value != null)
                 {
                     CounterCal = new Counter(Convert.ToInt32(value));
+                    OnPropertyChanged(nameof(SelectedMachine));
                 }
                 OnPropertyChanged(nameof(CalID));
             }

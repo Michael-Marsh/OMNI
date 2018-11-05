@@ -26,7 +26,7 @@ namespace OMNI.QMS.Calibration.Model
             Submitter = CurrentUser.FullName;
             CalDate = DateTime.Now;
             IDNumber = null;
-            ValidCal = false;
+            ValidCal = true;
             if (MachineList == null)
             {
                 MachineList = WorkCenter.GetListAsync(Enumerations.WorkCenterType.QMSCal).Result;

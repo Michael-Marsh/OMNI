@@ -56,14 +56,14 @@
                            FontWeight="Bold"
                            FontSize="18"/>
 
-                    <TextBox Text="{Binding CalID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding CalID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue={x:Null}}"
                              FontSize="16"
                              Width="200"
                              Margin="5"
                              Style="{DynamicResource LinkedTextBox}"/>
 
                     <Label Content="Out of Tolerance"
-                           Visibility="{Binding CounterCal.ValidCal, Converter={StaticResource BooltoVisConverter}}"
+                           Visibility="{Binding CounterCal.ValidCal, Converter={StaticResource InvertedBooltoVisConverter}}"
                            Foreground="Crimson"
                            FontWeight="Bold"
                            FontSize="18"
@@ -117,7 +117,7 @@
                               DisplayMemberPath="Name"
                               Margin="5"
                               Width="250"
-                              ToolTip="Select the slitter for this calcheck or calibration."
+                              ToolTip="Select the work center for this calcheck or calibration."
                               FontWeight="Bold"
                               FontSize="16"
                               Cursor="Hand"
