@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>193</ApplicationRevision>
-    <ApplicationVersion>4.0.20.193</ApplicationVersion>
+    <ApplicationRevision>202</ApplicationRevision>
+    <ApplicationVersion>4.0.21.202</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -238,9 +238,14 @@
     <Compile Include="QMS\Calibration\Model\CalBase.cs" />
     <Compile Include="QMS\Calibration\Model\Counter.cs" />
     <Compile Include="QMS\Calibration\Model\CounterData.cs" />
+    <Compile Include="QMS\Calibration\Model\TapeMeasure.cs" />
+    <Compile Include="QMS\Calibration\Model\TapeMeasureData.cs" />
     <Compile Include="QMS\Calibration\ViewModel\CounterCalViewModel.cs" />
     <Compile Include="QMS\Calibration\View\CounterCalView.xaml.cs">
       <DependentUpon>CounterCalView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="QMS\Calibration\View\TapeMeasureCalView.xaml.cs">
+      <DependentUpon>TapeMeasureCalView.xaml</DependentUpon>
     </Compile>
     <Compile Include="QMS\Converter\QIRIDNumbertoVisibility.cs" />
     <Compile Include="Converters\RequiredWidthCutoff.cs" />
@@ -504,6 +509,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Resource>
     <Page Include="QMS\Calibration\View\CounterCalView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="QMS\Calibration\View\TapeMeasureCalView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

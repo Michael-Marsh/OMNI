@@ -88,7 +88,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("omni_DoNotReply@wccobelt.com")]
+        [global::System.Configuration.DefaultSettingValueAttribute("itsupport@wccobelt.com")]
         public string omniEmailAddress {
             get {
                 return ((string)(this["omniEmailAddress"]));
@@ -134,7 +134,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Wcco0001")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Vbty6^743[\\<tyF4")]
         public string EmailPassword {
             get {
                 return ((string)(this["EmailPassword"]));

@@ -24,7 +24,7 @@
       <Value Profile="(Default)">smtp.office365.com</Value>
     </Setting>
     <Setting Name="omniEmailAddress" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">omni_DoNotReply@wccobelt.com</Value>
+      <Value Profile="(Default)">itsupport@wccobelt.com</Value>
     </Setting>
     <Setting Name="omnitemp" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\temp\</Value>
@@ -39,7 +39,7 @@
       <Value Profile="(Default)">wccobelt.com</Value>
     </Setting>
     <Setting Name="EmailPassword" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Wcco0001</Value>
+      <Value Profile="(Default)">Vbty6^743[\&lt;tyF4</Value>
     </Setting>
     <Setting Name="omniAppLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">\\manage2\server\OMNI\Pending Update\ClickOnce\OMNI.application</Value>
