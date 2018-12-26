@@ -146,6 +146,7 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="40"/>
+                    <RowDefinition Height="40" />
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="150"/>
                     <RowDefinition Height="250"/>
@@ -298,8 +299,20 @@
 
                 </StackPanel>
 
-                <!--    Row 4   -->
-                <StackPanel Grid.Row="4" 
+                <!--    Row 4  -->
+                <CheckBox Grid.Row="4"
+                          Content="Will require document updates"
+                          FontSize="18"
+                          ToolTip="Only check this box if the current documented process has been changed.&#10;This function will automatically send emails to the document and training team."
+                          VerticalAlignment="Top"
+                          HorizontalAlignment="Left"
+                          IsChecked="{Binding WorkOrder.ProcessChange, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
+                          Style="{DynamicResource CheckBoxStyle}"
+                          IsTabStop="False" />
+
+                <!--    Row 5   -->
+                <StackPanel Grid.Row="5" 
                             Orientation="Horizontal"
                             Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
 
@@ -324,8 +337,8 @@
                                 ToolTip="Request a completion date.&#10;Defaults to 1 week of lead time.&#10;Must be today's date or greater."/>
                 </StackPanel>
 
-                <!--    Row 5   -->
-                <Label Grid.Row="5"
+                <!--    Row 6   -->
+                <Label Grid.Row="6"
                        Visibility="{Binding IsFocused, Converter={StaticResource BooltoVisConverter}, ElementName=RequestedReason, Mode=OneWay}" 
                        Content="{Binding Text, ConverterParameter={x:Reference RequestedReason}, Converter={StaticResource CharCounter}, ElementName=RequestedReason}"
                        ContentStringFormat="Characters Left: {0}"
@@ -334,7 +347,7 @@
                        VerticalAlignment="Top"
                        FontWeight="Bold"/>
 
-                <StackPanel Grid.Row="5" 
+                <StackPanel Grid.Row="6" 
                             Orientation="Vertical"
                             Visibility="{Binding IsDateRequested, Converter={StaticResource BooltoVisConverter}}">
 
@@ -363,8 +376,8 @@
 
                 </StackPanel>
 
-                <!--    Row 6   -->
-                <Label Grid.Row="6"
+                <!--    Row 7   -->
+                <Label Grid.Row="7"
                        Visibility="{Binding IsFocused, Converter={StaticResource BooltoVisConverter}, ElementName=Description, Mode=OneWay}" 
                        Content="{Binding Text, ConverterParameter={x:Reference Description}, Converter={StaticResource CharCounter}, ElementName=Description}"
                        ContentStringFormat="Characters Left: {0}"
@@ -373,7 +386,7 @@
                        VerticalAlignment="Top"
                        FontWeight="Bold"/>
 
-                <StackPanel Grid.Row="6" 
+                <StackPanel Grid.Row="7" 
                             Orientation="Vertical"
                             Visibility="{Binding SearchEntered, Converter={StaticResource BooltoVisConverter}}">
 
@@ -528,8 +541,8 @@
                           HorizontalAlignment="Center"
                           IsChecked="{Binding WorkOrder.MachineDown, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           IsEnabled="{Binding IsClosed, Converter={StaticResource BoolSwitch}}"
-                          Style="{DynamicResource CheckBoxStyle}" 
-                          IsTabStop="False"/>
+                          Style="{DynamicResource CheckBoxStyle}"
+                          IsTabStop="False" />
 
                 <CheckBox Content="Rush Action Required"
                           FontSize="18"

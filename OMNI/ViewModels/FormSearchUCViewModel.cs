@@ -1,7 +1,6 @@
 ﻿using OMNI.CustomControls;
 using OMNI.Extensions;
 using OMNI.Models;
-using OMNI.QMS.Model;
 using System;
 using System.ComponentModel;
 using System.Data;
@@ -23,7 +22,7 @@ namespace OMNI.ViewModels
         public DataRowView SelectedRow
         {
             get { return selectedRow; }
-            set { if (value != null) { OpenForm(value); selectedRow = value = null; } OnPropertyChanged(nameof(SelectedRow)); }
+            set { if (value != null) { OpenForm(value); } selectedRow = value; OnPropertyChanged(nameof(SelectedRow)); }
         }
 
         #endregion
@@ -151,19 +150,22 @@ namespace OMNI.ViewModels
         /// <param name="drv">Selected DataRowView object</param>
         public static void OpenForm(DataRowView drv)
         {
-            switch (drv.Row[2].ToString())
+            if (drv != null)
             {
-                case nameof(QIR):
-                case "QIREZ":
-                    DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.LoadQIR(Convert.ToInt32(drv.Row[0])));
-                    DashBoardTabControl.WorkSpace.SelectedIndex = DashBoardTabControl.WorkSpace.Items.Count - 1;
-                    break;
-                case "CMMS":
-                    DashBoardTabControl.WorkSpace.LoadCMMSWorkOrderTabItem(Convert.ToInt32(drv.Row[0]));
-                    break;
-                case "Ticket":
-                    DashBoardTabControl.WorkSpace.LoadITTicketTabItem(Convert.ToInt32(drv.Row[0]));
-                    break;
+                switch (drv.Row.ItemArray[2].ToString())
+                {
+                    case "QIR":
+                    case "QIREZ":
+                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.LoadQIR(Convert.ToInt32(drv.Row.ItemArray[0])));
+                        DashBoardTabControl.WorkSpace.SelectedIndex = DashBoardTabControl.WorkSpace.Items.Count - 1;
+                        break;
+                    case "CMMS":
+                        DashBoardTabControl.WorkSpace.LoadCMMSWorkOrderTabItem(Convert.ToInt32(drv.Row.ItemArray[0]));
+                        break;
+                    case "Ticket":
+                        DashBoardTabControl.WorkSpace.LoadITTicketTabItem(Convert.ToInt32(drv.Row.ItemArray[0]));
+                        break;
+                }
             }
         }
 

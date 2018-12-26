@@ -408,6 +408,7 @@
                     FontWeight="Bold"
                     Width="200"
                     FontSize="18"
+                    Visibility="{Binding Tools, Converter={StaticResource BoolToVisConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     Style="{DynamicResource ButtonStyle}"/>
 
             <Label Content="{Binding ProcessText}"

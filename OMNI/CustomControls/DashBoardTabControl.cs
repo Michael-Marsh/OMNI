@@ -400,11 +400,25 @@ namespace OMNI.CustomControls
             }
         }
 
-        public static TabItem SlitCal
+        /// <summary>
+        /// Add a New Counter Calibration Tab to the DashBoard WorkSpace
+        /// </summary>
+        public static TabItem CounterCal
         {
             get
             {
-                return new TabItem { Header = "Slitter Cal.", Content = new CounterCalView() as UserControl };
+                return new TabItem { Header = "Counter Cal.", Content = new CounterCalView() as UserControl };
+            }
+        }
+
+        /// <summary>
+        /// Add a New Tapemeasure Calibration Tab to the DashBoard WorkSpace
+        /// </summary>
+        public static TabItem TapeCal
+        {
+            get
+            {
+                return new TabItem { Header = "Tape Cal.", Content = new TapeMeasureCalView() as UserControl };
             }
         }
 

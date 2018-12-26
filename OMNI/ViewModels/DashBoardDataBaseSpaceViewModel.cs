@@ -18,6 +18,7 @@ namespace OMNI.ViewModels
         public bool CMMSView { get { return CurrentUser.CMMSAdmin || CurrentUser.CMMSCrew; } }
         public bool Training { get { return App.DataBase.Contains("Train"); } }
         public bool DeveloperView { get { return CurrentUser.Developer; } }
+        public bool AccountingView { get { return CurrentUser.Accounting; } }
         public bool DataBaseOnline
         {
             get { return App.SqlConAsync.State == System.Data.ConnectionState.Open; }

@@ -13,6 +13,8 @@ namespace OMNI.Enumerations
         [Description("OMNI Management")]
         OMNIManagement = 3,
         [Description("Modify GL Accounts")]
-        cmms_glaccounts = 4
+        cmms_glaccounts = 4,
+        [Description("Run AP")]
+        ap = 5
     }
 }

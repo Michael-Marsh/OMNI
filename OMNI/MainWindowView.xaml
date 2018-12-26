@@ -211,7 +211,11 @@
                         <TextBlock Text="Kaizen" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Grid.Column="3" Grid.Row="2" Command="{Binding DefaultCommand}" CommandParameter="LotSearch" Margin="10" ToolTip="Get details about items with the Lot Number" Visibility="{Binding LoggedIn, Converter={StaticResource BooltoVisConvert}}" IsEnabled="{Binding DataBaseOnline}" FontSize="24" Style="{DynamicResource ButtonStyle}">
+                <Button Grid.Column="3" Grid.Row="2" Command="{Binding DefaultCommand}"
+                        CommandParameter="LotSearch"
+                        Margin="10"
+                        ToolTip="Get details about items with the Lot Number"
+                        Visibility="{Binding LoggedIn, Converter={StaticResource BooltoVisConvert}}" IsEnabled="{Binding DataBaseOnline}" FontSize="24" Style="{DynamicResource ButtonStyle}">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="Icons/Deviation.ico" Margin="10"/>
                         <TextBlock Text="Lot Search" VerticalAlignment="Center"/>

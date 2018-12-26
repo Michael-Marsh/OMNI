@@ -45,7 +45,7 @@
         <!--    Row 2   -->
         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
             <Label Content="Full Name" Foreground="GhostWhite" FontWeight="Bold" FontSize="18"/>
-            <TextBox Text="{Binding FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Width="250" Margin="5"/>
+            <TextBlock Text="{Binding FullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="18" Width="250" Margin="5"/>
         </StackPanel>
         
         <!--    Row 3   -->

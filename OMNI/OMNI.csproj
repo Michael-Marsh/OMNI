@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>202</ApplicationRevision>
-    <ApplicationVersion>4.0.21.202</ApplicationVersion>
+    <ApplicationRevision>247</ApplicationRevision>
+    <ApplicationVersion>4.0.24.247</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -203,6 +203,7 @@
     <Compile Include="Converters\BoolValueSwitch.cs" />
     <Compile Include="Converters\CharacterCounter.cs" />
     <Compile Include="Converters\DateGroupConverter.cs" />
+    <Compile Include="Converters\DateToVisibility.cs" />
     <Compile Include="Converters\EnumtoItemsSource.cs" />
     <Compile Include="Converters\EnumValuetoDescription.cs" />
     <Compile Include="Converters\CommaReplace.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Helpers\DragIconInfo.cs" />
     <Compile Include="Interfaces\INotice.cs" />
     <Compile Include="Models\InventorySkew.cs" />
+    <Compile Include="QMS\Calibration\CalStatus.cs" />
     <Compile Include="QMS\Calibration\Converter\SpecToBorder.cs" />
     <Compile Include="QMS\Calibration\Model\CalBase.cs" />
     <Compile Include="QMS\Calibration\Model\Counter.cs" />
@@ -241,6 +243,7 @@
     <Compile Include="QMS\Calibration\Model\TapeMeasure.cs" />
     <Compile Include="QMS\Calibration\Model\TapeMeasureData.cs" />
     <Compile Include="QMS\Calibration\ViewModel\CounterCalViewModel.cs" />
+    <Compile Include="QMS\Calibration\ViewModel\TapeMeasureCalViewModel.cs" />
     <Compile Include="QMS\Calibration\View\CounterCalView.xaml.cs">
       <DependentUpon>CounterCalView.xaml</DependentUpon>
     </Compile>
@@ -332,6 +335,7 @@
     <Compile Include="QMS\View\QIRSearchWindowView.xaml.cs">
       <DependentUpon>QIRSearchWindowView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Testing\AP_Test.cs" />
     <Compile Include="Tools\ExceltoPR.cs" />
     <Compile Include="ViewModels\CalculatorsWindowViewModel.cs" />
     <Compile Include="ViewModels\CMMSNoticeAssignedUCViewModel.cs" />
@@ -920,7 +924,6 @@
   <ItemGroup>
     <Folder Include="CMMS\ViewModel\" />
     <Folder Include="CMMS\View\" />
-    <Folder Include="Testing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

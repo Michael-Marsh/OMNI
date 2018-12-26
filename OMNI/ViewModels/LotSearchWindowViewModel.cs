@@ -61,7 +61,7 @@ namespace OMNI.ViewModels
             get { return partNbr; }
             set
             {
-                if (!string.IsNullOrEmpty(value) && value.Length > 5 && LotType)
+                if (!string.IsNullOrEmpty(value) && value.Length > 4 && LotType)
                 {
                     Skew = InventorySkew.GetSkewFromPartNrb(value);
                     OnPropertyChanged(nameof(Skew));
@@ -128,6 +128,12 @@ namespace OMNI.ViewModels
         public BindingList<InventorySkew> MoveHistory { get; set; }
 
         public Random uID;
+
+        public bool Tools
+        {
+            get { return CurrentUser.Tools; }
+            set { value = CurrentUser.Tools; OnPropertyChanged(nameof(Tools)); }
+        }
 
         RelayCommand _openQIR;
         RelayCommand _print;

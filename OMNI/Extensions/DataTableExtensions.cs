@@ -19,7 +19,7 @@ namespace OMNI.Extensions
         /// <param name="query">Search string</param>
         public static void Search(this DataTable table, string query)
         {
-            var columnNames = (from dc in table.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray();
+            var columnNames = (from dc in table?.Columns.Cast<DataColumn>() select dc.ColumnName).ToArray();
             var counter = 0;
             var queryBuilder = new StringBuilder();
             foreach (var name in columnNames)

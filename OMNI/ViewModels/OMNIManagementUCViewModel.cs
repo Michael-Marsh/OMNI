@@ -29,7 +29,7 @@ namespace OMNI.ViewModels
         public string SearchBox
         {
             get { return searchBox; }
-            set { if (!string.IsNullOrWhiteSpace(value)) { Table.Search(value); } else { Table.DefaultView.RowFilter = string.Empty; } searchBox = value; OnPropertyChanged(nameof(SearchBox)); }
+            set { if (!string.IsNullOrWhiteSpace(value) && Table != null) { Table.Search(value); } else if (Table != null) { Table.DefaultView.RowFilter = string.Empty; } searchBox = value; OnPropertyChanged(nameof(SearchBox)); }
         }
         public bool DeveloperView { get; set; }
 

@@ -248,6 +248,15 @@
                            Margin="10"/>
                 </Button>
 
+                <Button Visibility="Collapsed"
+                        Command="{Binding DataBaseEditCommand}"
+                        CommandParameter="5"
+                        Margin="10"
+                        Width="120"
+                        Content="Run&#10;Payables"
+                        FontSize="14"
+                        Style="{DynamicResource ResourceKey=DashBoardButtonStyle}" />
+
                 <StackPanel Orientation="Vertical">
 
                     <TextBox Name="SearchText"

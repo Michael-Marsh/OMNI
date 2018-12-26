@@ -13,7 +13,14 @@ namespace OMNI.Extensions
         /// <returns>string value or empty string</returns>
         public static string SafeGetString(this SqlDataReader reader, string colName)
         {
-            return !reader.IsDBNull(reader.GetOrdinal(colName)) ? reader.GetString(reader.GetOrdinal(colName)) : string.Empty;
+            try
+            {
+                return !reader.IsDBNull(reader.GetOrdinal(colName)) ? reader.GetString(reader.GetOrdinal(colName)) : string.Empty;
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
         }
 
         /// <summary>
@@ -35,7 +42,14 @@ namespace OMNI.Extensions
         /// <returns>double value or 0.00</returns>
         public static double SafeGetDouble(this SqlDataReader reader, string colName)
         {
-            return !reader.IsDBNull(reader.GetOrdinal(colName)) ? Convert.ToDouble(reader.GetValue(reader.GetOrdinal(colName))) : 0.00;
+            try
+            {
+                return !reader.IsDBNull(reader.GetOrdinal(colName)) ? Convert.ToDouble(reader.GetValue(reader.GetOrdinal(colName))) : 0.00;
+            }
+            catch (Exception)
+            {
+                return 0.00;
+            }
         }
 
         /// <summary>

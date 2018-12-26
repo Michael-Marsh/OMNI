@@ -73,6 +73,12 @@ namespace OMNI.ViewModels
             set { value = CurrentUser.Developer; OnPropertyChanged(nameof(Developer)); }
         }
 
+        public bool Tools
+        {
+            get { return CurrentUser.Tools; }
+            set { value = CurrentUser.Tools || CurrentUser.Developer; OnPropertyChanged(nameof(Tools)); }
+        }
+
         public string UserName { get; set; }
         public string Password { get; set; }
         public string Version
@@ -173,7 +179,7 @@ namespace OMNI.ViewModels
                 ((MainWindowView)MainWindowView.MainWindow).Password_pwbx.Clear();
                 ((MainWindowView)MainWindowView.MainWindow).UserName_tbx.Focus();
             }
-            LoggedIn = LoggedOut = Quality = QualityNotice = Kaizen = CMMS = IT = Engineering = Admin = Developer = false;
+            LoggedIn = LoggedOut = Quality = QualityNotice = Kaizen = CMMS = IT = Engineering = Admin = Developer = Tools = false;
             UserName = Password = UserAccountName = string.Empty;
             OnPropertyChanged(nameof(UserName));
         }

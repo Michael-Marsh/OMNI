@@ -110,7 +110,7 @@ namespace OMNI.ViewModels
                         break;
                     case DashBoardAction.DevTesting:
                         //Add in any method calls to test here
-                        
+                        Testing.AP_Test.RunAP();
                         break;
                     case DashBoardAction.SubmitECR:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewECR);
@@ -128,10 +128,10 @@ namespace OMNI.ViewModels
                         ReviewImportViewModel.Open();
                         break;
                     case DashBoardAction.TMCal:
-                        //TODO: Build tapemeasure dashboardtabitem
+                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.TapeCal);
                         break;
                     case DashBoardAction.SlitCal:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.SlitCal);
+                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.CounterCal);
                         break;
                     case DashBoardAction.InstCal:
                         //TODO: Build intrument dashboardtabitem
