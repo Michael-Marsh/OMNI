@@ -1,6 +1,7 @@
 using OMNI.Commands;
 using OMNI.CustomControls;
 using OMNI.Enumerations;
+using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.Models;
 using OMNI.Views;
@@ -16,6 +17,7 @@ namespace OMNI.ViewModels
 
         public bool QualityView { get { return CurrentUser.Quality; } }
         public bool CMMSView { get { return CurrentUser.CMMSAdmin || CurrentUser.CMMSCrew; } }
+        public bool CMMSAdminView { get { return CurrentUser.CMMSAdmin; } }
         public bool Training { get { return App.DataBase.Contains("Train"); } }
         public bool DeveloperView { get { return CurrentUser.Developer; } }
         public bool AccountingView { get { return CurrentUser.Accounting; } }
@@ -44,6 +46,7 @@ namespace OMNI.ViewModels
         RelayCommand _home;
         RelayCommand _search;
         RelayCommand _edit;
+        RelayCommand _view;
 
         #endregion
 
@@ -115,6 +118,32 @@ namespace OMNI.ViewModels
         private void DataBaseEditExecute(object parameter)
         {
             DashBoardTabControl.WorkSpace.AddDataBaseEditorTabItem((DashBoardDataBase)Enum.Parse(typeof(DashBoardDataBase), parameter.ToString()));
+        }
+
+        #endregion
+
+        #region DataBase View ICommand
+
+        /// <summary>
+        /// DashBoard DataBase Edit Command
+        /// </summary>
+        public ICommand DataBaseViewCommand
+        {
+            get
+            {
+                if (_view == null)
+                    _view = new RelayCommand(DataBaseViewExecute);
+                return _view;
+            }
+        }
+
+        /// <summary>
+        /// DashBoard DataBase Edit Command Execution
+        /// </summary>
+        /// <param name="parameter">DashBoardDataBase</param>
+        private void DataBaseViewExecute(object parameter)
+        {
+            DashBoardTabControl.WorkSpace.AddDataBaseReadOnlyTabItem(((DashBoardDataBase)Enum.Parse(typeof(DashBoardDataBase), parameter.ToString())).GetDescription());
         }
 
         #endregion

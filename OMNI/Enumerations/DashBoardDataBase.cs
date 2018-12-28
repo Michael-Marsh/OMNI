@@ -15,6 +15,8 @@ namespace OMNI.Enumerations
         [Description("Modify GL Accounts")]
         cmms_glaccounts = 4,
         [Description("Run AP")]
-        ap = 5
+        ap = 5,
+        [Description("CMMS Metrics")]
+        cmms_metrics = 6
     }
 }

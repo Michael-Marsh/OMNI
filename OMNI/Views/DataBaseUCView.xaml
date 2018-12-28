@@ -14,9 +14,29 @@
           VerticalAlignment="Top">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Visibility="{Binding CrewView, Converter={StaticResource BooltoVisConverter}}"
+                    Orientation="Horizontal">
+
+            <ComboBox ItemsSource="{Binding Path=CrewList}"
+                      SelectedValue="{Binding SelectedCrewMember}"
+                      SelectedValuePath="FullName"
+                      DisplayMemberPath="FullName"
+                      Margin="5"
+                      Width="200"
+                      FontWeight="Bold"
+                      FontSize="14"
+                      IsEditable="False"
+                      TabIndex="0">
+            </ComboBox>
+
+            <DatePicker DisplayDate="{Binding CompleteDate}" SelectedDate="{Binding CompleteDate}"/>
+            
+        </StackPanel>
 
         <ComboBox Grid.Row="0"
                   Visibility="{Binding WorkCenterView, Converter={StaticResource BooltoVisConverter}}"

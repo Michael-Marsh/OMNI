@@ -230,6 +230,15 @@
                         FontSize="14" 
                         Style="{DynamicResource ResourceKey=DashBoardButtonStyle}"/>
 
+                <Button Visibility="{Binding CMMSAdminView, Converter={StaticResource BooltoVisConvert}}"
+                        Command="{Binding DataBaseViewCommand}"
+                        CommandParameter="6"
+                        Margin="10"
+                        Width="120"
+                        Content="Work Order&#10;Metrics"
+                        FontSize="14"
+                        Style="{DynamicResource ResourceKey=DashBoardButtonStyle}" />
+
                 <Button Visibility="{Binding DeveloperView, Converter={StaticResource BooltoVisConvert}}"
                         Command="{Binding DataBaseEditCommand}"
                         CommandParameter="3"

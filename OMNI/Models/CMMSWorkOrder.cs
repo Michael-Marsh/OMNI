@@ -181,6 +181,31 @@ namespace OMNI.Models
             }
         }
 
+        public static DataTable GetUserMetrics()
+        {
+            var _tempTable = new DataTable();
+            using (var cmd = new SqlCommand($@"USE {App.DataBase};
+                                                SELECT
+	                                                [WorkOrderNumber] as 'WO Nbr',
+	                                                [Date] as 'Submitted',
+	                                                [Submitter],
+	                                                [DateAssigned] as 'Assigned',
+	                                                [DateCompleted] as 'Completed',
+                                                    [CrewMembersAssigned] as 'ActiveCrew'
+                                                FROM
+	                                                [dbo].[cmmsworkorder]
+                                                WHERE
+	                                                [Status] = 'Completed' AND [Site] = @p1;", App.SqlConAsync))
+            {
+                cmd.SafeAddParameters("p1", CurrentUser.Site);
+                using (var adapter = new SqlDataAdapter(cmd))
+                {
+                    adapter.Fill(_tempTable);
+                    return _tempTable;
+                }
+            }
+        }
+
         /// <summary>
         /// Get MTD Work Order metrics
         /// </summary>
