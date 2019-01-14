@@ -31,6 +31,7 @@ namespace OMNI.Helpers
                             doc.PrintFromPage = pdialog.PrinterSettings.FromPage;
                             doc.PrintToPage = pdialog.PrinterSettings.ToPage;
                             doc.PrinterName = pdialog.PrinterSettings.PrinterName;
+                            doc.PrintDocument.PrinterSettings.Copies = pdialog.PrinterSettings.Copies;
                             using (PrintDocument pDoc = doc.PrintDocument)
                             {
                                 pdialog.Document = pDoc;

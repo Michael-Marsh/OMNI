@@ -201,6 +201,17 @@ namespace OMNI.Models
                                             _lot += $"AND a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
                                         }
                                     }
+                                    else
+                                    {
+                                        if (string.IsNullOrEmpty(_lot))
+                                        {
+                                            _lot = $"a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
+                                        }
+                                        else
+                                        {
+                                            _lot += $"AND a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
+                                        }
+                                    }
                                 }
                             }
                             else
@@ -357,11 +368,9 @@ namespace OMNI.Models
             {
                 using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
                                                             SELECT
-                                                                a.[Description] as 'Desc', a.[Um], CAST(b.[Qty_On_Hand] AS INT) as 'OnHand' 
+                                                                a.[Description] as 'Desc', a.[Um] 
                                                             FROM
                                                                 [dbo].[IM-INIT] a
-                                                            RIGHT JOIN
-                                                                [dbo].[IPL-INIT] b ON b.[Part_Nbr] = a.[Part_Number]
                                                             WHERE
                                                                 a.[Part_Number] = @p1;", App.SqlConAsync))
                 {
@@ -375,7 +384,26 @@ namespace OMNI.Models
                                 _temp.PartNumber = partNrb;
                                 _temp.Description = reader.SafeGetString("Desc");
                                 _temp.UOM = reader.SafeGetString("Um");
-                                _temp.OnHand.Add("Total", reader.SafeGetInt32("OnHand"));
+                            }
+                        }
+                    }
+                }
+                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                                                            SELECT
+                                                                a.[Location], a.[Oh_Qty_By_Loc] as 'OnHand' 
+                                                            FROM
+                                                                [dbo].[IPL-INIT_Location_Data] a
+                                                            WHERE
+                                                                a.[ID1] = @p1;", App.SqlConAsync))
+                {
+                    cmd.Parameters.AddWithValue("p1", partNrb);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.HasRows)
+                        {
+                            while (reader.Read())
+                            {
+                                _temp.OnHand.Add(reader.SafeGetString("Location"), reader.SafeGetInt32("OnHand"));
                             }
                         }
                     }
@@ -452,10 +480,12 @@ namespace OMNI.Models
                             pdfField.SetField("Date Printed", DateTime.Today.ToString("MM/dd/yyyy"));
                             pdfField.SetField("P/N", _skew.PartNumber);
                             pdfField.SetField("Part No Bar", $"*{_skew.PartNumber}*");
+                            pdfField.SetField("Part No Bar Sm", $"*{_skew.PartNumber}*");
                             if (!string.IsNullOrEmpty(_skew.LotNumber))
                             {
                                 pdfField.SetField("Lot", _skew.LotNumber);
                                 pdfField.SetField("Lot Bar", $"*{_skew.LotNumber}*");
+                                pdfField.SetField("Lot Bar Sm", $"*{_skew.LotNumber}*");
                             }
                             pdfField.SetField("Description", _skew.Description);
                             if (!string.IsNullOrEmpty(_skew.DiamondNumber))
@@ -468,6 +498,7 @@ namespace OMNI.Models
                             {
                                 pdfField.SetField("QIR", _skew.QIRList[0].IDNumber.ToString());
                                 pdfField.SetField("QIR Bar", $"*{_skew.QIRList[0].IDNumber}*");
+                                pdfField.SetField("QIR Bar Sm", $"*{_skew.QIRList[0].IDNumber}*");
                             }
                             pdfField.SetField("Operator", CurrentUser.FullName);
                             stamp.FormFlattening = false;
@@ -540,25 +571,65 @@ namespace OMNI.Models
             var uId = new Random();
             var suffix = uId.Next(128, 512);
             from = _skew.OnHand.Count > 1 || nonLot ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
-            if (!nonLot)
+            var _errorCode = 0;
+            try
             {
-                //String Format for non lot tracable = false
-                //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
-                //Must meet this format in order to work with M2k
-
-                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~10~{_skew.LotNumber.ToUpper()}|P~99~COMPLETE";
-                File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+                var cmdStr = string.Empty;
+                var cmdPar = string.Empty;
+                if (nonLot)
+                {
+                    cmdStr = $@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT a.[Oh_Qty_By_Loc] as 'OnHand' FROM [dbo].[IPL-INIT_Location_Data] a WHERE a.[ID1] = @p1 AND a.[Location] = @p2;";
+                    cmdPar = _skew.PartNumber;
+                }
+                else
+                {
+                    cmdStr = $@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT [Oh_Qtys] as 'OnHand' FROM [dbo].[LOT-INIT_Lot_Loc_Qtys] a WHERE a.[ID1] = CONCAT(@p1,'|P') AND a.[Loc] = @p2;";
+                    cmdPar = _skew.LotNumber;
+                }
+                using (SqlCommand cmd = new SqlCommand(cmdStr, App.SqlConAsync))
+                {
+                    cmd.SafeAddParameters("p1", cmdPar.ToUpper());
+                    cmd.SafeAddParameters("p2", from.ToUpper());
+                    var _valResult = cmd.ExecuteScalar()?.ToString();
+                    if (Convert.ToInt32(_valResult) < qty)
+                    {
+                        _errorCode = 1;
+                    }
+                }
             }
-            else
+            catch (Exception)
             {
-                //String Format for non lot tracable = true
-                //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
-                //Must meet this format in order to work with M2k
-
-                var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}~99~COMPLETE";
-                File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+                ExceptionWindow.Show("Unhandled Exception", "Please call IT for assistance.");
+                return 0;
             }
-            return suffix;
+            switch(_errorCode)
+            {
+                case 0:
+                    if (!nonLot)
+                    {
+                        //String Format for non lot tracable = false
+                        //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
+                        //Must meet this format in order to work with M2k
+
+                        var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~10~{_skew.LotNumber.ToUpper()}|P~99~COMPLETE";
+                        File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+                    }
+                    else
+                    {
+                        //String Format for non lot tracable = true
+                        //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
+                        //Must meet this format in order to work with M2k
+
+                        var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}~99~COMPLETE";
+                        File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
+                    }
+                    return suffix;
+                case 1:
+                    ExceptionWindow.Show("Quantity Error", "You are trying to move more quantity that exists in the from location.\nPlease double check your locations or call IT if you feel you have reached this message in error.");
+                    return 0;
+                default:
+                    return 0;
+            }
         }
     }
 }

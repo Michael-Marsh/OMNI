@@ -255,7 +255,15 @@ namespace OMNI.ViewModels
             Skew.MoveTo = ToLoc.ToUpper();
             Skew.NonConfReason = NonReason;
             MoveHistory.Add(Skew);
-            Task.Run(() => ProcessingMove(_suf, MoveHistory.Count - 1));
+            if (_suf == 0)
+            {
+                MoveHistory[MoveHistory.Count - 1].MoveStatus = "Failed";
+                OnPropertyChanged(nameof(MoveHistory));
+            }
+            else
+            {
+                Task.Run(() => ProcessingMove(_suf, MoveHistory.Count - 1));
+            }
             Quantity = null;
             ToLoc = FromLoc = NonReason = null;
             OnPropertyChanged(nameof(Quantity));
@@ -270,7 +278,6 @@ namespace OMNI.ViewModels
                 {
                     return Skew.OnHand.Count > 1 || LotType ? !string.IsNullOrEmpty(FromLoc) : true;
                 }
-
             }
             return false;
         }

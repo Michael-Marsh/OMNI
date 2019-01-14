@@ -31,7 +31,7 @@
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="*" MaxHeight="195"/>
             <RowDefinition Height="60"/>
             <RowDefinition Height="40"/>
@@ -299,36 +299,48 @@
         </StackPanel>
 
         <!--    Row 5   -->
-        <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal" Visibility="{Binding ValidQIR, Converter={StaticResource BoolToVisConverter}}">
+        <StackPanel Grid.Row="5" Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding ValidQIR, Converter={StaticResource BoolToVisConverter}}">
+            
             <Label Content="QIR Number(s)"
                    Foreground="GhostWhite"
                    FontWeight="Bold"
-                   FontSize="18"/>
+                   FontSize="18" />
 
             <ListBox x:Name="QIRListBox"
                      ItemsSource="{Binding Path=Skew.QIRList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Margin="15,0,0,0" 
+                     Margin="15,0,0,0"
+                     Width="500"
                      FontWeight="Bold"
                      Cursor="Hand"
                      BorderThickness="0"
-                     Background="Transparent">
+                     Background="Transparent"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True" Orientation="Horizontal"/>
+                        <VirtualizingStackPanel IsItemsHost="True"
+                                                Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
-                
+
                 <ListBox.ItemTemplate>
                     <DataTemplate>
 
                         <TextBlock ToolTip="Click to open the QIR document.">
-                            <Hyperlink Command="{Binding DataContext.OpenQIRICommand, ElementName=QIRListBox, Mode=OneWay}" CommandParameter="{Binding IDNumber}" Foreground="Black" KeyboardNavigation.IsTabStop="False">
+                            <Hyperlink Command="{Binding DataContext.OpenQIRICommand, ElementName=QIRListBox, Mode=OneWay}"
+                                       CommandParameter="{Binding IDNumber}"
+                                       Foreground="Black"
+                                       KeyboardNavigation.IsTabStop="False">
                                 <Hyperlink.Inlines>
-                                    <Run FontSize="18" Text="{Binding IDNumber}"/>
+                                    <Run FontSize="18"
+                                         Text="{Binding IDNumber}" />
                                 </Hyperlink.Inlines>
                             </Hyperlink>
                         </TextBlock>
-                        
+
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

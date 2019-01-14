@@ -19,7 +19,7 @@ namespace OMNI.Testing
             {
                 var _csvItems = new List<string>();
                 var _db = "CSI_MAIN";
-                var _cmdString = $@"USE WCCO_MAIN;
+                /*var _cmdString = $@"USE {_db};
                                     SELECT
                                         'P' as 'Rec_Type',
                                         CASE WHEN APC.[Eft_Flag] = 'Y' THEN 'ACH' ELSE 'CHK' END as 'Pay_Type',
@@ -54,8 +54,8 @@ namespace OMNI.Testing
                                     FROM
                                         [dbo].[AP_CHECKS-INIT] as APC
                                     WHERE
-                                        APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";
-                /*var _cmdString = $@"USE CSI_MAIN;
+                                        APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";*/
+                var _cmdString = $@"USE {_db};
                                     SELECT
 	                                    'P' as 'Rec_Type',
 	                                    CASE WHEN APC.[Eft_Flag] = 'Y' THEN 'ACH' ELSE 'CHK' END as 'Pay_Type',
@@ -78,9 +78,9 @@ namespace OMNI.Testing
                                     FROM
 	                                    [dbo].[AP_CHECKS-INIT] as APC
                                     WHERE
-	                                    APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";*/
-                var _summary = $"S,{DateTime.Today.ToString("MM/dd/yyyy")},WCCO Belting Inc., ,P.O. Box 1205, ,Wahpeton,ND,58074,USA, , , , , ";
-                //var _summary = $"S,{DateTime.Today.ToString("MM/dd/yyyy")},CSI Calendering Inc., ,P.O. Box 1206, ,Wahpeton,ND,58074,USA, , , , , ";
+	                                    APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";
+                //var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"WCCO Belting Inc.\", ,\"P.O. Box 1205\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"517268\",\"091914464\", , , ";
+                var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"CSI Calendering Inc.\", ,\"P.O. Box 1206\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"305023931\",\"091914464\", , , ";
                 try
                 {
                     using (var pay_cmd = new SqlCommand(_cmdString, App.SqlConAsync))
@@ -154,7 +154,7 @@ namespace OMNI.Testing
                             }
                         }
                     }
-                    File.WriteAllLines("\\\\manage2\\server\\Technology\\Projects\\Ongoing\\Account Payable Intergration\\OMNITestWCCOrev2.csv", _csvItems);
+                    File.WriteAllLines("\\\\manage2\\server\\Technology\\Projects\\Ongoing\\Account Payable Intergration\\OMNITestCSIrev3.csv", _csvItems);
                 }
                 catch (SqlException sqlEx)
                 {

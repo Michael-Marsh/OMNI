@@ -109,7 +109,16 @@ namespace OMNI.QMS.Model
                 }
                 if (value != isPhotosAttached && !value)
                 {
-                    File.Delete($"{Properties.Settings.Default.QIRPhotoDirectory}{IDNumber}P.docx");
+                    var _result = System.Windows.MessageBox.Show("Are you sure that you want to delete there pictures?", "Deletion Validation",
+                        System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning, System.Windows.MessageBoxResult.No);
+                    if (_result == System.Windows.MessageBoxResult.Yes)
+                    {
+                        File.Delete($"{Properties.Settings.Default.QIRPhotoDirectory}{IDNumber}P.docx");
+                    }
+                    else
+                    {
+                        value = true;
+                    }
                 }
                 isPhotosAttached = value;
                 OnPropertyChanged(nameof(IsPhotosAttached));
