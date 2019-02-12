@@ -773,6 +773,35 @@
                         </StackPanel>
                     </TreeViewItem>
                     <!--#endregion-->
+                    
+                    <!--#region Logged Call Module Interface-->
+
+                    <TreeViewItem Visibility="{Binding LogReport, Converter={StaticResource BooltoVisConvert}}"
+                                  Header="Call Log"
+                                  Style="{DynamicResource ActiveTreeViewItem}">
+
+                        <Button Content="Notice"
+                                FontSize="14"
+                                Width="100"
+                                Margin="5"
+                                Visibility="Collapsed"
+                                Height="35"
+                                Command="{Binding ActionSpaceCommand}"
+                                CommandParameter="4"
+                                Style="{DynamicResource DashBoardButtonStyle}" />
+
+                        <Button Content="Create Report"
+                                FontSize="14"
+                                Width="120"
+                                Margin="5"
+                                Height="35"
+                                Command="{Binding ActionSpaceCommand}"
+                                CommandParameter="33"
+                                Style="{DynamicResource DashBoardButtonStyle}" />
+
+                    </TreeViewItem>
+
+                    <!--#endregion-->
 
                     <!--#region Developer Interface-->
                     <TreeViewItem Visibility="{Binding Developer, Converter={StaticResource BooltoVisConvert}}" 

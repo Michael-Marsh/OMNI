@@ -48,7 +48,8 @@ namespace OMNI.Enumerations
         [Description("IT Notice")]
         ITNotice = 31,
         [Description("Instrument Calibration")]
-        InstCal = 32
-
+        InstCal = 32,
+        [Description("Logged Call Report")]
+        LCM = 33
     }
 }

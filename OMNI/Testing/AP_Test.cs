@@ -18,8 +18,8 @@ namespace OMNI.Testing
             if (App.SqlConAsync != null || App.SqlConAsync.State != ConnectionState.Closed || App.SqlConAsync.State != ConnectionState.Broken)
             {
                 var _csvItems = new List<string>();
-                var _db = "CSI_MAIN";
-                /*var _cmdString = $@"USE {_db};
+                var _db = "WCCO_MAIN";
+                var _cmdString = $@"USE {_db};
                                     SELECT
                                         'P' as 'Rec_Type',
                                         CASE WHEN APC.[Eft_Flag] = 'Y' THEN 'ACH' ELSE 'CHK' END as 'Pay_Type',
@@ -28,25 +28,25 @@ namespace OMNI.Testing
                                         APC.[Vendor_Nbr] as 'Payee_Nbr',
                                         APC.[Vendor_Name] as 'Payee_Name',
                                         ' ' as 'Payee_Name2',
-                                        CASE WHEN(SELECT COUNT([F_Addr_1]) FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN(SELECT[F_Addr_1] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr])
-                                            ELSE(SELECT[F_Addr_1] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]) END as 'Payee_Addr',
-	                                    CASE WHEN(SELECT COUNT([F_Addr_2]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN ISNULL((SELECT[F_Addr_2] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]), ' ')
-		                                    ELSE ISNULL((SELECT[F_Addr_2] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]), ' ') END as 'Payee_Addr2',
+                                        CASE WHEN(SELECT COUNT([F_Addr_1]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN(SELECT[F_Addr_1] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr])
+                                            ELSE(SELECT[F_Addr_1] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]) END as 'Payee_Addr',
+	                                    CASE WHEN(SELECT COUNT([F_Addr_2]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN ISNULL((SELECT[F_Addr_2] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]), ' ')
+		                                    ELSE ISNULL((SELECT[F_Addr_2] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]), ' ') END as 'Payee_Addr2',
 	                                    ' ' as 'Payee_Addr3',
-	                                    CASE WHEN(SELECT COUNT([F_City]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN(SELECT[F_City] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr])
-                                            ELSE(SELECT[F_City] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]) END as 'Payee_City',
-	                                    CASE WHEN(SELECT COUNT([F_State]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN ISNULL((SELECT[F_State] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]), ' ')
-		                                    ELSE ISNULL((SELECT[F_State] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]), ' ') END as 'Payee_State',
-	                                    CASE WHEN(SELECT COUNT([F_Zip]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN(SELECT[F_Zip] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr])
-                                            ELSE(SELECT[F_Zip] FROM[dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]) END as 'Payee_Zip',
-	                                    CASE WHEN(SELECT COUNT([F_Country]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
-                                            THEN ISNULL((SELECT[F_Country] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]), 'USA')
-		                                    ELSE ISNULL((SELECT[F_Country] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND[ID1] = APC.[Vendor_Nbr]), 'USA') END as 'Payee_Country',
+	                                    CASE WHEN(SELECT COUNT([F_City]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND[ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN(SELECT[F_City] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND [ID1] = APC.[Vendor_Nbr])
+                                            ELSE(SELECT[F_City] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]) END as 'Payee_City',
+	                                    CASE WHEN(SELECT COUNT([F_State]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN ISNULL((SELECT[F_State] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]), ' ')
+		                                    ELSE ISNULL((SELECT[F_State] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]), ' ') END as 'Payee_State',
+	                                    CASE WHEN(SELECT COUNT([F_Zip]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN(SELECT[F_Zip] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 2 AND [ID1] = APC.[Vendor_Nbr])
+                                            ELSE(SELECT[F_Zip] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE[ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]) END as 'Payee_Zip',
+	                                    CASE WHEN(SELECT COUNT([F_Country]) FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]) > 0
+                                            THEN ISNULL((SELECT[F_Country] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 2 AND [ID1] = APC.[Vendor_Nbr]), 'USA')
+		                                    ELSE ISNULL((SELECT[F_Country] FROM [dbo].[VEN-INIT_Name_Addr_Info] WHERE [ID2] = 1 AND [ID1] = APC.[Vendor_Nbr]), 'USA') END as 'Payee_Country',
 	                                    ' ' as 'Payee_Routing',
 	                                    ' ' as 'Payee_Account',
 	                                    ' ' as 'Memo',
@@ -54,8 +54,8 @@ namespace OMNI.Testing
                                     FROM
                                         [dbo].[AP_CHECKS-INIT] as APC
                                     WHERE
-                                        APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";*/
-                var _cmdString = $@"USE {_db};
+                                        APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2019-01-14';";
+                /*var _cmdString = $@"USE {_db};
                                     SELECT
 	                                    'P' as 'Rec_Type',
 	                                    CASE WHEN APC.[Eft_Flag] = 'Y' THEN 'ACH' ELSE 'CHK' END as 'Pay_Type',
@@ -78,9 +78,9 @@ namespace OMNI.Testing
                                     FROM
 	                                    [dbo].[AP_CHECKS-INIT] as APC
                                     WHERE
-	                                    APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2018-01-01';";
-                //var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"WCCO Belting Inc.\", ,\"P.O. Box 1205\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"517268\",\"091914464\", , , ";
-                var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"CSI Calendering Inc.\", ,\"P.O. Box 1206\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"305023931\",\"091914464\", , , ";
+	                                    APC.[Vendor_Nbr] IS NOT NULL AND APC.[Vendor_Nbr] != '9999' AND APC.[Check_Date] > '2019-01-14';";*/
+                var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"WCCO Belting Inc.\", ,\"P.O. Box 1205\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"517268\",\"091914464\", , , ";
+                //var _summary = $"\"S\",\"{DateTime.Today.ToString("MM/dd/yyyy")}\",\"CSI Calendering Inc.\", ,\"P.O. Box 1206\", ,\"Wahpeton\",\"ND\",\"58074\",\"USA\",\"305023931\",\"091914464\", , , ";
                 try
                 {
                     using (var pay_cmd = new SqlCommand(_cmdString, App.SqlConAsync))
@@ -154,7 +154,7 @@ namespace OMNI.Testing
                             }
                         }
                     }
-                    File.WriteAllLines("\\\\manage2\\server\\Technology\\Projects\\Ongoing\\Account Payable Intergration\\OMNITestCSIrev3.csv", _csvItems);
+                    File.WriteAllLines("\\\\manage2\\server\\Technology\\Projects\\Ongoing\\Account Payable Intergration\\OMNITestWCCOrev4.csv", _csvItems);
                 }
                 catch (SqlException sqlEx)
                 {

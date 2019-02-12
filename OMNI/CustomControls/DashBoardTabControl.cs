@@ -1,5 +1,7 @@
 ﻿using OMNI.Enumerations;
 using OMNI.Extensions;
+using OMNI.LCR.View;
+using OMNI.LCR.ViewModel;
 using OMNI.Models;
 using OMNI.QMS.Calibration.View;
 using OMNI.QMS.View;
@@ -477,6 +479,17 @@ namespace OMNI.CustomControls
         public static TabItem LoadHDT(int? idNumber)
         {
             return new TabItem { Header = $"Ticket {idNumber}" };
+        }
+
+        /// <summary>
+        /// Add a New Call Log Report Form Tab to DashBoard WorkSpace
+        /// </summary>
+        public static TabItem NewCallReport
+        {
+            get
+            {
+                return new TabItem { Header = $"New Call Report", Content = new CallReport { DataContext = new CallReportVM() } as UserControl };
+            }
         }
 
         #endregion

@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>280</ApplicationRevision>
-    <ApplicationVersion>4.0.29.280</ApplicationVersion>
+    <ApplicationRevision>296</ApplicationRevision>
+    <ApplicationVersion>4.0.30.296</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -234,6 +234,14 @@
     </Compile>
     <Compile Include="Helpers\DragIconInfo.cs" />
     <Compile Include="Interfaces\INotice.cs" />
+    <Compile Include="LCR\Enumeration\BusinessType.cs" />
+    <Compile Include="LCR\Enumeration\IndustryType.cs" />
+    <Compile Include="LCR\Model\Contact.cs" />
+    <Compile Include="LCR\Model\LoggedCall.cs" />
+    <Compile Include="LCR\ViewModel\CallReportVM.cs" />
+    <Compile Include="LCR\View\CallReport.xaml.cs">
+      <DependentUpon>CallReport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\InventorySkew.cs" />
     <Compile Include="QMS\Calibration\CalStatus.cs" />
     <Compile Include="QMS\Calibration\Converter\SpecToBorder.cs" />
@@ -481,6 +489,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="HDT\View\TicketFormView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LCR\View\CallReport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

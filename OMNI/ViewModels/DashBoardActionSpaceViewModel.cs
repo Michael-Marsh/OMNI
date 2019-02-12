@@ -28,6 +28,7 @@ namespace OMNI.ViewModels
         public bool CMMSView { get { return CMMS || CMMSCrew || CMMSAdmin; } }
         public bool ElevatedCMMSView { get { return CMMSAdmin || CMMSCrew; } }
         public bool QMSCal { get { return Quality || SlitterLead; } }
+        public bool LogReport { get { return Tools || Developer; } }
 
         RelayCommand _action;
 
@@ -141,6 +142,9 @@ namespace OMNI.ViewModels
                         break;
                     case DashBoardAction.ITNotice:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.ITNotice);
+                        break;
+                    case DashBoardAction.LCM:
+                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewCallReport);
                         break;
                     case DashBoardAction.ITProject:
                     case DashBoardAction.Exception:

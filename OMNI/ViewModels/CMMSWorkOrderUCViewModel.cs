@@ -429,6 +429,10 @@ namespace OMNI.ViewModels
             }
             Task.Run(delegate
             {
+                if (WorkOrder.ProcessChange)
+                {
+                    EmailForm.SendwithoutAttachment("training.standards@wccobelt.com", $"CMMS work order {WorkOrder.IDNumber} has been marked as needing documentation updates or creation.\nPlease log into OMNI for further details.", "Documentation Review");
+                }
                 if (WorkOrder.Status == CMMSStatus.Completed || WorkOrder.Status == CMMSStatus.Denied)
                 {
                     var email = Users.RetrieveEmailAddress(WorkOrder.Submitter);
@@ -458,6 +462,8 @@ namespace OMNI.ViewModels
                 OnPropertyChanged(nameof(WorkOrder));
             }
         }
+
+        #region Attach Document ICommand
 
         /// <summary>
         /// Attach Document Command
@@ -494,6 +500,10 @@ namespace OMNI.ViewModels
             ? false
             : true;
 
+        #endregion
+
+        #region Open Document ICommand
+
         /// <summary>
         /// Open Document Command
         /// </summary>
@@ -528,6 +538,10 @@ namespace OMNI.ViewModels
             }
         }
 
+        #endregion
+
+        #region Add Note ICommand
+
         /// <summary>
         /// Add Note Command
         /// </summary>
@@ -558,6 +572,10 @@ namespace OMNI.ViewModels
         private bool NoteCanExecute(object parameter) => WorkOrder == null || WorkOrder.IDNumber == null || IsClosed
             ? false
             : true;
+
+        #endregion
+
+        #region Deny Work Order ICommand
 
         /// <summary>
         /// Deny a work order Command
@@ -609,6 +627,9 @@ namespace OMNI.ViewModels
             ? false
             : true;
 
+        #endregion
+
+        #region Submit Work Order ICommand
 
         /// <summary>
         /// Submit Command
@@ -686,6 +707,10 @@ namespace OMNI.ViewModels
                         ? false
                 : true;
 
+        #endregion
+
+        #region Complete Work Order ICommand
+
         /// <summary>
         /// Complete Work Order Command
         /// </summary>
@@ -749,6 +774,10 @@ namespace OMNI.ViewModels
                     ? false
                     : true;
 
+        #endregion
+
+        #region Print Work Order ICommand
+
         // <summary>
         /// Print Work Order Command
         /// </summary>
@@ -786,6 +815,8 @@ namespace OMNI.ViewModels
             }
         }
         private bool PrintCanExecute(object parameter) => WorkOrder?.IDNumber > 0;
+
+        #endregion
 
         /// <summary>
         /// Object Disposal
