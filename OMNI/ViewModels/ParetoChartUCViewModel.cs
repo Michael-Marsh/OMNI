@@ -28,6 +28,7 @@ namespace OMNI.ViewModels
         public int Year { get; set; }
         public int Month { get; set; }
         public string Filter { get; set; }
+        public bool SupView { get; set; }
         public List<int> ParetoPercentage { get; set; }
         private int selectedPercentage;
         public int SelectedPercentage
@@ -43,6 +44,22 @@ namespace OMNI.ViewModels
                 }
             }
         }
+        public ObservableCollection<Supplier> SupplierList { get; private set; }
+        private int? selectedSupplier;
+        public int? SelectedSupplier
+        {
+            get { return selectedSupplier; }
+            set
+            {
+                selectedSupplier = value;
+                OnPropertyChanged(nameof(SelectedSupplier));
+                if (!Loading)
+                {
+                    BuildChart(Year, Month, Filter, SelectedPercentage);
+                }
+            }
+        }
+
         public ObservableCollection<WorkCenter> WorkCenterList { get; private set; }
         private int? selectedWorkCenter;
         public int? SelectedWorkCenter
@@ -68,7 +85,7 @@ namespace OMNI.ViewModels
             {
                 if (value != _selectedCost && value != null)
                 {
-                    CostResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year);
+                    CostResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, SelectedSupplier, Month, Year, Filter.Contains("Incoming"));
                 }
                 _selectedCost = value;
                 SelectedQIRNumberCost = null;
@@ -92,7 +109,7 @@ namespace OMNI.ViewModels
             {
                 if (value != _selectedCount && value != null)
                 {
-                    CountResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, Month, Year);
+                    CountResultsTable = QIRChart.GetResults(((KeyValuePair<string, int>)value).Key, SelectedWorkCenter, SelectedSupplier, Month, Year, Filter.Contains("Incoming"));
                 }
                 _selectedCount = value;
                 OnPropertyChanged(nameof(CountResultsTable));
@@ -120,9 +137,14 @@ namespace OMNI.ViewModels
             Year = year;
             Month = month;
             Filter = filter;
+            SupView = filter.Contains("Incoming");
             WorkCenterList = new ObservableCollection<WorkCenter>(WorkCenter.GetListAsync(Enumerations.WorkCenterType.QMS).Result);
             WorkCenterList.Insert(0, new WorkCenter { IDNumber = 0, Name = "All" });
             SelectedWorkCenter = 0;
+            SupplierList = new ObservableCollection<Supplier>(Supplier.GetSupplierListAsync().Result);
+            SupplierList.RemoveAt(0);
+            SupplierList.Insert(0, new Supplier { ID = 0, Name = "All" });
+            SelectedSupplier = 0;
             if (ParetoPercentage == null)
             {
                 ParetoPercentage = new List<int>();
@@ -144,8 +166,8 @@ namespace OMNI.ViewModels
         /// <param name="percentage">Pareto Chart Percentage</param>
         public void BuildChart(int chartYear, int chartMonth, string chartFilter, int percentage)
         {
-            DataCollection = QIRChart.NCMDataAsync("Count", chartYear, chartMonth, chartFilter, SelectedWorkCenter, percentage).Result;
-            if (DataCollection == null)
+            DataCollection = QIRChart.NCMDataAsync("Count", chartYear, chartMonth, chartFilter, SelectedWorkCenter, percentage, SelectedSupplier).Result;
+            if (DataCollection == null || DataCollection.Count == 0)
             {
                 NoChart = true;
                 OnPropertyChanged(nameof(NoChart));
@@ -175,7 +197,7 @@ namespace OMNI.ViewModels
                 Y_AxisCount = Y_AxisCount.OrderBy(i => i).ToList();
                 var _tempMax = DataCollection[0].Absolute > DataCollection[DataCollection.Count - 1].Absolute ? DataCollection[0].Absolute : DataCollection[DataCollection.Count - 1].Absolute;
                 MaxCount = Convert.ToInt32(_tempMax * 1.50);
-                DataCollection = QIRChart.NCMDataAsync("Cost", chartYear, chartMonth, chartFilter, SelectedWorkCenter, SelectedPercentage).Result;
+                DataCollection = QIRChart.NCMDataAsync("Cost", chartYear, chartMonth, chartFilter, SelectedWorkCenter, SelectedPercentage, SelectedSupplier).Result;
                 X_AxisCost = new List<KeyValuePair<string, int>>();
                 Y_AxisCost = new List<double>();
                 foreach (QIRChart o in DataCollection)

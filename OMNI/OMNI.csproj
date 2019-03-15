@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>296</ApplicationRevision>
-    <ApplicationVersion>4.0.30.296</ApplicationVersion>
+    <ApplicationRevision>316</ApplicationRevision>
+    <ApplicationVersion>4.0.32.316</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -233,6 +233,13 @@
       <DependentUpon>TicketFormView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DragIconInfo.cs" />
+    <Compile Include="IAP\Remittance.cs" />
+    <Compile Include="IAP\Payment.cs" />
+    <Compile Include="IAP\Summary.cs" />
+    <Compile Include="IAP\View.xaml.cs">
+      <DependentUpon>View.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="IAP\ViewModel.cs" />
     <Compile Include="Interfaces\INotice.cs" />
     <Compile Include="LCR\Enumeration\BusinessType.cs" />
     <Compile Include="LCR\Enumeration\IndustryType.cs" />
@@ -489,6 +496,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="HDT\View\TicketFormView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="IAP\View.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

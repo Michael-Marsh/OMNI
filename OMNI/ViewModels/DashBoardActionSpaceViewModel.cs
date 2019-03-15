@@ -29,6 +29,7 @@ namespace OMNI.ViewModels
         public bool ElevatedCMMSView { get { return CMMSAdmin || CMMSCrew; } }
         public bool QMSCal { get { return Quality || SlitterLead; } }
         public bool LogReport { get { return Tools || Developer; } }
+        public bool ApAuto { get { return Accounting || Developer; } }
 
         RelayCommand _action;
 
@@ -111,7 +112,7 @@ namespace OMNI.ViewModels
                         break;
                     case DashBoardAction.DevTesting:
                         //Add in any method calls to test here
-                        Testing.AP_Test.RunAP();
+                        Testing.AP_Test.UploadFiles();
                         break;
                     case DashBoardAction.SubmitECR:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewECR);
@@ -145,6 +146,12 @@ namespace OMNI.ViewModels
                         break;
                     case DashBoardAction.LCM:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewCallReport);
+                        break;
+                    case DashBoardAction.APWCCO:
+                        DashBoardTabControl.WorkSpace.AddNewIAPView("WCCO");
+                        break;
+                    case DashBoardAction.APCSI:
+                        DashBoardTabControl.WorkSpace.AddNewIAPView("CSI");
                         break;
                     case DashBoardAction.ITProject:
                     case DashBoardAction.Exception:

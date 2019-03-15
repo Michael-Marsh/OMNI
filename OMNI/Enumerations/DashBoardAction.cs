@@ -50,6 +50,10 @@ namespace OMNI.Enumerations
         [Description("Instrument Calibration")]
         InstCal = 32,
         [Description("Logged Call Report")]
-        LCM = 33
+        LCM = 33,
+        [Description("AP File Generation")]
+        APWCCO = 34,
+        [Description("AP File Generation")]
+        APCSI = 35
     }
 }

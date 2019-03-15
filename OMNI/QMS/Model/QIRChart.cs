@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OMNI.QMS.Model
@@ -28,8 +27,9 @@ namespace OMNI.QMS.Model
         /// <param name="filter">Type of chart to create</param>
         /// <param name="workcenter">Workcenter to filter</param>
         /// <param name="percentage">All others percentage roll up</param>
+        /// <param name="supplier">Supplier to filter</param>
         /// <returns>List<QIRChart> for charting</returns>
-        public async static Task<List<QIRChart>> NCMDataAsync(string type, int year, int month, string filter, int? workcenter, int percentage)
+        public async static Task<List<QIRChart>> NCMDataAsync(string type, int year, int month, string filter, int? workcenter, int percentage, int? supplier)
         {
             var _tempList = new List<QIRChart>();
             var _dateFilter = month == 0 ? $"YEAR(a.QIRDate)={year}" : $"MONTH(a.QIRDate)={month} AND YEAR(a.QIRDate)={year}";
@@ -38,17 +38,26 @@ namespace OMNI.QMS.Model
             switch (type)
             {
                 case "Count":
-                    type = "COUNT(a.NCMCode)";
+                    type = "COUNT(a.[NCMCode])";
                     break;
                 case "Cost":
-                    type = "SUM(a.TotalCost)";
+                    type = "SUM(a.[TotalCost])";
                     break;
             }
-            filter = filter == "InternalYTD" || filter == "InternalMTD" ? "a.SupplierID=0" : "a.SupplierID>0";
-            var cmdText = $@"USE OMNI;
+            if (filter == "InternalYTD" || filter == "InternalMTD")
+            {
+                filter = "a.SupplierID = 0";
+            }
+            else
+            {
+                filter = supplier == null || supplier == 0 ? "a.SupplierID > 0" : $"a.SupplierID = '{supplier}'";
+            }
+            var cmdText = $@"USE {App.DataBase};
                                 SELECT
                                     {type} AS 'NCMCount', b.NCMCode, b.Summary,
-	                                ROUND(CAST({type} AS float) / CAST(SUM({type}) OVER() AS float) * 100, 0) AS 'Percent'
+	                                CASE WHEN SUM(a.[TotalCost]) = 0
+	                                THEN ROUND(CAST(COUNT(a.[NCMCode]) AS float) / CAST(SUM(COUNT(a.[NCMCode])) OVER() AS float) * 100, 0)
+	                                ELSE ROUND(CAST({type} AS float) / CAST(SUM({type}) OVER() AS float) * 100, 0) END AS 'Percent'
                                 FROM
                                     dbo.qir_metrics_view a
                                 RIGHT JOIN
@@ -99,49 +108,50 @@ namespace OMNI.QMS.Model
         /// </summary>
         /// <param name="ncmSummary">NCM summary filter</param>
         /// <param name="workCenter">Origin work center filter</param>
+        /// <param name="supplier">Supplier filter</param>
         /// <param name="month">Filter month</param>
-        /// <param name="year">Filter year</param>
+        /// <param name="year">Filter year</param>]
+        /// <param name="incoming">Should the table be filtered to only show incoming QIR's</param>
         /// <returns>DataTable of QIRNumbers that match the given select filter</returns>
-        public static DataTable GetResults(string ncmSummary, int? workCenter, int month, int year)
+        public static DataTable GetResults(string ncmSummary, int? workCenter, int? supplier, int month, int year, bool incoming)
         {
-            var ncmCode = 0;
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
-                                                        SELECT [NCMCode] FROM [ncm] WHERE [Summary]=@p1", App.SqlConAsync))
+                using (DataTable _table = new DataTable())
                 {
-                    cmd.Parameters.AddWithValue("p1", ncmSummary);
-                    ncmCode = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                var adapterSelect = workCenter == 0
-                    ? $@"USE {App.DataBase}; SELECT [QIRNumber] FROM [qir_metrics_view] WHERE [NCMCode]=@p1"
-                    : $@"USE {App.DataBase}; SELECT [QIRNumber] FROM [qir_metrics_view] WHERE [NCMCode]=@p1 AND [Origin]=@p2";
-                adapterSelect += month == 0
-                     ? $" AND YEAR([QIRDate])=@p4"
-                     : $" AND MONTH([QIRDate])=@p3 AND YEAR([QIRDate])=@p4";
-                using (SqlDataAdapter adapter = new SqlDataAdapter(adapterSelect, App.SqlConAsync))
-                {
-                    if (workCenter == 0)
+                    var _selectCmd = $@"USE {App.DataBase};
+                                            SELECT
+                                                a.[QIRNumber]
+                                            FROM
+                                                [qir_metrics_view] a
+                                            WHERE
+                                                a.[NCMCode]=(SELECT [NCMCode] FROM [dbo].[ncm] WHERE [Summary] = @p1) AND YEAR(a.[QIRDate]) = @p2";
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(_selectCmd, App.SqlConAsync))
                     {
-                        adapter.SelectCommand.Parameters.AddWithValue("p1", ncmCode);
+                        adapter.SelectCommand.Parameters.AddWithValue("p1", ncmSummary);
+                        adapter.SelectCommand.Parameters.AddWithValue("p2", year);
+                        if (workCenter != 0)
+                        {
+                            adapter.SelectCommand.CommandText += " AND a.[Origin] = @p3";
+                            adapter.SelectCommand.Parameters.AddWithValue("p3", workCenter);
+                        }
+                        if (month != 0)
+                        {
+                            adapter.SelectCommand.CommandText += " AND MONTH(a.[QIRDate]) = @p4";
+                            adapter.SelectCommand.Parameters.AddWithValue("p4", month);
+                        }
+                        if (supplier != 0 && incoming)
+                        {
+                            adapter.SelectCommand.CommandText += " AND SupplierID = @p5";
+                            adapter.SelectCommand.Parameters.AddWithValue("p5", supplier);
+                        }
+                        else if (incoming)
+                        {
+                            adapter.SelectCommand.CommandText += " AND SupplierID > 0";
+                        }
+                        adapter.Fill(_table);
+                        return _table;
                     }
-                    else
-                    {
-                        adapter.SelectCommand.Parameters.AddWithValue("p1", ncmCode);
-                        adapter.SelectCommand.Parameters.AddWithValue("p2", workCenter);
-                    }
-                    if (month == 0)
-                    {
-                        adapter.SelectCommand.Parameters.AddWithValue("p4", year);
-                    }
-                    else
-                    {
-                        adapter.SelectCommand.Parameters.AddWithValue("p3", month);
-                        adapter.SelectCommand.Parameters.AddWithValue("p4", year);
-                    }
-                    var _table = new DataTable();
-                    adapter.Fill(_table);
-                    return _table;
                 }
             }
             catch (Exception e)

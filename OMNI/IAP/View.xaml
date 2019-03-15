@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="OMNI.IAP.View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:local="clr-namespace:OMNI.IAP">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        
+        <DataGrid Grid.Row="0"
+                  ItemsSource="{Binding SummaryFile.Payments}"
+                  AlternatingRowBackground="CornflowerBlue"
+                  RowBackground="LightGray"
+                  IsReadOnly="True"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Left"
+                  ColumnWidth="SizeToCells"
+                  HeadersVisibility="None"
+                  RowDetailsVisibilityMode="Visible"
+                  VerticalScrollBarVisibility="Visible">
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="10" />
+                        </Grid.RowDefinitions>
+                        <DataGrid Grid.Row="0"
+                                  ItemsSource="{Binding Remittances}"
+                                  IsReadOnly="True"
+                                  RowDetailsVisibilityMode="Visible"
+                                  HeadersVisibility="None"
+                                  VerticalAlignment="Top"
+                                  HorizontalAlignment="Left"
+                                  ColumnWidth="SizeToCells">
+                        </DataGrid>
+                    </Grid>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+        </DataGrid>
+        <Button Grid.Row="1"
+                Content="Generate File"
+                Command="{Binding CreateFileICommand}"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Width="200"
+                Margin="5"
+                Style="{DynamicResource DashBoardButtonStyle}"/>
+    </Grid>
+</UserControl>

@@ -282,6 +282,26 @@ namespace OMNI.CustomControls
                 tabControl.SelectedItem = _tabItem;
             }
         }
+
+        /// <summary>
+        /// Add a new IAP file review Tab to the DashBoard WorkSpace
+        /// </summary>
+        /// <param name="tabControl">TabControl to check for open TabItem</param>
+        /// <param name="companyName">Company Name to review</param>
+        public static void AddNewIAPView(this DashBoardTabControl tabControl, string companyName)
+        {
+            var _tabItem = tabControl.IsOpen($"{companyName} IAP");
+            if (_tabItem == null)
+            {
+                var item = new TabItem { Header = $"{companyName} IAP", Content = new IAP.View { DataContext = new IAP.ViewModel(companyName) } as UserControl };
+                tabControl.Items.Add(item);
+                tabControl.SelectedItem = item;
+            }
+            else
+            {
+                tabControl.SelectedItem = _tabItem;
+            }
+        }
     }
 
     /// <summary>

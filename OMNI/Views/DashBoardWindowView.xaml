@@ -802,6 +802,34 @@
                     </TreeViewItem>
 
                     <!--#endregion-->
+                    
+                    <!--#region AP Intergration Interface-->
+
+                    <TreeViewItem Visibility="{Binding ApAuto, Converter={StaticResource BooltoVisConvert}}"
+                                  Header="Intergrated AP"
+                                  Style="{DynamicResource ActiveTreeViewItem}">
+
+                        <Button Content="Run WCCO"
+                                FontSize="14"
+                                Width="120"
+                                Margin="5"
+                                Height="35"
+                                Command="{Binding ActionSpaceCommand}"
+                                CommandParameter="34"
+                                Style="{DynamicResource DashBoardButtonStyle}" />
+
+                        <Button Content="Run CSI"
+                                FontSize="14"
+                                Width="120"
+                                Margin="5"
+                                Height="35"
+                                Command="{Binding ActionSpaceCommand}"
+                                CommandParameter="35"
+                                Style="{DynamicResource DashBoardButtonStyle}" />
+
+                    </TreeViewItem>
+
+                    <!--#endregion-->
 
                     <!--#region Developer Interface-->
                     <TreeViewItem Visibility="{Binding Developer, Converter={StaticResource BooltoVisConvert}}" 
