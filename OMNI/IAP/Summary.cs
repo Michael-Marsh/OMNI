@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace OMNI.IAP
 {
@@ -67,7 +68,7 @@ namespace OMNI.IAP
         public static void CreateFile(this Summary summary)
         {
             var _csvItems = new List<string>();
-            foreach (var p in summary.Payments)
+            foreach (var p in summary.Payments.Where(o => o.PaymentAmount > 0))
             {
                 //This will add in the summary header to the CSV file
                 _csvItems.Add($"\"{summary.RecordType}\",\"{summary.PaymentDate}\",\"{summary.PayerName}\",\"{summary.PayerName2}\" ,\"{summary.PayerAddress}\",\"{summary.PayerAddress2}\",\"{summary.PayerCity}\",\"{summary.PayerState}\",\"{summary.PayerPostalCode}\",\"{summary.PayerCounterCode}\",\"{summary.PayerRouting}\",\"{summary.PayerAccount}\",\"{summary.PromoLine1}\",\"{summary.PromoLine2}\",\"{summary.PromoLine3}\"");

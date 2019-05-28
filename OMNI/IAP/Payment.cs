@@ -67,7 +67,7 @@ namespace OMNI.IAP
         {
             get
             {
-                return $@"USE [CSI_TRAIN];
+                return $@"USE [CSI_MAIN];
                             SELECT
                                 DISTINCT([Ven_Nbr]) as 'Payee_Nbr',
                                 a.[Payee_Name],

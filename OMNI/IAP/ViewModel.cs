@@ -1,6 +1,7 @@
 ﻿using OMNI.Commands;
 using OMNI.ViewModels;
 using System.Windows.Input;
+using System.Linq;
 
 namespace OMNI.IAP
 {
@@ -9,6 +10,8 @@ namespace OMNI.IAP
         #region Properties
 
         public Summary SummaryFile { get; set; }
+        public double GrandTotal { get { return SummaryFile.Payments.Where(o => o.PaymentAmount > 0).Sum(o => o.PaymentAmount); } }
+        public int CheckCount { get { return SummaryFile.Payments.Count(o => o.PaymentAmount > 0); } }
 
         private RelayCommand _createFile;
 
@@ -51,5 +54,17 @@ namespace OMNI.IAP
         }
 
         #endregion
+
+        /// <summary>
+        /// Object disposal
+        /// </summary>
+        /// <param name="disposing">Called by the GC Finalizer</param>
+        public override void OnDispose(bool disposing)
+        {
+            if (disposing)
+            {
+               
+            }
+        }
     }
 }

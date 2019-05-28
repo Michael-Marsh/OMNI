@@ -374,7 +374,7 @@ namespace OMNI.Models
             var _cmd = string.Empty;
             _cmd = valueCheck >= 1 
                 ? $@"USE {App.DataBase};
-                    UPDATE [monthlysales] SET [Sales]=@p1, [Firm]=@p2 WHERE [Month=@p3 AND [Year]=@p4"
+                    UPDATE [monthlysales] SET [Sales]=@p1, [Firm]=@p2 WHERE [Month]=@p3 AND [Year]=@p4"
                 : $@"USE {App.DataBase};
                     INSERT INTO [monthlysales] ([Sales], [Firm], [Month], [Year]) VALUES (@p1, @p2, @p3, @p4)";
             using (SqlCommand cmd = new SqlCommand(_cmd, App.SqlConAsync))

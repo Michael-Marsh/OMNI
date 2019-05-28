@@ -44,7 +44,7 @@ namespace OMNI.IAP
                     _db = "WCCO_MAIN";
                     break;
                 case 2:
-                    _db = "CSI_TRAIN";
+                    _db = "CSI_MAIN";
                     break;
             }
             if (App.SqlConAsync != null || App.SqlConAsync.State != ConnectionState.Closed || App.SqlConAsync.State != ConnectionState.Broken)
@@ -59,9 +59,9 @@ namespace OMNI.IAP
 	                                                                a.[Invoice_Amt],
 	                                                                CASE WHEN a.[Discount_Amt1] IS NOT NULL
 		                                                                THEN
-			                                                                a.[Invoice_Amt] - a.[Discount_Amt1]
+			                                                                CAST(a.[Invoice_Amt] as DECIMAL(18,2)) - CAST(a.[Discount_Amt1] as DECIMAL(18,2))
 		                                                                ELSE
-			                                                                0.00 END as 'DiscountAmt',
+			                                                                CAST(0.00 as DECIMAL(18,2)) END as 'DiscountAmt',
 	                                                                CASE WHEN a.[Discount_Amt1] IS NOT NULL
 		                                                                THEN
 			                                                                a.[Discount_Amt1]
@@ -72,7 +72,7 @@ namespace OMNI.IAP
                                                                 RIGHT JOIN
 	                                                                [dbo].[SI-INIT] b ON b.[ID] = a.[ID]
                                                                 WHERE
-	                                                                a.[Payment_Vendor] = @p1;", App.SqlConAsync))
+	                                                                a.[ID] LIKE CONCAT(@p1, '*%');", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", payeeId);
                         using (SqlDataReader reader = cmd.ExecuteReader())

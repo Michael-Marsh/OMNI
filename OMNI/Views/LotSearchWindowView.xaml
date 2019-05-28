@@ -91,6 +91,23 @@
                      Visibility="{Binding ValidLot, Converter={StaticResource BoolToVisConverter}}"
                      Style="{DynamicResource RequiredActiveTextBox}"/>
 
+            <Label Content="From Location:"
+                   Foreground="GhostWhite"
+                   FontWeight="Bold"
+                   FontSize="18"
+                   Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"/>
+
+            <TextBox Text="{Binding FromLoc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="16"
+                     Width="100"
+                     MaxLength="9"
+                     Margin="5"
+                     TabIndex="3"
+                     AcceptsReturn="False"
+                     ToolTip="Multiple Locations where detected, you must also enter in the from location."
+                     Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"
+                     Style="{DynamicResource RequiredActiveTextBox}"/>
+
             <Label Content="To Location:"
                    Foreground="GhostWhite"
                    FontWeight="Bold"
@@ -107,23 +124,6 @@
                      AcceptsReturn="False"
                      ToolTip="Use for UNPLANNED.MOVE"
                      Visibility="{Binding Skew.OnHand.Count, Converter={StaticResource IntToVisConverter}, FallbackValue=Hidden}"
-                     Style="{DynamicResource RequiredActiveTextBox}"/>
-
-            <Label Content="From Location:"
-                   Foreground="GhostWhite"
-                   FontWeight="Bold"
-                   FontSize="18"
-                   Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"/>
-
-            <TextBox Text="{Binding FromLoc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="16"
-                     Width="100"
-                     MaxLength="9"
-                     Margin="5"
-                     TabIndex="3"
-                     AcceptsReturn="False"
-                     ToolTip="Multiple Locations where detected, you must also enter in the from location."
-                     Visibility="{Binding FromVisibility, Converter={StaticResource BoolToVisConverter}, FallbackValue=Hidden}"
                      Style="{DynamicResource RequiredActiveTextBox}"/>
 
         </StackPanel>

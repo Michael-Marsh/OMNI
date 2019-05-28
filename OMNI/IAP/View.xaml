@@ -7,8 +7,13 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="200" />
+        </Grid.ColumnDefinitions>
         
-        <DataGrid Grid.Row="0"
+        <DataGrid Grid.Row="0" Grid.Column="0"
                   ItemsSource="{Binding SummaryFile.Payments}"
                   AlternatingRowBackground="CornflowerBlue"
                   RowBackground="LightGray"
@@ -39,7 +44,7 @@
                 </DataTemplate>
             </DataGrid.RowDetailsTemplate>
         </DataGrid>
-        <Button Grid.Row="1"
+        <Button Grid.Row="1" Grid.Column="0"
                 Content="Generate File"
                 Command="{Binding CreateFileICommand}"
                 VerticalAlignment="Bottom"
@@ -47,5 +52,14 @@
                 Width="200"
                 Margin="5"
                 Style="{DynamicResource DashBoardButtonStyle}"/>
+
+        <StackPanel Grid.RowSpan="2" Grid.Column="1"
+                    Orientation="Vertical">
+            <TextBlock Text="Grand Total" />
+            <TextBlock Text="{Binding GrandTotal}" />
+            <TextBlock Text="Number of Checks" />
+            <TextBlock Text="{Binding CheckCount}" />
+        </StackPanel>
+                    
     </Grid>
 </UserControl>
