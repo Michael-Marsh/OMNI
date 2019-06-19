@@ -96,9 +96,9 @@ namespace OMNI.ViewModels
                             if (descLength > 0)
                             {
                                 var cleatSpaceCount = Math.Truncate(descLength / 12);
-                                if (((descLength - 12 * cleatSpaceCount) / 2) < 5.000)
+                                if (((descLength - 12 * cleatSpaceCount) / 2) < 5.100)
                                 {
-                                    cleatSpaceCount = cleatSpaceCount - 1;
+                                    cleatSpaceCount -= 1;
                                 }
                                 HeaderLength = cleatSpaceCount * 12 == descLength ? "6" : ((descLength - 12 * cleatSpaceCount) / 2).ToString();
                                 if (!HeaderLength.Equals("0.00") || !HeaderLength.Equals(Convert.ToInt32(HeaderLength).ToString()))
@@ -116,7 +116,6 @@ namespace OMNI.ViewModels
                                         HeaderLength = "6";
                                     }
                                 }
-
                             }
                             else
                             {
