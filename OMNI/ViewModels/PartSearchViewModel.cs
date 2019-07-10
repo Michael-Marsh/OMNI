@@ -3,6 +3,7 @@ using OMNI.Helpers;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 
@@ -80,7 +81,16 @@ namespace OMNI.ViewModels
             try
             {
                 if (file == "Invalid")
-                    ExceptionWindow.Show("Invalid Part Number", "The part number you have entered does not exist.\n Please double check your entry and try again.");
+                {
+                    if (File.Exists(Properties.Settings.Default.PrintLocation + _tempPartNumber + Properties.Settings.Default.DefaultPrintExtension))
+                    {
+                        Process.Start(Properties.Settings.Default.PrintLocation + _tempPartNumber + Properties.Settings.Default.DefaultPrintExtension);
+                    }
+                    else
+                    {
+                        ExceptionWindow.Show("Invalid Part Number", "The part number you have entered does not exist.\n Please double check your entry and try again.");
+                    }
+                }
                 else if (file == "O")
                 {
                     ExceptionWindow.Show("Obsolete Part Number", "The part number you have entered has been obsoleted.");

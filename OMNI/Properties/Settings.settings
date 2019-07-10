@@ -9,7 +9,7 @@
       <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\QIR Photos\</Value>
     </Setting>
     <Setting Name="PrintLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Engineering\Product\Prints\Controlled Production Prints\</Value>
+      <Value Profile="(Default)">\\manage2\Prints\</Value>
     </Setting>
     <Setting Name="ManageHostName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">172.16.0.10</Value>

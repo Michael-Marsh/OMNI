@@ -7,7 +7,7 @@
         xmlns:ViewModels="clr-namespace:OMNI.ViewModels" x:Class="OMNI.Views.PartSearchWindowView"
         xmlns:Converters="clr-namespace:OMNI.Converters"
         mc:Ignorable="d"
-        Title="Part Search" Height="300" Width="350" Icon="/OMNI;component/Icons/PartSearch.ico" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen">
+        Title="Print Search" Height="300" Width="350" Icon="/OMNI;component/Icons/PartSearch.ico" ResizeMode="CanResizeWithGrip" WindowStartupLocation="CenterScreen">
 
     <Window.InputBindings>
         <KeyBinding Command="{Binding SearchCommand}" Gesture="Enter"/>
@@ -36,7 +36,7 @@
                                  Style="{DynamicResource LinkRadioButton}"
                                  IsChecked="{Binding Both}"/>
                 </StackPanel>
-                <Label Content="Part Number" Foreground="GhostWhite" FontWeight="Bold" FontSize="24" HorizontalAlignment="Center"/>
+                <Label Content="Print Number" Foreground="GhostWhite" FontWeight="Bold" FontSize="24" HorizontalAlignment="Center"/>
                 <TextBox x:Name="PartNumber" Text="{Binding PartNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue={x:Static sys:String.Empty}}" FontSize="20" FontWeight="Bold" Width="150" MaxLength="10" AcceptsReturn="False" Margin="5" Style="{DynamicResource RequiredActiveTextBox}"/>
                 <Button Content="Search" Width="150" Height="40" Margin="10" FontSize="20" Command="{Binding SearchCommand}" Style="{DynamicResource ButtonStyle}"/>
             </StackPanel>

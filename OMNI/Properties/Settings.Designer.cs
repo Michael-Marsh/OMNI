@@ -43,7 +43,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Engineering\\Product\\Prints\\Controlled Production Prints\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\Prints\\")]
         public string PrintLocation {
             get {
                 return ((string)(this["PrintLocation"]));
