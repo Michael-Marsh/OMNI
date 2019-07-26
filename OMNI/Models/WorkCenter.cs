@@ -70,21 +70,22 @@ namespace OMNI.Models
         /// </summary>
         /// <param name="workCenterNumber">Work Center Number</param>
         /// <returns>Work Center EZ Type as NCMType</returns>
-        public static NCMType GetEZType(int? workCenterNumber)
+        public static string GetEZType(int? workCenterNumber)
         {
             try
             {
                 using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase}; SELECT [WorkCenterType] FROM [workcenter] WHERE [WorkCenterNumber]=@p1", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", workCenterNumber);
-                    Enum.TryParse((cmd.ExecuteScalar()).ToString(), out NCMType _type);
-                    return _type;
+                    return cmd.ExecuteScalar().ToString();
+                    //Enum.TryParse((cmd.ExecuteScalar()).ToString(), out NCMType _type);
+                    //return _type;
                 }
             }
             catch (Exception ex)
             {
                 ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
-                return 0;
+                return "None";
             }
         }
     }

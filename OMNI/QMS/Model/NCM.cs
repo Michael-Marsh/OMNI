@@ -57,7 +57,7 @@ namespace OMNI.QMS.Model
         public async static Task<List<NCM>> GetNCMListAsync(int? workCenterNumber)
         {
             var _listType = WorkCenter.GetEZType(workCenterNumber);
-            if (_listType.Equals(NCMType.None))
+            if (string.IsNullOrEmpty(_listType) || _listType == "None")
             {
                 return null;
             }
