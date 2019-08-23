@@ -301,9 +301,9 @@ namespace OMNI.Models
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand($"{App.DataBase}.query_gl_account", App.SqlConAsync) { CommandType = CommandType.StoredProcedure })
+                using (SqlCommand cmd = new SqlCommand($"USE {App.DataBase}; SELECT [GLAccount] FROM [dbo].[cmms_glaccounts] WHERE [Description] = @p1;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("@workCenter", workCenter);
+                    cmd.Parameters.AddWithValue("@p1", workCenter);
                     return (cmd.ExecuteScalar()).ToString();
                 }
             }

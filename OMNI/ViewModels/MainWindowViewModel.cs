@@ -285,10 +285,12 @@ namespace OMNI.ViewModels
                     }
                     break;
                 case "Turn Training On":
+                    App.DataBase = "OMNI_Train";
                     OnPropertyChanged(nameof(TrainingMode));
                     OnPropertyChanged(nameof(Training));
                     break;
                 case "Turn Training Off":
+                    App.DataBase = "OMNI";
                     OnPropertyChanged(nameof(TrainingMode));
                     OnPropertyChanged(nameof(Training));
                     break;

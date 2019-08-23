@@ -45,7 +45,7 @@ using System.Windows;
 // You can specify all the values or you can default the Publish and Build Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("4.0.40.353")]
-[assembly: AssemblyFileVersion("4.0.40.353")]
+[assembly: AssemblyVersion("4.0.41.356")]
+[assembly: AssemblyFileVersion("4.0.41.356")]
 [assembly: NeutralResourcesLanguage("en")]
 
