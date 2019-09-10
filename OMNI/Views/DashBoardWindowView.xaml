@@ -595,6 +595,15 @@
                     <TreeViewItem Header="Help Desk" Style="{DynamicResource ActiveTreeViewItem}"
                                   Visibility="{Binding IT, Converter={StaticResource BooltoVisConvert}}">
 
+                        <Button Content="Notice"
+                                FontSize="14" 
+                                Width="120"
+                                Margin="5"
+                                Height="35" 
+                                Command="{Binding ActionSpaceCommand}"
+                                CommandParameter="31" 
+                                Style="{DynamicResource DashBoardButtonStyle}"/>
+                        
                         <Button Content="Create Ticket"
                                 FontSize="14"
                                 Width="120"
@@ -611,15 +620,6 @@
                                 Height="35" 
                                 Command="{Binding ActionSpaceCommand}" 
                                 CommandParameter="23" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Notice"
-                                FontSize="14" 
-                                Width="120"
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="31" 
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                         <StackPanel Orientation="Horizontal">
@@ -669,23 +669,6 @@
                                 Command="{Binding ActionSpaceCommand}" 
                                 CommandParameter="26"
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <StackPanel Orientation="Horizontal">
-
-                            <Button Content="IT Projects"
-                                    FontSize="14" Width="100" 
-                                    Margin="5" Height="35"
-                                    ToolTip="View a schedule of IT Projects."
-                                    Command="{Binding ActionSpaceCommand}" 
-                                    CommandParameter="27"
-                                    Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                            <Label Content="{Binding ITProject}" 
-                                   Foreground="#FFA83131" 
-                                   FontSize="18" 
-                                   VerticalAlignment="Center"/>
-
-                        </StackPanel>
 
                     </TreeViewItem>
                     <!--#endregion-->

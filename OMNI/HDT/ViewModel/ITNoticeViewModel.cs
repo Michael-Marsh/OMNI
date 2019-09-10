@@ -24,7 +24,7 @@ namespace OMNI.HDT.ViewModel
             get { return selectedRow; }
             set
             {
-                /*if (value != selectedRow)
+                if (value != selectedRow)
                 {
                     if (NoticeView.FormGrid.Children.Count > 0)
                     {
@@ -35,14 +35,14 @@ namespace OMNI.HDT.ViewModel
                     {
                         NoticeView.FormGrid.Children.Add(new TicketFormView
                         {
-                            DataContext = new TicketFormViewModel()
+                            DataContext = new TicketFormViewModel { ITTicket = new Ticket(Convert.ToInt32(selectedRow.Row.ItemArray[0])) }
                         } as UserControl);
                     }
                     catch (NullReferenceException)
                     {
                         selectedRow = value = null;
                     }
-                }*/
+                }
                 selectedRow = value;
             }
         }

@@ -111,7 +111,7 @@ namespace OMNI.ViewModels
                     Table.Merge(_table);
                 }
                 using (var adapter = new SqlDataAdapter($@"USE {App.DataBase};
-                                                            SELECT * FROM [qir_master];", App.SqlConAsync))
+                                                            SELECT * FROM [qir_metrics_view];", App.SqlConAsync))
                 {
                     var _table = new DataTable();
                     adapter.Fill(_table);

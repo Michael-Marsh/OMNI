@@ -32,8 +32,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>WCCO Belting</SuiteName>
     <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>356</ApplicationRevision>
-    <ApplicationVersion>4.0.41.356</ApplicationVersion>
+    <ApplicationRevision>366</ApplicationRevision>
+    <ApplicationVersion>4.0.43.366</ApplicationVersion>
     <UseApplicationTrust>true</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -220,7 +220,6 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\SqlClientExtensions.cs" />
     <Compile Include="HDT\Enumeration\TicketType.cs" />
-    <Compile Include="HDT\Model\Project.cs" />
     <Compile Include="HDT\Model\TeamMember.cs" />
     <Compile Include="HDT\Model\Ticket.cs" />
     <Compile Include="HDT\Model\TicketDocument.cs" />
