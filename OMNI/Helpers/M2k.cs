@@ -1,6 +1,4 @@
-﻿using IBMU2.UODOTNET;
-using OMNI.Extensions;
-using OMNI.Models;
+﻿using OMNI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -14,125 +12,6 @@ namespace OMNI.Helpers
     public sealed class M2k
     {
         /// <summary>
-        /// Retrieve the master print number attached to a part number in Manage2000
-        /// </summary>
-        /// <param name="partNumber">Part Number</param>
-        /// <param name="manageAccount">Manage account to use</param>
-        /// <returns>Part number or master print part number</returns>
-        public static string Master(string partNumber, string manageAccount)
-        {
-            try
-            {
-                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, manageAccount, "udcs"))
-                {
-                    using (UniFile uFile = uSession.CreateUniFile("IM"))
-                    {
-                        using (UniDynArray udArray = uFile.Read(partNumber))
-                        {
-                            return string.IsNullOrEmpty(udArray.Extract(157).StringValue) ? partNumber : udArray.Extract(157).StringValue;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return "Invalid";
-            }
-        }
-
-        /// <summary>
-        /// Inquire a Part Numbers Status in Manage2000
-        /// </summary>
-        /// <param name="partNumber">Part Number</param>
-        /// <param name="manageAccount">Manage account to use</param>
-        /// <returns>Engineering status of a given part number</returns>
-        public static string EngineeringStatus(string partNumber, string manageAccount)
-        {
-            try
-            {
-                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, manageAccount, "udcs"))
-                {
-                    using (UniFile uFile = uSession.CreateUniFile("IPL"))
-                    {
-                        using (UniDynArray udArray = uFile.Read(partNumber))
-                        {
-                            return string.IsNullOrEmpty(udArray.Extract(40).StringValue) ? "NotOnFile" : udArray.Extract(40).StringValue;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return "O";
-            }
-        }
-
-        /// <summary>
-        /// Modify records in manage
-        /// !!WARNING!! DO NOT USE this method to modify business logic transactions like wip reciepts
-        /// The intent of this method is to modify single records that are stand alone in the M2k database i.e. N location reason
-        /// </summary>
-        /// <param name="fileName">Name of the file to modify</param>
-        /// <param name="attribute">Name of the attribute to modidy</param>
-        /// <param name="newValue">The new value to input into manage</param>
-        /// <param name="recordID">Record ID</param>
-        public static void ModifyRecord(string fileName, int attribute, string newValue, string recordID, string db = "MAIN")
-        {
-            try
-            {
-                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.{db}", "udcs"))
-                {
-                    using (UniFile uFile = uSession.CreateUniFile(fileName))
-                    {
-                        using (UniDynArray udArray = uFile.Read(recordID))
-                        {
-                            udArray.Insert(attribute, newValue);
-                            uFile.Write(recordID, udArray);
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// Delete records in manage
-        /// !!WARNING!! DO NOT USE this method to modify business logic transactions like wip reciepts
-        /// The intent of this method is to delete single records that are stand alone in the M2k database i.e. N location reason
-        /// </summary>
-        /// <param name="fileName">Name of the file</param>
-        /// <param name="attribute">Name of the attribute to modidy</param>
-        /// <param name="recordID">Record ID</param>
-        public static void DeleteRecord(string fileName, int attribute, string recordID)
-        {
-            try
-            {
-                using (UniSession uSession = UniObjects.OpenSession(Properties.Settings.Default.ManageHostName, Properties.Settings.Default.ManageAccount, Properties.Settings.Default.ManageAccount, $"E:/roi/{CurrentUser.Site}.MAIN", "udcs"))
-                {
-                    using (UniFile uFile = uSession.CreateUniFile(fileName))
-                    {
-                        using (UniDynArray udArray = uFile.Read(recordID))
-                        {
-                            udArray.Remove(attribute);
-                            uFile.Write(recordID, udArray);
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-
-        //********************************************************************
-        //Everything Below was written for the SQL implementation for M2k data
-        //********************************************************************
-
-        /// <summary>
         /// Grab current sales from M2k
         /// </summary>
         /// <param name="startDate">Date to start the query</param>
@@ -142,7 +21,7 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                         SELECT SUM([Sales]) FROM [dbo].[SA-INIT] WHERE [Inv_So_Date]>='{startDate}' AND [Inv_So_Date]<='{endDate}' AND [Record_Type]='SL'", App.SqlConAsync))
                 {
                     return Convert.ToInt32(cmd.ExecuteScalar());
@@ -167,7 +46,7 @@ namespace OMNI.Helpers
             {
                 try
                 {
-                    using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                    using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", partNumber);
@@ -198,8 +77,6 @@ namespace OMNI.Helpers
             {
                 _results[0] = "Invalid";
                 _results[1] = "Invalid";
-                _results[2] = await Task.Run(() => Master(partNumber, Properties.Settings.Default.CSIManageAccount)).ConfigureAwait(false);
-                _results[3] = await Task.Run(() => EngineeringStatus(partNumber, Properties.Settings.Default.CSIManageAccount)).ConfigureAwait(false);
                 return _results[2] == "Invalid"
                     ? _results[2]
                     : _results[3] == "O"
@@ -210,7 +87,7 @@ namespace OMNI.Helpers
             {
                 try
                 {
-                    using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                    using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT a.[Drawing_Nbrs], b.[Engineering_Status] FROM [dbo].[IM-INIT] a RIGHT JOIN [dbo].[IPL-INIT] b ON a.[Part_Number] = b.[Part_Nbr] WHERE a.[Part_Number] = @p1;", App.SqlConAsync))
                     {
                         cmd.Parameters.AddWithValue("p1", partNumber);
@@ -236,8 +113,6 @@ namespace OMNI.Helpers
                 {
 
                 }
-                _results[2] = await Task.Run(() => Master(partNumber, Properties.Settings.Default.CSIManageAccount)).ConfigureAwait(false);
-                _results[3] = await Task.Run(() => EngineeringStatus(partNumber, Properties.Settings.Default.CSIManageAccount)).ConfigureAwait(false);
                 return _results[0] == "Invalid" && _results[2] == "Invalid"
                     ? _results[0]
                     : _results[1] == "O" && _results[3] == "O"
@@ -263,7 +138,7 @@ namespace OMNI.Helpers
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                         SELECT [Engineering_Status] FROM [dbo].[IPL-INIT] WHERE [Part_Nbr] = @p1;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);
@@ -286,7 +161,7 @@ namespace OMNI.Helpers
             try
             {
                 var _tempList = new List<string>();
-                using (SqlCommand cmd = new SqlCommand($@"USE WCCO_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                         SELECT [Url] FROM [dbo].[IM-INIT_Url_Codes] WHERE [ID1] = @p1;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNumber);

@@ -26,10 +26,6 @@ namespace OMNI.Commands
             {
                 o = ((CMMSWorkOrderUCViewModel)parameter).WorkOrder;
             }
-            else
-            {
-                o = ((ITFormUCViewModel)parameter).Ticket;
-            }
             return ((FormBase)o).IDNumber != null && !((FormBase)o).LinkExists();
         }
         public void Execute(object parameter)
@@ -43,10 +39,6 @@ namespace OMNI.Commands
             {
                 o = ((CMMSWorkOrderUCViewModel)parameter).WorkOrder;
             }
-            else
-            {
-                o = ((ITFormUCViewModel)parameter).Ticket;
-            }
             var flwv = new FormLinkWindowView { DataContext = new FormLinkWindowViewModel(o) };
             flwv.ShowDialog();
             if (parameter.GetType() == typeof(QIRFormViewModel))
@@ -56,10 +48,6 @@ namespace OMNI.Commands
             else if (parameter.GetType() == typeof(CMMSWorkOrderUCViewModel))
             {
                 ((CMMSWorkOrderUCViewModel)parameter).UpdateUILinkList();
-            }
-            else
-            {
-                ((ITFormUCViewModel)parameter).UpdateUILinkList();
             }
         }
     }

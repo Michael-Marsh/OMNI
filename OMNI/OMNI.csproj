@@ -9,14 +9,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OMNI</RootNamespace>
     <AssemblyName>OMNI</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
-    <PublishUrl>\\manage2\server\OMNI\Pending Update\ClickOnce\</PublishUrl>
+    <PublishUrl>\\waxfs001\WAXG-OMNI\OMNI App\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -26,15 +26,15 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <UpdateUrl>\\manage2\server\OMNI\Pending Update\ClickOnce\</UpdateUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>OMNI</ProductName>
     <PublisherName>Michael Marsh</PublisherName>
-    <SuiteName>WCCO Belting</SuiteName>
-    <MinimumRequiredVersion>2.1.45.207</MinimumRequiredVersion>
-    <ApplicationRevision>366</ApplicationRevision>
-    <ApplicationVersion>4.0.43.366</ApplicationVersion>
-    <UseApplicationTrust>true</UseApplicationTrust>
+    <SuiteName>ContiTech</SuiteName>
+    <MinimumRequiredVersion>4.0.45.390</MinimumRequiredVersion>
+    <ApplicationRevision>10</ApplicationRevision>
+    <ApplicationVersion>5.0.1.10</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -59,6 +59,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icons\Omni.ico</ApplicationIcon>
@@ -119,13 +120,13 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="itextsharp">
-      <HintPath>F:\OMNI\Application\itextsharp.dll</HintPath>
+      <HintPath>..\itextsharp.dll</HintPath>
     </Reference>
     <Reference Include="itextsharp.pdfa">
-      <HintPath>F:\OMNI\Application\itextsharp.pdfa.dll</HintPath>
+      <HintPath>..\itextsharp.pdfa.dll</HintPath>
     </Reference>
     <Reference Include="itextsharp.xtra">
-      <HintPath>F:\OMNI\Application\itextsharp.xtra.dll</HintPath>
+      <HintPath>..\itextsharp.xtra.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Windows.Interactivity.WPF.2.0.20525\lib\net40\Microsoft.Expression.Interactions.dll</HintPath>
@@ -142,9 +143,6 @@
     <Reference Include="Spire.Pdf, Version=3.8.82.5040, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
       <HintPath>..\packages\Spire.PDF.3.8.82\lib\net40\Spire.Pdf.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="SpreadsheetLight">
-      <HintPath>F:\Users\MikeM\Code Aids\SpreadSheet Lite\SpreadsheetLight.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -179,7 +177,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="uodotnet">
-      <HintPath>F:\OMNI\Application\uodotnet.dll</HintPath>
+      <HintPath>..\uodotnet.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -219,35 +217,8 @@
     <Compile Include="Converters\ReasonToVisibility.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\SqlClientExtensions.cs" />
-    <Compile Include="HDT\Enumeration\TicketType.cs" />
-    <Compile Include="HDT\Model\TeamMember.cs" />
-    <Compile Include="HDT\Model\Ticket.cs" />
-    <Compile Include="HDT\Model\TicketDocument.cs" />
-    <Compile Include="HDT\ViewModel\ITNoticeViewModel.cs" />
-    <Compile Include="HDT\ViewModel\TicketFormViewModel.cs" />
-    <Compile Include="HDT\View\ITNoticeDataView.xaml.cs">
-      <DependentUpon>ITNoticeDataView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="HDT\View\TicketFormView.xaml.cs">
-      <DependentUpon>TicketFormView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\DragIconInfo.cs" />
-    <Compile Include="IAP\Remittance.cs" />
-    <Compile Include="IAP\Payment.cs" />
-    <Compile Include="IAP\Summary.cs" />
-    <Compile Include="IAP\View.xaml.cs">
-      <DependentUpon>View.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="IAP\ViewModel.cs" />
     <Compile Include="Interfaces\INotice.cs" />
-    <Compile Include="LCR\Enumeration\BusinessType.cs" />
-    <Compile Include="LCR\Enumeration\IndustryType.cs" />
-    <Compile Include="LCR\Model\Contact.cs" />
-    <Compile Include="LCR\Model\LoggedCall.cs" />
-    <Compile Include="LCR\ViewModel\CallReportVM.cs" />
-    <Compile Include="LCR\View\CallReport.xaml.cs">
-      <DependentUpon>CallReport.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Models\InventorySkew.cs" />
     <Compile Include="QMS\Calibration\CalStatus.cs" />
     <Compile Include="QMS\Calibration\Converter\SpecToBorder.cs" />
@@ -311,9 +282,7 @@
     <Compile Include="Models\CMMSVendorPart.cs" />
     <Compile Include="Models\CMMSWorkOrder.cs" />
     <Compile Include="Models\CurrentUser.cs" />
-    <Compile Include="Models\ECR.cs" />
     <Compile Include="Models\FormBase.cs" />
-    <Compile Include="Models\ITTicket.cs" />
     <Compile Include="Models\OMNIDataBase.cs" />
     <Compile Include="Models\OMNIException.cs" />
     <Compile Include="Models\Priority.cs" />
@@ -349,7 +318,6 @@
     <Compile Include="QMS\View\QIRSearchWindowView.xaml.cs">
       <DependentUpon>QIRSearchWindowView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Testing\AP_Test.cs" />
     <Compile Include="Tools\ExceltoPR.cs" />
     <Compile Include="ViewModels\CalculatorsWindowViewModel.cs" />
     <Compile Include="ViewModels\CMMSNoticeAssignedUCViewModel.cs" />
@@ -363,27 +331,15 @@
     <Compile Include="ViewModels\DashBoardActionSpaceViewModel.cs" />
     <Compile Include="ViewModels\DashBoardDataBaseSpaceViewModel.cs" />
     <Compile Include="ViewModels\DataExportFilterViewModel.cs" />
-    <Compile Include="ViewModels\DocumentIndexViewModel.cs" />
-    <Compile Include="ViewModels\ECRFormUCViewModel.cs" />
     <Compile Include="ViewModels\ExceptionLogViewModel.cs" />
     <Compile Include="ViewModels\FormLinkWindowViewModel.cs" />
     <Compile Include="ViewModels\HomeUCViewModel.cs" />
     <Compile Include="ViewModels\DataBaseUCViewModel.cs" />
-    <Compile Include="ViewModels\ITFormUCViewModel.cs" />
-    <Compile Include="ViewModels\ITNoticeClosedUCViewModel.cs" />
-    <Compile Include="ViewModels\ITNoticeOpenUCViewModel.cs" />
-    <Compile Include="ViewModels\ITNoticeUnassignedUCViewModel.cs" />
-    <Compile Include="ViewModels\ITNoticeUCViewModelBase.cs" />
-    <Compile Include="ViewModels\ITProjectUCViewModel.cs" />
-    <Compile Include="ViewModels\LotSearchWindowViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\OMNIManagementUCViewModel.cs" />
     <Compile Include="ViewModels\NoteWindowViewModel.cs" />
     <Compile Include="ViewModels\ParetoChartUCViewModel.cs" />
-    <Compile Include="ViewModels\PartSearchViewModel.cs" />
-    <Compile Include="ViewModels\PlateSearchViewModel.cs" />
     <Compile Include="ViewModels\RegistrationWindowViewModel.cs" />
-    <Compile Include="ViewModels\ReviewImportViewModel.cs" />
     <Compile Include="ViewModels\UpdateSalesWindowViewModel.cs" />
     <Compile Include="ViewModels\UserAccountUCViewModel.cs" />
     <Compile Include="ViewModels\FormSearchUCViewModel.cs" />
@@ -393,9 +349,6 @@
     </Compile>
     <Compile Include="Views\DetailedSearchWindowView.xaml.cs">
       <DependentUpon>DetailedSearchWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\LotSearchWindowView.xaml.cs">
-      <DependentUpon>LotSearchWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NoticeView.xaml.cs">
       <DependentUpon>NoticeView.xaml</DependentUpon>
@@ -424,9 +377,6 @@
     <Compile Include="Views\CMMSWorkOrderUCView.xaml.cs">
       <DependentUpon>CMMSWorkOrderUCView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ECRFormUCView.xaml.cs">
-      <DependentUpon>ECRFormUCView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\ExceptionLogUCView.xaml.cs">
       <DependentUpon>ExceptionLogUCView.xaml</DependentUpon>
     </Compile>
@@ -435,9 +385,6 @@
     </Compile>
     <Compile Include="Views\DataBaseUCView.xaml.cs">
       <DependentUpon>DataBaseUCView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\DocumentIndexWindowView.xaml.cs">
-      <DependentUpon>DocumentIndexWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ExceptionWindowView.xaml.cs">
       <DependentUpon>ExceptionWindowView.xaml</DependentUpon>
@@ -448,15 +395,6 @@
     <Compile Include="Views\HomeUCView.xaml.cs">
       <DependentUpon>HomeUCView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\ITFormUCView.xaml.cs">
-      <DependentUpon>ITFormUCView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ITProjectListUCView.xaml.cs">
-      <DependentUpon>ITProjectListUCView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ITTicketNoticeUCView.xaml.cs">
-      <DependentUpon>ITTicketNoticeUCView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\OMNIManagementUCView.xaml.cs">
       <DependentUpon>OMNIManagementUCView.xaml</DependentUpon>
     </Compile>
@@ -466,17 +404,8 @@
     <Compile Include="Views\ParetoChartUCView.xaml.cs">
       <DependentUpon>ParetoChartUCView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PartSearchWindowView.xaml.cs">
-      <DependentUpon>PartSearchWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PlateSearchWindowView.xaml.cs">
-      <DependentUpon>PlateSearchWindowView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RegistrationWindowView.xaml.cs">
       <DependentUpon>RegistrationWindowView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ReviewImportWindowView.xaml.cs">
-      <DependentUpon>ReviewImportWindowView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplateWindowView.xaml.cs">
       <DependentUpon>TemplateWindowView.xaml</DependentUpon>
@@ -490,22 +419,6 @@
     <Compile Include="Views\FormSearchUCView.xaml.cs">
       <DependentUpon>FormSearchUCView.xaml</DependentUpon>
     </Compile>
-    <Page Include="HDT\View\ITNoticeDataView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="HDT\View\TicketFormView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="IAP\View.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="LCR\View\CallReport.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindowView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -598,10 +511,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LotSearchWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\NoticeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -650,31 +559,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ITFormUCView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ITProjectListUCView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ITTicketNoticeUCView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\OMNIManagementUCView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ParetoChartUCView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PlateSearchWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\ReviewImportWindowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -726,10 +615,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Resource>
-    <Page Include="Views\ECRFormUCView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\ExceptionLogUCView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -742,19 +627,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DocumentIndexWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\HomeUCView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NoteWindowView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PartSearchWindowView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -792,7 +669,7 @@
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
-      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />

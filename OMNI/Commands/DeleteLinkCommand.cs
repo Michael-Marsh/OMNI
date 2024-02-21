@@ -25,10 +25,6 @@ namespace OMNI.Commands
             {
                 parameter = ((CMMSWorkOrderUCViewModel)parameter).WorkOrder;
             }
-            else
-            {
-                parameter = ((ITFormUCViewModel)parameter).Ticket;
-            }
             return ((FormBase)parameter).IDNumber != null && ((FormBase)parameter).LinkExists();
         }
         public void Execute(object parameter)
@@ -41,10 +37,6 @@ namespace OMNI.Commands
             else if (parameter.GetType() == typeof(CMMSWorkOrderUCViewModel))
             {
                 o = ((CMMSWorkOrderUCViewModel)parameter).WorkOrder;
-            }
-            else
-            {
-                o = ((ITFormUCViewModel)parameter).Ticket;
             }
             if (!((FormBase)o).DeleteLink())
             {
@@ -61,10 +53,6 @@ namespace OMNI.Commands
             else if (parameter.GetType() == typeof(CMMSWorkOrderUCViewModel))
             {
                 ((CMMSWorkOrderUCViewModel)parameter).UpdateUILinkList();
-            }
-            else
-            {
-                ((ITFormUCViewModel)parameter).UpdateUILinkList();
             }
         }
     }

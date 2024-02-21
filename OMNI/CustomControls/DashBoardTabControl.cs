@@ -1,9 +1,6 @@
 ﻿using OMNI.Enumerations;
 using OMNI.Extensions;
-using OMNI.LCR.View;
-using OMNI.LCR.ViewModel;
 using OMNI.Models;
-using OMNI.QMS.Calibration.View;
 using OMNI.QMS.View;
 using OMNI.QMS.ViewModel;
 using OMNI.ViewModels;
@@ -211,18 +208,6 @@ namespace OMNI.CustomControls
                 case DashBoardAction.CMMSClosed:
                     Item.Content = new CMMSOpenOrdersUCView { DataContext = new CMMSNoticeClosedUCViewModel() } as UserControl;
                     break;
-                case DashBoardAction.PendingTicket:
-                    Item.Content = new ITTicketNoticeUCView { DataContext = new ITNoticeUnassignedUCViewModel() } as UserControl;
-                    break;
-                case DashBoardAction.OpenTicket:
-                    Item.Content = new ITTicketNoticeUCView { DataContext = new ITNoticeOpenUCViewModel() } as UserControl;
-                    break;
-                case DashBoardAction.ClosedTicket:
-                    Item.Content = new ITTicketNoticeUCView { DataContext = new ITNoticeClosedUCViewModel() } as UserControl;
-                    break;
-                case DashBoardAction.ITProject:
-                    Item.Content = new ITProjectListUCView() as UserControl;
-                    break;
 
             }
             tabControl.Items.Add(Item);
@@ -253,47 +238,6 @@ namespace OMNI.CustomControls
             if (_tabItem == null)
             {
                 var item = new TabItem { Header = cmmsWorkOrderNumber.ToString(), Content = new CMMSWorkOrderUCView { DataContext = new CMMSWorkOrderUCViewModel { WorkOrder = CMMSWorkOrder.LoadAsync(cmmsWorkOrderNumber).Result, IsLoaded = true, SearchMode = searchMode } } as UserControl };
-                tabControl.Items.Add(item);
-                tabControl.SelectedItem = item;
-            }
-            else
-            {
-                tabControl.SelectedItem = _tabItem;
-            }
-        }
-
-        /// <summary>
-        /// Add a New IT Ticket Form Tab to DashBoard WorkSpace
-        /// </summary>
-        /// <param name="tabControl">TabControl to check for open TabItem</param>
-        /// <param name="itTicketNumber">IT Ticket Number to load</param>
-        /// <param name="searchMode">Search Mode as bool. True = load dynamic / False = load static</param>
-        public static void LoadITTicketTabItem(this DashBoardTabControl tabControl, int itTicketNumber, bool searchMode = false)
-        {
-            var _tabItem = tabControl.IsOpen(itTicketNumber.ToString());
-            if (_tabItem == null)
-            {
-                var item = new TabItem { Header = itTicketNumber.ToString(), Content = new ITFormUCView(FormCommand.Update) { DataContext = new ITFormUCViewModel { Ticket = ITTicket.GetITTicketAsync(itTicketNumber).Result, SearchIDNumber = itTicketNumber, SearchMode = searchMode, LoadFromNotice = true } } as UserControl };
-                tabControl.Items.Add(item);
-                tabControl.SelectedItem = item;
-            }
-            else
-            {
-                tabControl.SelectedItem = _tabItem;
-            }
-        }
-
-        /// <summary>
-        /// Add a new IAP file review Tab to the DashBoard WorkSpace
-        /// </summary>
-        /// <param name="tabControl">TabControl to check for open TabItem</param>
-        /// <param name="companyName">Company Name to review</param>
-        public static void AddNewIAPView(this DashBoardTabControl tabControl, string companyName)
-        {
-            var _tabItem = tabControl.IsOpen($"{companyName} IAP");
-            if (_tabItem == null)
-            {
-                var item = new TabItem { Header = $"{companyName} IAP", Content = new IAP.View { DataContext = new IAP.ViewModel(companyName) } as UserControl };
                 tabControl.Items.Add(item);
                 tabControl.SelectedItem = item;
             }
@@ -379,72 +323,6 @@ namespace OMNI.CustomControls
         }
 
         /// <summary>
-        /// Add a New ECR Form Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem NewECR
-        {
-            get
-            {
-                return new TabItem { Header = "New ECR", Content = new ECRFormUCView(FormCommand.Submit) as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New Update ECR Form Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem ECRSearch
-        {
-            get
-            {
-                return new TabItem { Header = "ECR Search", Content = new ECRFormUCView(FormCommand.Search) { DataContext = new ECRFormUCViewModel { CommandType = FormCommand.Search } } as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New Ticket Form Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem NewTicket
-        {
-            get
-            {
-                return new TabItem { Header = "New Ticket", Content = new ITFormUCView(FormCommand.Submit) as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New Update Ticket Form Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem TicketSearch
-        {
-            get
-            {
-                return new TabItem { Header = "Ticket Search", Content = new ITFormUCView(FormCommand.Search) { DataContext = new ITFormUCViewModel { PrimaryCommandType = FormCommand.Search } } as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New Counter Calibration Tab to the DashBoard WorkSpace
-        /// </summary>
-        public static TabItem CounterCal
-        {
-            get
-            {
-                return new TabItem { Header = "Counter Cal.", Content = new CounterCalView() as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New Tapemeasure Calibration Tab to the DashBoard WorkSpace
-        /// </summary>
-        public static TabItem TapeCal
-        {
-            get
-            {
-                return new TabItem { Header = "Tape Cal.", Content = new TapeMeasureCalView() as UserControl };
-            }
-        }
-
-        /// <summary>
         /// Add a New QIR Form Tab to DashBoard WorkSpace
         /// </summary>
         public static TabItem NewQIR
@@ -476,40 +354,6 @@ namespace OMNI.CustomControls
         public static TabItem LoadQIR(int? idNumber)
         {
             return new TabItem { Header = $"QIR {idNumber}", Content = new QIRFormView { DataContext = new QIRFormViewModel(new QMS.Model.QIR(idNumber, true)) } as UserControl };
-        }
-
-        /// <summary>
-        /// Add a New QIR Notice Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem ITNotice
-        {
-            get
-            {
-                var itNotice = new NoticeView { DataContext = new HDT.ViewModel.ITNoticeViewModel() };
-                //itNotice.FilterGridView.Children.Add(new QIRNoticeFilterView());
-                itNotice.NoticeGridView.Children.Add(new HDT.View.ITNoticeDataView());
-                return new TabItem { Header = DashBoardAction.ITNotice.GetDescription(), Content = itNotice as UserControl };
-            }
-        }
-
-        /// <summary>
-        /// Add a New QIR Form Tab to DashBoard WorkSpace
-        /// </summary>
-        /// <param name="idNumber">Ticket ID Number</param>
-        public static TabItem LoadHDT(int? idNumber)
-        {
-            return new TabItem { Header = $"Ticket {idNumber}" };
-        }
-
-        /// <summary>
-        /// Add a New Call Log Report Form Tab to DashBoard WorkSpace
-        /// </summary>
-        public static TabItem NewCallReport
-        {
-            get
-            {
-                return new TabItem { Header = $"New Call Report", Content = new CallReport { DataContext = new CallReportVM() } as UserControl };
-            }
         }
 
         #endregion

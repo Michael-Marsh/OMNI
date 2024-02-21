@@ -8,7 +8,7 @@ using System.Windows;
 [assembly: AssemblyTitle("OMNI")]
 [assembly: AssemblyDescription("Business Automation Software")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyCompany("WCCO Belting")]
+[assembly: AssemblyCompany("ContiTech USA, Inc.")]
 [assembly: AssemblyProduct("OMNI")]
 [assembly: AssemblyCopyright("Copyright © 2016")]
 [assembly: AssemblyTrademark("")]
@@ -45,7 +45,7 @@ using System.Windows;
 // You can specify all the values or you can default the Publish and Build Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("4.0.43.366")]
-[assembly: AssemblyFileVersion("4.0.43.366")]
+[assembly: AssemblyVersion("5.0.1.10")]
+[assembly: AssemblyFileVersion("5.0.1.10")]
 [assembly: NeutralResourcesLanguage("en")]
 

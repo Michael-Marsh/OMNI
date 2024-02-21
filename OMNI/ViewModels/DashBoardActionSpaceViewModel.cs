@@ -109,49 +109,9 @@ namespace OMNI.ViewModels
                         break;
                     case DashBoardAction.UserSubmission:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.UserSubmissions);
-                        break;
-                    case DashBoardAction.DevTesting:
-                        //Add in any method calls to test here
-                        Testing.AP_Test.UploadFiles();
-                        break;
-                    case DashBoardAction.SubmitECR:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewECR);
-                        break;
-                    case DashBoardAction.UpdateECR:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.ECRSearch);
-                        break;
-                    case DashBoardAction.CreateTicket:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewTicket);
-                        break;
-                    case DashBoardAction.SearchTicket:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.TicketSearch);
-                        break;
-                    case DashBoardAction.ReviewImport:
-                        ReviewImportViewModel.Open();
-                        break;
-                    case DashBoardAction.TMCal:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.TapeCal);
-                        break;
-                    case DashBoardAction.SlitCal:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.CounterCal);
-                        break;
-                    case DashBoardAction.InstCal:
-                        //TODO: Build intrument dashboardtabitem
-                        break;
+                        break;          
                     case DashBoardAction.QIRNotice:
                         DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.QIRNotice);
-                        break;
-                    case DashBoardAction.ITNotice:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.ITNotice);
-                        break;
-                    case DashBoardAction.LCM:
-                        DashBoardTabControl.WorkSpace.Items.Add(DashBoardTabItem.NewCallReport);
-                        break;
-                    case DashBoardAction.APWCCO:
-                        DashBoardTabControl.WorkSpace.AddNewIAPView("WCCO");
-                        break;
-                    case DashBoardAction.APCSI:
-                        DashBoardTabControl.WorkSpace.AddNewIAPView("CSI");
                         break;
                     case DashBoardAction.ITProject:
                     case DashBoardAction.Exception:

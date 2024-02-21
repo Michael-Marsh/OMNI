@@ -162,9 +162,6 @@ namespace OMNI.ViewModels
                     case "CMMS":
                         DashBoardTabControl.WorkSpace.LoadCMMSWorkOrderTabItem(Convert.ToInt32(drv.Row.ItemArray[0]));
                         break;
-                    case "Ticket":
-                        DashBoardTabControl.WorkSpace.LoadITTicketTabItem(Convert.ToInt32(drv.Row.ItemArray[0]));
-                        break;
                 }
             }
         }

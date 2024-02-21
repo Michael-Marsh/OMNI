@@ -6,95 +6,65 @@
       <Value Profile="(Default)">.pdf</Value>
     </Setting>
     <Setting Name="QIRPhotoDirectory" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\QIR Photos\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-OMNI\Application Data\QIR Photos\</Value>
     </Setting>
     <Setting Name="PrintLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\Prints\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\Prints\</Value>
     </Setting>
     <Setting Name="ManageHostName" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">172.16.0.10</Value>
+      <Value Profile="(Default)">WAXAS001</Value>
     </Setting>
     <Setting Name="WCCOManageAccount" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">E:/roi/WCCO.MAIN</Value>
+      <Value Profile="(Default)">D:/roi/CONTI.MAIN</Value>
     </Setting>
     <Setting Name="WCCODocumentLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\Document Center\Production\</Value>
     </Setting>
     <Setting Name="SmtpDefaultClient" Type="System.String" Scope="Application">
       <Value Profile="(Default)">smtp.office365.com</Value>
     </Setting>
-    <Setting Name="omniEmailAddress" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">itsupport@wccobelt.com</Value>
-    </Setting>
     <Setting Name="omnitemp" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\temp\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-OMNI\OMNI\Application Data\temp\</Value>
     </Setting>
     <Setting Name="CSISupplierNumber" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">1015</Value>
     </Setting>
     <Setting Name="QIRDocument" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5008 - Quality Incident Report.pdf</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\PublishedDocuments\FORM5008 - Quality Incident Report.pdf</Value>
     </Setting>
     <Setting Name="EmailDomain" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">wccobelt.com</Value>
+      <Value Profile="(Default)">contiwan.com</Value>
     </Setting>
     <Setting Name="EmailPassword" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Vbty6^743[\&lt;tyF4</Value>
     </Setting>
     <Setting Name="omniAppLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Pending Update\ClickOnce\OMNI.application</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-OMNI\OMNI App\OMNI.application</Value>
     </Setting>
     <Setting Name="CMMSDocumentLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\CMMS Documents\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-OMNI\Application Data\CMMS Documents\</Value>
     </Setting>
     <Setting Name="CMMSWorkOrderDocument" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5006E - Maintenance Request.pdf</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\PublishedDocuments\FORM5006E - Maintenance Request.pdf</Value>
     </Setting>
     <Setting Name="QIRArchivePhotoDirectory" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\QIR\Photos</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\QIR\Photos</Value>
     </Setting>
     <Setting Name="QIRArchiveDocumentDirectory" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\QIR\Archived QIRs</Value>
-    </Setting>
-    <Setting Name="ExtruderExcelFilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Quality\Inspection\Extruder Quality Inspection\Extruder Quality Inspection.xlsm</Value>
-    </Setting>
-    <Setting Name="ERDFilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FRM-5761 - Employee Performance Review.pdf</Value>
-    </Setting>
-    <Setting Name="HDTDocumentLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\OMNI\Application Data\HDT Documents\</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\QIR\Archived QIRs</Value>
     </Setting>
     <Setting Name="CSIManageAccount" Type="System.String" Scope="User">
-      <Value Profile="(Default)">E:/roi/CSI.MAIN</Value>
+      <Value Profile="(Default)">D:/roi/CONTI.MAIN</Value>
     </Setting>
     <Setting Name="UsersPhotoDirectory" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Photo Library\Employees</Value>
+      <Value Profile="(Default)">\\waxfs001\WAXG-Wahpeton\Photos\Employees</Value>
     </Setting>
     <Setting Name="SqlConnectionString" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;SerializableConnectionString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
-  &lt;ConnectionString&gt;Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;MultipleActiveResultSets=True&lt;/ConnectionString&gt;
+&lt;SerializableConnectionString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;ConnectionString&gt;Server=WAXDB001;User ID=OMNI_SA_SQL;Password=GwdnYaWC}@y'7+Ks?)XNf*;Connection Timeout=5;MultipleActiveResultSets=True&lt;/ConnectionString&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;MultipleActiveResultSets=True</Value>
-    </Setting>
-    <Setting Name="CSIDocumentLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\CSI-PRIME\FileStorage\Published Documents\</Value>
-    </Setting>
-    <Setting Name="TravelCardDocument" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5125 - Travel Card.pdf</Value>
-    </Setting>
-    <Setting Name="ManageAccount" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">omniquery</Value>
-    </Setting>
-    <Setting Name="ReferenceCardDocument" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\manage2\server\Document Center\Production\FORM5127 - Reference Travel Card.pdf</Value>
-    </Setting>
-    <Setting Name="MoveFileLocation" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">\\ERP-WCCO\ERP\ROI\WCCO.MAIN\BTI.TRANSACTIONS\</Value>
-    </Setting>
-    <Setting Name="PdfDefaultPassword" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">technology#1</Value>
+      <Value Profile="(Default)">Server=WAXDB001;User ID=OMNI_SA_SQL;Password=GwdnYaWC}@y'7+Ks?)XNf*;Connection Timeout=5;MultipleActiveResultSets=True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

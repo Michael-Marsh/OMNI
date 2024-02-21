@@ -427,28 +427,7 @@ namespace OMNI.ViewModels
                     ExceptionWindow.Show("Unhandled Exception", ex.Message, ex);
                 }
             }
-            Task.Run(delegate
-            {
-                if (WorkOrder.ProcessChange)
-                {
-                    EmailForm.SendwithoutAttachment("training.standards@wccobelt.com", $"CMMS work order {WorkOrder.IDNumber} has been marked as needing documentation updates or creation.\nPlease log into OMNI for further details.", "Documentation Review");
-                }
-                if (WorkOrder.Status == CMMSStatus.Completed || WorkOrder.Status == CMMSStatus.Denied)
-                {
-                    var email = Users.RetrieveEmailAddress(WorkOrder.Submitter);
-                    if (!email.Equals("Not on File", StringComparison.OrdinalIgnoreCase))
-                    {
-                        WorkOrder.ExportToPDF(true);
-                        EmailForm.SendwithAttachment(email, $"Your Maintenance Request # {WorkOrder.IDNumber} has been {WorkOrder.Status.ToString()}.\nPlease refer to your closed work orders in OMNI CMMS for more information.", $"WO # {WorkOrder.IDNumber} {WorkOrder.Status.ToString()}", $"{Properties.Settings.Default.omnitemp}{WorkOrder.IDNumber}.pdf");
-                    }
-                    if (File.Exists($"{Properties.Settings.Default.omnitemp}{WorkOrder.IDNumber}.pdf"))
-                    {
-                        File.Delete($"{Properties.Settings.Default.omnitemp}{WorkOrder.IDNumber}.pdf");
-                    }
-                }
-                Running = false;
-                OnPropertyChanged(nameof(_complete.CanExecute));
-            });
+            Running = false;
         }
 
         /// <summary>

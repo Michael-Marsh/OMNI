@@ -212,14 +212,6 @@
                         FontSize="14"
                         Style="{DynamicResource ResourceKey=DashBoardButtonStyle}"/>
 
-                <Button Visibility="{Binding CMMSView, Converter={StaticResource BooltoVisConvert}}"
-                        Command="{Binding DataBaseSpaceCommand}"
-                        CommandParameter="GParts"
-                        Margin="10"
-                        Width="120" 
-                        Content="Edit&#10;Generic Parts" 
-                        FontSize="14" 
-                        Style="{DynamicResource ResourceKey=DashBoardButtonStyle}"/>
 
                 <Button Visibility="{Binding CMMSView, Converter={StaticResource BooltoVisConvert}}"
                         Command="{Binding DataBaseEditCommand}"
@@ -229,15 +221,6 @@
                         Content="Edit&#10;GL Accounts" 
                         FontSize="14" 
                         Style="{DynamicResource ResourceKey=DashBoardButtonStyle}"/>
-
-                <Button Visibility="{Binding CMMSAdminView, Converter={StaticResource BooltoVisConvert}}"
-                        Command="{Binding DataBaseViewCommand}"
-                        CommandParameter="6"
-                        Margin="10"
-                        Width="120"
-                        Content="Work Order&#10;Metrics"
-                        FontSize="14"
-                        Style="{DynamicResource ResourceKey=DashBoardButtonStyle}" />
 
                 <Button Visibility="{Binding DeveloperView, Converter={StaticResource BooltoVisConvert}}"
                         Command="{Binding DataBaseEditCommand}"
@@ -450,43 +433,6 @@
 
                     </TreeViewItem>
                     <!--#endregion-->
-
-                    <!--#region QMS Calibration Module Interface-->
-                    <TreeViewItem Visibility="{Binding QMSCal, Converter={StaticResource BooltoVisConvert}}"
-                                  Header="Calibration" 
-                                  Style="{DynamicResource ActiveTreeViewItem}">
-
-                        <Button Content="Instruments" 
-                                FontSize="14" 
-                                Width="120"
-                                Margin="5" 
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="InstCal"
-                                Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Tape Measure"
-                                FontSize="14" 
-                                Width="120" 
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="TMCal"
-                                Visibility="{Binding Quality, Converter={StaticResource BooltoVisConvert}}"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Digital Counter"
-                                FontSize="14" 
-                                Width="120" 
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="SlitCal"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                    </TreeViewItem>
-                    <!--#endregion-->
                     
                     <!--#region CMMS Core Module Interface-->
                     <TreeViewItem Visibility="{Binding CMMSView, Converter={StaticResource BooltoVisConvert}}" 
@@ -578,7 +524,7 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                         <Button Content="Part Management"
-                                Visibility="{Binding CMMSView}"
+                                Visibility="Collapsed"
                                 FontSize="14"
                                 Width="140" 
                                 Margin="5"
@@ -589,229 +535,6 @@
                                 Style="{DynamicResource DashBoardButtonStyle}"/>
 
                     </TreeViewItem>
-                    <!--#endregion-->
-                    
-                    <!--#region HDT Core Module Interface-->
-                    <TreeViewItem Header="Help Desk" Style="{DynamicResource ActiveTreeViewItem}"
-                                  Visibility="{Binding IT, Converter={StaticResource BooltoVisConvert}}">
-
-                        <Button Content="Notice"
-                                FontSize="14" 
-                                Width="120"
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="31" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-                        
-                        <Button Content="Create Ticket"
-                                FontSize="14"
-                                Width="120"
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="22"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Search Tickets"
-                                FontSize="14" 
-                                Width="120"
-                                Margin="5"
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="23" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <StackPanel Orientation="Horizontal">
-
-                            <Button Content="Unassigned"
-                                    FontSize="14" 
-                                    Width="100"
-                                    Margin="5" 
-                                    Height="35"
-                                    ToolTip="Review submitted tickets that have not been assigned."
-                                    Command="{Binding ActionSpaceCommand}" 
-                                    CommandParameter="24" 
-                                    Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                            <Label Content="{Binding ITInbox}"
-                                   Foreground="#FFA83131" 
-                                   FontSize="18" 
-                                   VerticalAlignment="Center"/>
-
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal">
-
-                            <Button Content="Open Tickets"
-                                    FontSize="14"
-                                    Width="100"
-                                    Margin="5" 
-                                    Height="35"
-                                    ToolTip="View a schedule of all Help Desk open tickets."
-                                    Command="{Binding ActionSpaceCommand}" 
-                                    CommandParameter="25" 
-                                    Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                            <Label Content="{Binding ITOpen}"
-                                   Foreground="#FFA83131" 
-                                   FontSize="18" 
-                                   VerticalAlignment="Center"/>
-
-                        </StackPanel>
-
-                        <Button Content="Closed"
-                                FontSize="14"
-                                Width="100" 
-                                Margin="5"
-                                Height="35" 
-                                ToolTip="View completed or denied tickets.&#10;Only the last 30 days will be available.&#10;For anything earlier please use the search function."
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="26"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                    </TreeViewItem>
-                    <!--#endregion-->
-                    
-                    <!--#region Eng Core Module Interface-->
-                    <TreeViewItem Visibility="{Binding Engineering, Converter={StaticResource BooltoVisConvert}}" 
-                                  Header="Engineering" Style="{DynamicResource ActiveTreeViewItem}">
-
-                        <Button Content="Create ECR" 
-                                FontSize="14" 
-                                Width="120" 
-                                Margin="5" 
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="20"
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Update ECR"
-                                FontSize="14"
-                                Width="120" 
-                                Margin="5"
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="21" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <StackPanel Orientation="Horizontal">
-
-                            <Button Content="Inbox" 
-                                    FontSize="14"
-                                    Width="100" 
-                                    Margin="5" 
-                                    Height="35"
-                                    Command="{Binding ActionSpaceCommand}"
-                                    CommandParameter="ECR Inbox" 
-                                    Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                            <Label Content="{Binding OpenECR}"
-                                   Foreground="#FFA83131" 
-                                   FontSize="18"
-                                   VerticalAlignment="Center"/>
-
-                        </StackPanel>
-                    </TreeViewItem>
-                    <!--#endregion-->
-
-                    <!--#region Kaizen Module Interface-->
-                    <TreeViewItem Visibility="{Binding Kaizen, Converter={StaticResource BooltoVisConvert}}"
-                                  Header="Kaizen" Style="{DynamicResource ActiveTreeViewItem}">
-
-                        <Button Content="Create Kaizen" 
-                                FontSize="14"
-                                Width="120" 
-                                Margin="5" 
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}" 
-                                CommandParameter="CreateKaizen" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <Button Content="Update Kaizen"
-                                FontSize="14"
-                                Width="120"
-                                Margin="5" 
-                                Height="35" 
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="UpdateKaizen" 
-                                Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                        <StackPanel Orientation="Horizontal">
-
-                            <Button Content="Inbox"
-                                    FontSize="14"
-                                    Width="100"
-                                    Margin="5" 
-                                    Height="35" 
-                                    Command="{Binding ActionSpaceCommand}" 
-                                    CommandParameter="Kaizen Inbox" 
-                                    Style="{DynamicResource DashBoardButtonStyle}"/>
-
-                            <Label Content="{Binding KaizenInbox}"
-                                   Foreground="#FFA83131" 
-                                   FontSize="18"
-                                   VerticalAlignment="Center"/>
-
-                        </StackPanel>
-                    </TreeViewItem>
-                    <!--#endregion-->
-                    
-                    <!--#region Logged Call Module Interface-->
-
-                    <TreeViewItem Visibility="{Binding LogReport, Converter={StaticResource BooltoVisConvert}}"
-                                  Header="Call Log"
-                                  Style="{DynamicResource ActiveTreeViewItem}">
-
-                        <Button Content="Notice"
-                                FontSize="14"
-                                Width="100"
-                                Margin="5"
-                                Visibility="Collapsed"
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="4"
-                                Style="{DynamicResource DashBoardButtonStyle}" />
-
-                        <Button Content="Create Report"
-                                FontSize="14"
-                                Width="120"
-                                Margin="5"
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="33"
-                                Style="{DynamicResource DashBoardButtonStyle}" />
-
-                    </TreeViewItem>
-
-                    <!--#endregion-->
-                    
-                    <!--#region AP Intergration Interface-->
-
-                    <TreeViewItem Visibility="{Binding ApAuto, Converter={StaticResource BooltoVisConvert}}"
-                                  Header="Intergrated AP"
-                                  Style="{DynamicResource ActiveTreeViewItem}">
-
-                        <Button Content="Run WCCO"
-                                FontSize="14"
-                                Width="120"
-                                Margin="5"
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="34"
-                                Style="{DynamicResource DashBoardButtonStyle}" />
-
-                        <Button Content="Run CSI"
-                                FontSize="14"
-                                Width="120"
-                                Margin="5"
-                                Height="35"
-                                Command="{Binding ActionSpaceCommand}"
-                                CommandParameter="35"
-                                Style="{DynamicResource DashBoardButtonStyle}" />
-
-                    </TreeViewItem>
-
                     <!--#endregion-->
 
                     <!--#region Developer Interface-->

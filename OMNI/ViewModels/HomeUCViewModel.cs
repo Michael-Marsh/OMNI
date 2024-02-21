@@ -108,17 +108,6 @@ namespace OMNI.ViewModels
             set { selectedWorkOrderYear = value; if (!Loading) { UpdateCMMS(); } OnPropertyChanged(nameof(SelectedWorkOrderYear)); }
         }
         private string selectedTicketMonth;
-        public string SelectedTicketMonth
-        {
-            get { return selectedTicketMonth; }
-            set { selectedTicketMonth = value; if (!Loading) { UpdateHDT(); } OnPropertyChanged(nameof(SelectedTicketMonth)); }
-        }
-        private int selectedTicketYear;
-        public int SelectedTicketYear
-        {
-            get { return selectedTicketYear; }
-            set { selectedTicketYear = value; if (!Loading) { UpdateHDT(); } OnPropertyChanged(nameof(SelectedTicketYear)); }
-        }
         public int MonthlySales { get; set; }
         public bool SalesFirm { get; set; }
         public int TMInService { get; set; }
@@ -165,11 +154,8 @@ namespace OMNI.ViewModels
                 }
             }
             Loading = true;
-            SelectedInternalMonth = SelectedIncomingMonth = SelectedWorkOrderMonth = SelectedTicketMonth = SelectedMonthSales = DateTime.Now.ToString("MMMM");
-            SelectedInternalYear = SelectedIncomingYear = SelectedWorkOrderYear = SelectedTicketYear = SelectedYearSales = DateTime.Now.Year;
             Task.Run(() => UpdateSales(SelectedMonthSales, SelectedYearSales));
             Task.Run(() => UpdateCMMS());
-            Task.Run(() => UpdateHDT());
         }
 
         /// <summary>
@@ -255,37 +241,7 @@ namespace OMNI.ViewModels
         /// </summary>
         private void UpdateCMMS()
         {
-            WorkOrderYTDCompletedCount = CMMSWorkOrder.GetMetrics(MetricType.Completed);
-            OnPropertyChanged(nameof(WorkOrderYTDCompletedCount));
-            WorkOrderYTDSubmissions = CMMSWorkOrder.GetMetrics(MetricType.Submission);
-            OnPropertyChanged(nameof(WorkOrderYTDSubmissions));
-            WorkOrderYTDResponseTime = CMMSWorkOrder.GetMetrics(MetricType.ResponseTime);
-            OnPropertyChanged(nameof(WorkOrderYTDResponseTime));
-            WorkOrderMTDCompletedCount = CMMSWorkOrder.GetMetrics(MetricType.Completed, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
-            OnPropertyChanged(nameof(WorkOrderMTDCompletedCount));
-            WorkOrderMTDSubmissions = CMMSWorkOrder.GetMetrics(MetricType.Submission, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
-            OnPropertyChanged(nameof(WorkOrderMTDSubmissions));
-            WorkOrderMTDResponseTime = CMMSWorkOrder.GetMetrics(MetricType.ResponseTime, DateTime.ParseExact(SelectedWorkOrderMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedWorkOrderYear);
-            OnPropertyChanged(nameof(WorkOrderMTDResponseTime));
-        }
-
-        /// <summary>
-        /// Update HDT Metrics
-        /// </summary>
-        private void UpdateHDT()
-        {
-            TicketYTDCompletedCount = ITTicket.GetMetrics(MetricType.Completed);
-            OnPropertyChanged(nameof(TicketYTDCompletedCount));
-            TicketYTDSubmissions = ITTicket.GetMetrics(MetricType.Submission);
-            OnPropertyChanged(nameof(TicketYTDSubmissions));
-            TicketYTDResponseTime = ITTicket.GetMetrics(MetricType.ResponseTime);
-            OnPropertyChanged(nameof(TicketYTDResponseTime));
-            TicketMTDCompletedCount = ITTicket.GetMetrics(MetricType.Completed, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
-            OnPropertyChanged(nameof(TicketMTDCompletedCount));
-            TicketMTDSubmissions = ITTicket.GetMetrics(MetricType.Submission, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
-            OnPropertyChanged(nameof(TicketMTDSubmissions));
-            TicketMTDResponseTime = ITTicket.GetMetrics(MetricType.ResponseTime, DateTime.ParseExact(SelectedTicketMonth, "MMMM", CultureInfo.CurrentCulture).Month, SelectedTicketYear);
-            OnPropertyChanged(nameof(TicketMTDResponseTime));
+            
         }
 
         /// <summary>

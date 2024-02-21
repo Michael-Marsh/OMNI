@@ -273,32 +273,6 @@ namespace OMNI.ViewModels
                         wo.DateComplete = DateTime.Now;
                         wo.AttachedNotes = true;
                         wo.Update();
-                        using (BackgroundWorker bw = new BackgroundWorker())
-                        {
-                            try
-                            {
-                                bw.DoWork += new DoWorkEventHandler(
-                                    delegate (object sender, DoWorkEventArgs e)
-                                    {
-                                        var email = Users.RetrieveEmailAddress(wo.Submitter);
-                                        if (!email.Equals("Not on File", StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            wo.ExportToPDF(true);
-                                            EmailForm.SendwithAttachment(email, $"Your Maintenance Request # {wo.IDNumber} has been {wo.Status.ToString()}.\nPlease refer to your closed work orders in OMNI CMMS for more information.", $"WO # {wo.IDNumber} {wo.Status.ToString()}", $"{Properties.Settings.Default.omnitemp}{wo.IDNumber}.pdf");
-                                        }
-                                        if (File.Exists($"{Properties.Settings.Default.omnitemp}{wo.IDNumber}.pdf"))
-                                        {
-                                            File.Delete($"{Properties.Settings.Default.omnitemp}{wo.IDNumber}.pdf");
-                                        }
-                                    });
-                                bw.RunWorkerAsync();
-                                OnPropertyChanged(nameof(_complete.CanExecute));
-                            }
-                            catch (Exception f)
-                            {
-                                ExceptionWindow.Show("Unhandled Exception", f.Message, f);
-                            }
-                        }
                     }
                 }
             }
@@ -342,11 +316,6 @@ namespace OMNI.ViewModels
                     wo.Priority = "--Unassigned--";
                     wo.AttachedNotes = true;
                     wo.Update();
-                    var email = Users.RetrieveEmailAddress(wo.Submitter);
-                    if (email != "Not on File")
-                    {
-                        EmailForm.SendwithoutAttachment(email, $"Your Maintenance Request # {wo.IDNumber} has been denied.\nPlease refer to your closed work orders in OMNI CMMS for more information.", $"WO # {wo.IDNumber} Denied");
-                    }
                 }
             }
         }

@@ -164,7 +164,10 @@ namespace OMNI
             string[] startUpArgs = null;
             try
             {
-                startUpArgs = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData ?? null;
+                if (AppDomain.CurrentDomain.SetupInformation.ActivationArguments != null)
+                {
+                    startUpArgs = AppDomain.CurrentDomain.SetupInformation.ActivationArguments.ActivationData;
+                }
             }
             catch (NullReferenceException)
             {
@@ -181,12 +184,6 @@ namespace OMNI
                             break;
                         case "m":
                             Helpers.MapForm.TypePDF();
-                            Current.Shutdown();
-                            break;
-                        case "hdtc":
-                            var ticketWin = new Views.TemplateWindowView { Title = "New Ticket" };
-                            ticketWin.TWindowGrid.Children.Add(new Views.ITFormUCView(Enumerations.FormCommand.Submit) as System.Windows.Controls.UserControl);
-                            ticketWin.ShowDialog();
                             Current.Shutdown();
                             break;
                     }

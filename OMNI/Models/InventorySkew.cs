@@ -1,5 +1,4 @@
-﻿using iTextSharp.text.pdf;
-using OMNI.Extensions;
+﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.QMS.Model;
 using System;
@@ -7,9 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 namespace OMNI.Models
 {
@@ -77,11 +73,10 @@ namespace OMNI.Models
         public InventorySkew(string lotNbr)
         {
             LotNumber = lotNbr;
-            var _lotTrim = LotNumber.Length > 9 ? LotNumber.Substring(0, 9) : LotNumber;
             MoveStatus = string.Empty;
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                using (SqlCommand cmd = new SqlCommand($@"USE [CONTI_MAIN];
                                                             SELECT 
 	                                                            a.[Part_Nbr], b.[Description], b.[Um], c.[Locations], c.[Oh_Qtys]
                                                             FROM 
@@ -93,7 +88,7 @@ namespace OMNI.Models
                                                             WHERE 
 	                                                            a.[Lot_Number] = @p1;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
+                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P|01");
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.HasRows)
@@ -115,7 +110,7 @@ namespace OMNI.Models
                         }
                     }
                 }
-                using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                using (SqlCommand cmd = new SqlCommand($@"USE [CONTI_MAIN];
                                                             SELECT
 	                                                            b.[ID], b.[Work_Center]
                                                             FROM
@@ -125,7 +120,7 @@ namespace OMNI.Models
                                                             WHERE
 	                                                            a.[Lot_Entered] = @p1;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P");
+                    cmd.Parameters.AddWithValue("p1", $"{LotNumber}|P|01");
                     using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         if (dr.HasRows)
@@ -157,11 +152,11 @@ namespace OMNI.Models
                 //Diamond Number population
                 //Requires a Lot structure crawl
                 var _found = false;
-                var _lot = $"a.[Parent_Lot] = '{lotNbr}|P'";
+                var _lot = $"a.[Parent_Lot] = '{lotNbr}|P|01'";
                 while (!_found)
                 {
                     _lot += ";";
-                    using (SqlCommand cmd = new SqlCommand($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                    using (SqlCommand cmd = new SqlCommand($@"USE [CONTI_MAIN];
                                                             SELECT
                                                                 SUBSTRING(a.[Component_Lot],0,LEN(a.[Component_Lot]) - 1) as 'Comp_Lot', b.[Inventory_Type] as 'Type'
                                                             FROM
@@ -178,7 +173,12 @@ namespace OMNI.Models
                             {
                                 while (reader.Read())
                                 {
-                                    if (reader.SafeGetString("Type") == "RR")
+                                    if (reader.SafeGetString("Comp_Lot").Contains("|P|02"))
+                                    {
+                                        DiamondNumber = reader.SafeGetString("Comp_Lot");
+                                        _found = true;
+                                    }
+                                    else if (reader.SafeGetString("Type") == "RR")
                                     {
                                         if (string.IsNullOrEmpty(DiamondNumber))
                                         {
@@ -205,7 +205,7 @@ namespace OMNI.Models
                                     {
                                         if (string.IsNullOrEmpty(_lot))
                                         {
-                                            _lot = $"a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}|P'";
+                                            _lot = $"a.[Parent_Lot] = '{reader.SafeGetString("Comp_Lot")}'";
                                         }
                                         else
                                         {
@@ -228,7 +228,7 @@ namespace OMNI.Models
                     {
                         ItemsLot = new DataTable();
                     }
-                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                    using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [CONTI_MAIN];
                                                                             SELECT 
                                                                                 SUBSTRING(l.[Lot_Number],0,LEN(l.[Lot_Number]) - 1) as 'Lot_Number', o.[Oh_Qtys], o.[Loc] 
                                                                             FROM 
@@ -236,7 +236,7 @@ namespace OMNI.Models
                                                                             RIGHT JOIN 
                                                                                 [dbo].[LOT-INIT_Lot_Loc_Qtys] o ON o.[ID1] = l.[Lot_Number] 
                                                                             WHERE 
-                                                                                l.[Part_Nbr] = '{PartNumber}' AND [Stores_Oh] != 0;", App.SqlConAsync))
+                                                                                l.[Part_Nbr] = '{PartNumber}|01' AND [Stores_Oh] != 0;", App.SqlConAsync))
                     {
                         adapter.Fill(ItemsLot);
                     }
@@ -261,7 +261,7 @@ namespace OMNI.Models
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT 
 	                                                            SUM(DISTINCT([Inc_Std_Costs])) AS [Total_Inc], SUM([Ru_Std_Costs]) AS [Total_Ru] 
                                                             FROM 
@@ -302,7 +302,7 @@ namespace OMNI.Models
         {
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", App.SqlConAsync))
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN; SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNbr);
                     return cmd.ExecuteScalar().ToString();
@@ -322,7 +322,7 @@ namespace OMNI.Models
             var _temp = new string[2];
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT 
 	                                                            a.[Part_Wo_Desc] as 'Desc', b.[Work_Center] as 'Machine' 
                                                             FROM 
@@ -366,7 +366,7 @@ namespace OMNI.Models
             var _temp = new InventorySkew { OnHand = new Dictionary<string, int>() };
             try
             {
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT
                                                                 a.[Description] as 'Desc', a.[Um] 
                                                             FROM
@@ -388,7 +388,7 @@ namespace OMNI.Models
                         }
                     }
                 }
-                using (SqlCommand cmd = new SqlCommand($@"USE {CurrentUser.Site.ToUpper()}_MAIN;
+                using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
                                                             SELECT
                                                                 a.[Location], a.[Oh_Qty_By_Loc] as 'OnHand' 
                                                             FROM
@@ -432,7 +432,7 @@ namespace OMNI.Models
                     if (!string.IsNullOrEmpty(searchNbr))
                     {
 
-                        using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [{CurrentUser.Site.ToUpper()}_MAIN];
+                        using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE [CONTI_MAIN];
                                                                             SELECT 
                                                                                 *
                                                                             FROM
@@ -452,183 +452,6 @@ namespace OMNI.Models
             catch (Exception)
             {
                 return new DataTable();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Inventory Skew Object Extensions
-    /// </summary>
-    public static class InventorySkewExtensions
-    {
-        /// <summary>
-        /// Print a Travel Card for a Inventory Skew Object
-        /// </summary>
-        /// <param name="_skew">Current Inventory Skew</param>
-        /// <param name="qty">Skew On Hand Quantity</param>
-        public static void PrintTravelCard(this InventorySkew _skew, string qty)
-        {
-            if (_skew != null)
-            {
-                try
-                {
-                    using (PdfReader reader = new PdfReader(Properties.Settings.Default.TravelCardDocument, PdfEncodings.ConvertToBytes(Properties.Settings.Default.PdfDefaultPassword, "ASCII")))
-                    {
-                        using (PdfStamper stamp = new PdfStamper(reader, new FileStream($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf", FileMode.Create)))
-                        {
-                            var pdfField = stamp.AcroFields;
-                            pdfField.SetField("Date Printed", DateTime.Today.ToString("MM/dd/yyyy"));
-                            pdfField.SetField("P/N", _skew.PartNumber);
-                            pdfField.SetField("Part No Bar", $"*{_skew.PartNumber}*");
-                            pdfField.SetField("Part No Bar Sm", $"*{_skew.PartNumber}*");
-                            if (!string.IsNullOrEmpty(_skew.LotNumber))
-                            {
-                                pdfField.SetField("Lot", _skew.LotNumber);
-                                pdfField.SetField("Lot Bar", $"*{_skew.LotNumber}*");
-                                pdfField.SetField("Lot Bar Sm", $"*{_skew.LotNumber}*");
-                            }
-                            pdfField.SetField("Description", _skew.Description);
-                            if (!string.IsNullOrEmpty(_skew.DiamondNumber))
-                            {
-                                pdfField.SetField("D/N", _skew.DiamondNumber);
-                            }
-                            pdfField.SetField("Qty", qty);
-                            pdfField.SetField("UOM", _skew.UOM);
-                            if (_skew.QIRList?.Count > 0)
-                            {
-                                pdfField.SetField("QIR", _skew.QIRList[0].IDNumber.ToString());
-                                pdfField.SetField("QIR Bar", $"*{_skew.QIRList[0].IDNumber}*");
-                                pdfField.SetField("QIR Bar Sm", $"*{_skew.QIRList[0].IDNumber}*");
-                            }
-                            pdfField.SetField("Operator", CurrentUser.FullName);
-                            stamp.FormFlattening = false;
-                        }
-                    }
-                    PrintForm.FromPDF($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf");
-                    File.Delete($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf");
-                }
-                catch (Exception)
-                {
-                    
-                }
-            }
-        }
-
-        /// <summary>
-        /// Create a Reference Travel Card for a Inventory Skew Object
-        /// </summary>
-        /// <param name="_skew">Current Inventory Skew</param>
-        /// <param name="qty">Skew On Hand Quantity</param>
-        public static void CreateReferenceCard(this InventorySkew _skew, string qty)
-        {
-            if (_skew != null)
-            {
-                try
-                {
-                    using (PdfReader reader = new PdfReader(Properties.Settings.Default.ReferenceCardDocument))
-                    {
-                        using (PdfStamper stamp = new PdfStamper(reader, new FileStream($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf", FileMode.Create)))
-                        {
-                            var pdfField = stamp.AcroFields;
-                            pdfField.SetField("P/N", _skew.PartNumber);
-                            if (!string.IsNullOrEmpty(_skew.LotNumber))
-                            {
-                                pdfField.SetField("L/N", _skew.LotNumber);
-                            }
-                            if (!string.IsNullOrEmpty(_skew.DiamondNumber))
-                            {
-                                pdfField.SetField("D/N", _skew.DiamondNumber);
-                            }
-                            pdfField.SetField("Qty", qty);
-                            if (_skew.QIRList?.Count > 0)
-                            {
-                                pdfField.SetField("QIR", _skew.QIRList[0].IDNumber.ToString());
-                            }
-                            pdfField.SetField("Operator", CurrentUser.FullName);
-                            stamp.FormFlattening = false;
-                        }
-                    }
-                    Process.Start($"{Properties.Settings.Default.omnitemp}{_skew.LotNumber}.pdf");
-                }
-                catch (Exception)
-                {
-
-                }
-            }
-        }
-
-        /// <summary>
-        /// Location transfer in the current ERP system
-        /// </summary>
-        /// <param name="_skew">Current inventory skew object</param>
-        /// <param name="from">Transfer From location</param>
-        /// <param name="to">Transfer to location</param>
-        /// <param name="qty">Quantity to transfer</param>
-        /// <param name="nonLot">Is the item being relocated non-lot traceable</param>
-        /// <returns>Suffix for the file that needs to be watched on the ERP server</returns>
-        public static int ErpMove(this InventorySkew _skew, string from, string to, int qty, bool nonLot)
-        {
-            var uId = new Random();
-            var suffix = uId.Next(128, 512);
-            from = _skew.OnHand.Count > 1 || nonLot ? from.ToUpper() : _skew.OnHand.First().Key.ToUpper();
-            var _errorCode = 0;
-            try
-            {
-                var cmdStr = string.Empty;
-                var cmdPar = string.Empty;
-                if (nonLot)
-                {
-                    cmdStr = $@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT a.[Oh_Qty_By_Loc] as 'OnHand' FROM [dbo].[IPL-INIT_Location_Data] a WHERE a.[ID1] = @p1 AND a.[Location] = @p2;";
-                    cmdPar = _skew.PartNumber;
-                }
-                else
-                {
-                    cmdStr = $@"USE {CurrentUser.Site.ToUpper()}_MAIN; SELECT [Oh_Qtys] as 'OnHand' FROM [dbo].[LOT-INIT_Lot_Loc_Qtys] a WHERE a.[ID1] = CONCAT(@p1,'|P') AND a.[Loc] = @p2;";
-                    cmdPar = _skew.LotNumber;
-                }
-                using (SqlCommand cmd = new SqlCommand(cmdStr, App.SqlConAsync))
-                {
-                    cmd.SafeAddParameters("p1", cmdPar.ToUpper());
-                    cmd.SafeAddParameters("p2", from.ToUpper());
-                    var _valResult = cmd.ExecuteScalar()?.ToString();
-                    if (Convert.ToInt32(_valResult) < qty)
-                    {
-                        _errorCode = 1;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                ExceptionWindow.Show("Unhandled Exception", "Please call IT for assistance.");
-                return 0;
-            }
-            switch(_errorCode)
-            {
-                case 0:
-                    if (!nonLot)
-                    {
-                        //String Format for non lot tracable = false
-                        //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity #1~10~Lot #1~9~Quantity #2~10~Lot #2~~99~COMPLETE
-                        //Must meet this format in order to work with M2k
-
-                        var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~10~{_skew.LotNumber.ToUpper()}|P~99~COMPLETE";
-                        File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
-                    }
-                    else
-                    {
-                        //String Format for non lot tracable = true
-                        //1~Transaction type~2~Station ID~3~Transaction time~4~Transaction date~5~Facility code~6~Partnumber~7~From location~8~To location~9~Quantity~12~UoM~99~COMPLETE
-                        //Must meet this format in order to work with M2k
-
-                        var moveText = $"1~LOCXFER~2~{CurrentUser.DomainName}~3~{DateTime.Now.ToString("HH:mm")}~4~{DateTime.Today.ToString("MM-dd-yyyy")}~5~01~6~{_skew.PartNumber}~7~{from.ToUpper()}~8~{to.ToUpper()}~9~{qty}~12~{_skew.UOM.ToUpper()}~99~COMPLETE";
-                        File.WriteAllText($"{Properties.Settings.Default.MoveFileLocation}LOCXFERC2K.DAT{suffix}", moveText);
-                    }
-                    return suffix;
-                case 1:
-                    ExceptionWindow.Show("Quantity Error", "You are trying to move more quantity that exists in the from location.\nPlease double check your locations or call IT if you feel you have reached this message in error.");
-                    return 0;
-                default:
-                    return 0;
             }
         }
     }

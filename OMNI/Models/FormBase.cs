@@ -85,21 +85,6 @@ namespace OMNI.Models
                                 DashBoardTabControl.WorkSpace.LoadCMMSWorkOrderTabItem(_tempList[e.NewIndex].LinkIDNumber, true);
                             }
                             break;
-                        case Module.HDT:
-                            if (_tabItem.Content.GetType() == typeof(ITFormUCView))
-                            {
-                                var vm = ((ITFormUCView)_tabItem.Content).DataContext as ITFormUCViewModel;
-                                vm.Ticket = ITTicket.GetITTicketAsync(Convert.ToInt32(_tempList[e.NewIndex].LinkIDNumber)).Result;
-                                vm.SearchIDNumber = _tempList[e.NewIndex].LinkIDNumber;
-                                vm.PrimaryCommandType = FormCommand.Search;
-                                vm.SubmitCommand.Execute(null);
-                            }
-                            else
-                            {
-                                DashBoardTabControl.WorkSpace.Items.Remove(_tabItem);
-                                DashBoardTabControl.WorkSpace.LoadITTicketTabItem(_tempList[e.NewIndex].LinkIDNumber, true);
-                            }
-                            break;
                     }
                     FormChangeInProgress = false;
                 }
@@ -323,9 +308,6 @@ namespace OMNI.Models
                 {
                     case Module.CMMS:
                         parentObject = CMMSWorkOrder.LoadAsync(parentIDNumber).Result;
-                        break;
-                    case Module.HDT:
-                        parentObject = ITTicket.GetITTicketAsync(parentIDNumber).Result;
                         break;
                     case Module.QIR:
                         parentObject = new QIR(parentIDNumber, true);

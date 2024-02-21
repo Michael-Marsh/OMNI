@@ -2,10 +2,10 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <EnableSecurityDebugging>false</EnableSecurityDebugging>
-    <PublishUrlHistory>\\manage2\server\OMNI\Pending Update\ClickOnce\</PublishUrlHistory>
+    <PublishUrlHistory>\\waxfs001\WAXG-OMNI\OMNI App\|\\waxfs001\WAXG-OMNI\|\\manage2\server\OMNI\Pending Update\ClickOnce\</PublishUrlHistory>
     <InstallUrlHistory />
     <SupportUrlHistory />
-    <UpdateUrlHistory />
+    <UpdateUrlHistory>\\manage2\server\OMNI\Pending Update\ClickOnce\</UpdateUrlHistory>
     <BootstrapperUrlHistory />
     <ErrorReportUrlHistory />
     <FallbackCulture>en-US</FallbackCulture>

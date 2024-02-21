@@ -1,7 +1,7 @@
 ﻿using OMNI.Extensions;
 using OMNI.Helpers;
 using OMNI.ViewModels;
-using SpreadsheetLight;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -404,59 +404,6 @@ namespace OMNI.Models
             }
             catch (Exception)
             {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Retrieve an updated plate index table
-        /// </summary>
-        /// <returns>plate_index as DataTable</returns>
-        public static DataTable GetExtruderPlateTable()
-        {
-            var sqlRowCount = 0;
-            var tempFile = $"{Properties.Settings.Default.omnitemp}datamine.xlsm";
-            try
-            {
-                using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
-                                                        SELECT COUNT(*) FROM [plate_index];", App.SqlConAsync))
-                {
-                    sqlRowCount = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
-                }
-                File.Copy(Properties.Settings.Default.ExtruderExcelFilePath, tempFile, true);
-                using (SLDocument Excel = new SLDocument(tempFile, "Extruder Inspection"))
-                {
-                    var stats = Excel.GetWorksheetStatistics();
-                    var ExcelRowCount = stats.NumberOfRows - 2;
-                    while (ExcelRowCount > sqlRowCount)
-                    {
-                        using (SqlCommand cmd = new SqlCommand($@"USE {App.DataBase};
-                                                                INSERT INTO [plate_index] (Part_No, Ext_No, Die_ID, Top_Bar, Plate, Date) VALUES(@p1, @p2, @p3, @p4, @p5, @p6)", App.SqlConAsync))
-                        {
-                            sqlRowCount++;
-                            cmd.Parameters.AddWithValue("p1", Excel.GetCellValueAsInt32(sqlRowCount, 1));
-                            cmd.Parameters.AddWithValue("p2", Excel.GetCellValueAsInt32(sqlRowCount, 4));
-                            cmd.Parameters.AddWithValue("p3", Excel.GetCellValueAsString(sqlRowCount, 8));
-                            cmd.Parameters.AddWithValue("p4", Excel.GetCellValueAsString(sqlRowCount, 9));
-                            cmd.Parameters.AddWithValue("p5", Excel.GetCellValueAsString(sqlRowCount, 10));
-                            cmd.Parameters.AddWithValue("p6", Excel.GetCellValueAsDateTime(sqlRowCount, 2));
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-                }
-                using (SqlDataAdapter adapter = new SqlDataAdapter($@"USE {App.DataBase};
-                                                                    SELECT DISTINCT [Date], [Part_No], [Ext_No], [Die_ID], [Top_Bar], [Plate] FROM [plate_index]", App.SqlConAsync))
-                {
-                    using (DataTable table = new DataTable())
-                    {
-                        adapter.Fill(table);
-                        return table;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ExceptionWindow.Show("Unhandled Exception", ex.Message, ex, nameof(GetExtruderPlateTable));
                 return null;
             }
         }

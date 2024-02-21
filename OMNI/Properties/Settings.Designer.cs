@@ -12,8 +12,8 @@ namespace OMNI.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.1.0.0")]
-    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.8.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
         
@@ -34,7 +34,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Application Data\\QIR Photos\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-OMNI\\Application Data\\QIR Photos\\")]
         public string QIRPhotoDirectory {
             get {
                 return ((string)(this["QIRPhotoDirectory"]));
@@ -43,7 +43,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\Prints\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\Prints\\")]
         public string PrintLocation {
             get {
                 return ((string)(this["PrintLocation"]));
@@ -52,7 +52,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("172.16.0.10")]
+        [global::System.Configuration.DefaultSettingValueAttribute("WAXAS001")]
         public string ManageHostName {
             get {
                 return ((string)(this["ManageHostName"]));
@@ -61,7 +61,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("E:/roi/WCCO.MAIN")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:/roi/CONTI.MAIN")]
         public string WCCOManageAccount {
             get {
                 return ((string)(this["WCCOManageAccount"]));
@@ -70,7 +70,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\Document Center\\Production\\")]
         public string WCCODocumentLocation {
             get {
                 return ((string)(this["WCCODocumentLocation"]));
@@ -88,16 +88,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("itsupport@wccobelt.com")]
-        public string omniEmailAddress {
-            get {
-                return ((string)(this["omniEmailAddress"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Application Data\\temp\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-OMNI\\OMNI\\Application Data\\temp\\")]
         public string omnitemp {
             get {
                 return ((string)(this["omnitemp"]));
@@ -115,7 +106,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5008 - Quality Incident Report.pd" +
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\PublishedDocuments\\FORM5008 - Quality Incident Report.pd" +
             "f")]
         public string QIRDocument {
             get {
@@ -125,7 +116,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("wccobelt.com")]
+        [global::System.Configuration.DefaultSettingValueAttribute("contiwan.com")]
         public string EmailDomain {
             get {
                 return ((string)(this["EmailDomain"]));
@@ -143,7 +134,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Pending Update\\ClickOnce\\OMNI.application")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-OMNI\\OMNI App\\OMNI.application")]
         public string omniAppLocation {
             get {
                 return ((string)(this["omniAppLocation"]));
@@ -152,7 +143,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Application Data\\CMMS Documents\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-OMNI\\Application Data\\CMMS Documents\\")]
         public string CMMSDocumentLocation {
             get {
                 return ((string)(this["CMMSDocumentLocation"]));
@@ -161,7 +152,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5006E - Maintenance Request.pdf")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\PublishedDocuments\\FORM5006E - Maintenance Request.pdf")]
         public string CMMSWorkOrderDocument {
             get {
                 return ((string)(this["CMMSWorkOrderDocument"]));
@@ -170,7 +161,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\QIR\\Photos")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\QIR\\Photos")]
         public string QIRArchivePhotoDirectory {
             get {
                 return ((string)(this["QIRArchivePhotoDirectory"]));
@@ -179,45 +170,16 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\QIR\\Archived QIRs")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\QIR\\Archived QIRs")]
         public string QIRArchiveDocumentDirectory {
             get {
                 return ((string)(this["QIRArchiveDocumentDirectory"]));
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Quality\\Inspection\\Extruder Quality Inspection\\Extruder Quality " +
-            "Inspection.xlsm")]
-        public string ExtruderExcelFilePath {
-            get {
-                return ((string)(this["ExtruderExcelFilePath"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FRM-5761 - Employee Performance Revie" +
-            "w.pdf")]
-        public string ERDFilePath {
-            get {
-                return ((string)(this["ERDFilePath"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\OMNI\\Application Data\\HDT Documents\\")]
-        public string HDTDocumentLocation {
-            get {
-                return ((string)(this["HDTDocumentLocation"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("E:/roi/CSI.MAIN")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:/roi/CONTI.MAIN")]
         public string CSIManageAccount {
             get {
                 return ((string)(this["CSIManageAccount"]));
@@ -229,7 +191,7 @@ namespace OMNI.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Photo Library\\Employees")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\\\waxfs001\\WAXG-Wahpeton\\Photos\\Employees")]
         public string UsersPhotoDirectory {
             get {
                 return ((string)(this["UsersPhotoDirectory"]));
@@ -239,65 +201,11 @@ namespace OMNI.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Server=SQL-WCCO;User ID=omni;Password=Public2017@WORK!;Connection Timeout=5;Multi" +
-            "pleActiveResultSets=True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Server=WAXDB001;User ID=OMNI_SA_SQL;Password=GwdnYaWC}@y\'7+Ks?)XNf*;Connection Ti" +
+            "meout=5;MultipleActiveResultSets=True")]
         public string SqlConnectionString {
             get {
                 return ((string)(this["SqlConnectionString"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\CSI-PRIME\\FileStorage\\Published Documents\\")]
-        public string CSIDocumentLocation {
-            get {
-                return ((string)(this["CSIDocumentLocation"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5125 - Travel Card.pdf")]
-        public string TravelCardDocument {
-            get {
-                return ((string)(this["TravelCardDocument"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("omniquery")]
-        public string ManageAccount {
-            get {
-                return ((string)(this["ManageAccount"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\manage2\\server\\Document Center\\Production\\FORM5127 - Reference Travel Card.pdf")]
-        public string ReferenceCardDocument {
-            get {
-                return ((string)(this["ReferenceCardDocument"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("\\\\ERP-WCCO\\ERP\\ROI\\WCCO.MAIN\\BTI.TRANSACTIONS\\")]
-        public string MoveFileLocation {
-            get {
-                return ((string)(this["MoveFileLocation"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("technology#1")]
-        public string PdfDefaultPassword {
-            get {
-                return ((string)(this["PdfDefaultPassword"]));
             }
         }
     }

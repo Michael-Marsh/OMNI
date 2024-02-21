@@ -332,16 +332,6 @@ namespace OMNI.ViewModels
             var action = parmeter as string;
             switch (action)
             {
-                case "PartSearch":
-                    if (!OMNIWindow<PartSearchWindowView>.IsOpen())
-                    {
-                        new PartSearchWindowView().Show();
-                    }
-                    else
-                    {
-                        OMNIWindow<PartSearchWindowView>.Focus();
-                    }
-                    break;
                 case "QIRSearch":
                     if (!OMNIWindow<QIRSearchWindowView>.IsOpen())
                     {
@@ -352,16 +342,6 @@ namespace OMNI.ViewModels
                         OMNIWindow<QIRSearchWindowView>.Focus();
                     }
                     break;
-                case "DocumentIndex":
-                    if (!OMNIWindow<DocumentIndexWindowView>.IsOpen())
-                    {
-                        new DocumentIndexWindowView { DataContext = new DocumentIndexViewModel() }.Show();
-                    }
-                    else
-                    {
-                        OMNIWindow<DocumentIndexWindowView>.Focus();
-                    }
-                    break;
                 case "Calculators":
                     if (!OMNIWindow<CalculatorsWindowView>.IsOpen())
                     {
@@ -370,26 +350,6 @@ namespace OMNI.ViewModels
                     else
                     {
                         OMNIWindow<CalculatorsWindowView>.Focus();
-                    }
-                    break;
-                case "PlateSearch":
-                    if (!OMNIWindow<PlateSearchWindowView>.IsOpen())
-                    {
-                        new PlateSearchWindowView().Show();
-                    }
-                    else
-                    {
-                        OMNIWindow<PlateSearchWindowView>.Focus();
-                    }
-                    break;
-                case "LotSearch":
-                    if(!OMNIWindow<LotSearchWindowView>.IsOpen())
-                    {
-                        new LotSearchWindowView().Show();
-                    }
-                    else
-                    {
-                        OMNIWindow<LotSearchWindowView>.Focus();
                     }
                     break;
             }

@@ -29,7 +29,7 @@ namespace OMNI.QMS.Model
             get { return partNumber; }
             set
             {
-                value = value.ToUpper();
+                value = value?.ToUpper();
                 if ((CurrentRevision.LotNumber == "N/A" || string.IsNullOrEmpty(CurrentRevision.LotNumber)) && (WONumber == "N/A" || string.IsNullOrEmpty(WONumber)) && !string.IsNullOrEmpty(value) && LoadM2kData)
                 {
                     LoadM2kData = false;
