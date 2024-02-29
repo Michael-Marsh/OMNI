@@ -262,12 +262,10 @@ namespace OMNI.Models
             try
             {
                 using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
-                                                            SELECT 
-	                                                            SUM(DISTINCT([Inc_Std_Costs])) AS [Total_Inc], SUM([Ru_Std_Costs]) AS [Total_Ru] 
-                                                            FROM 
-	                                                            [dbo].[IM-INIT_Std_Costs] 
-                                                            WHERE 
-	                                                            [Part_Nbr] = @p1;", App.SqlConAsync))
+                                                            SELECT SUM(ISNULL([True_Inc_Std_Costs], 0.0) + ISNULL([True_Ru_Std_Costs], 0.0)) as 'PartCost'
+                                                              FROM [CONTI_MAIN].[dbo].[IM-INIT_Std_Costs]
+                                                            WHERE [ID1] = @p1
+                                                            GROUP BY [ID1]", App.SqlConAsync))
                 {
                     cmd.Parameters.AddWithValue("p1", partNbr);
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -276,9 +274,7 @@ namespace OMNI.Models
                         {
                             while (reader.Read())
                             {
-                                var _std = reader.IsDBNull(0) ? 0.00 : Convert.ToDouble(reader.GetDecimal(0));
-                                var _run = reader.IsDBNull(1) ? 0.00 : Convert.ToDouble(reader.GetDecimal(1));
-                                return _std + _run;
+                                return double.TryParse(reader.GetValue(0).ToString(), out double d) ? d : 0.00;
                             }
                         }
                         else
