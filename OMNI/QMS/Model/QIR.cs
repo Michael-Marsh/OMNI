@@ -330,8 +330,6 @@ namespace OMNI.QMS.Model
                 }
                 using (var adapter = new SqlDataAdapter(cmdString, App.SqlConAsync))
                 {
-                    adapter.FillSchema(table, SchemaType.Source);
-                    table.Columns[$"{CurrentUser.IdNumber}"].DataType = typeof(bool);
                     adapter.Fill(table);
                     table.Columns[$"{CurrentUser.IdNumber}"].ColumnName = "Flagged";
                     return table;
