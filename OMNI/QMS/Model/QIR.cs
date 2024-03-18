@@ -313,7 +313,7 @@ namespace OMNI.QMS.Model
             var table = new DataTable();
             try
             {
-                var cmdString = $"USE {App.DataBase}; SELECT n.[{CurrentUser.IdNumber}], r.[SupplierID], q.* FROM [qir_master] q ";
+                var cmdString = $"USE {App.DataBase}; SELECT n.[{CurrentUser.IdNumber}] as 'Flagged', r.[SupplierID], q.* FROM [qir_master] q ";
                 cmdString += $"LEFT JOIN [qir_notice] n ON q.[QIRNumber]=n.[QIRNumber] ";
                 cmdString += $"LEFT JOIN [qir_revisions] r ON q.[QIRNumber]=r.[QIRNumber] AND q.[QIRDate]=r.[revision_date]";
                 if (update)
@@ -331,7 +331,6 @@ namespace OMNI.QMS.Model
                 using (var adapter = new SqlDataAdapter(cmdString, App.SqlConAsync))
                 {
                     adapter.Fill(table);
-                    table.Columns[$"{CurrentUser.IdNumber}"].ColumnName = "Flagged";
                     return table;
                 }
             }
@@ -593,36 +592,6 @@ namespace OMNI.QMS.Model
         public static bool PhotoExists(this QIR qir)
         {
             return Directory.GetFiles(Properties.Settings.Default.QIRPhotoDirectory, $"{qir.IDNumber}P.*", SearchOption.TopDirectoryOnly).Length > 0;
-        }
-
-        /// <summary>
-        /// Open a photo document for the user to view
-        /// </summary>
-        /// <param name="qir">QIR Object</param>
-        public static void ViewPhotos(this QIR qir)
-        {
-            try
-            {
-                if(CurrentUser.Quality)
-                {
-                    Process.Start($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx");
-                }
-                else
-                {
-                    File.SetAttributes($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx", FileAttributes.ReadOnly);
-                    using (var pro = new Process())
-                    {
-                        pro.StartInfo.FileName = $"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx";
-                        pro.Start();
-                        pro.WaitForExit(3000);
-                    }
-                    File.SetAttributes($"{Properties.Settings.Default.QIRPhotoDirectory}{qir.IDNumber}P.docx", FileAttributes.Normal);
-                }
-            }
-            catch (Exception)
-            {
-                ExceptionWindow.Show("File Error", "The file is currently unavailable.\nPlease contact IT if you feel you have reached this message in error.");
-            }
         }
 
         /// <summary>

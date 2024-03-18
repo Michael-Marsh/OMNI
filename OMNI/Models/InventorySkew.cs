@@ -259,6 +259,10 @@ namespace OMNI.Models
         /// <returns>Material Cost as double</returns>
         public static double GetMaterialCost(string partNbr)
         {
+            if (!partNbr.Contains("|"))
+            {
+                partNbr = $"{partNbr}|01";
+            }
             try
             {
                 using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN;
@@ -300,7 +304,7 @@ namespace OMNI.Models
             {
                 using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN; SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("p1", partNbr);
+                    cmd.Parameters.AddWithValue("p1", $"{partNbr}|01");
                     return cmd.ExecuteScalar().ToString();
                 }
             }

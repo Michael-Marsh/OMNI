@@ -7,6 +7,7 @@ using OMNI.QMS.Model;
 using OMNI.ViewModels;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 
@@ -317,7 +318,7 @@ namespace OMNI.QMS.ViewModel
         }
         private void ViewPhotoExecute(object parameter)
         {
-            Qir.ViewPhotos();
+            Process.Start($"{Properties.Settings.Default.QIRPhotoDirectory}{Qir.IDNumber}P.docx");
         }
 
         #endregion

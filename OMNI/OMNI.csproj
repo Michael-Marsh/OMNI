@@ -31,8 +31,8 @@
     <PublisherName>Michael Marsh</PublisherName>
     <SuiteName>ContiTech</SuiteName>
     <MinimumRequiredVersion>4.0.45.390</MinimumRequiredVersion>
-    <ApplicationRevision>20</ApplicationRevision>
-    <ApplicationVersion>5.0.5.20</ApplicationVersion>
+    <ApplicationRevision>32</ApplicationRevision>
+    <ApplicationVersion>5.0.9.32</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
