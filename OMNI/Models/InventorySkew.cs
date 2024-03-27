@@ -302,9 +302,10 @@ namespace OMNI.Models
         {
             try
             {
+                partNbr = partNbr.Contains("|") ? partNbr : $"{partNbr}|01";
                 using (SqlCommand cmd = new SqlCommand($@"USE CONTI_MAIN; SELECT [Um] FROM [dbo].[IM-INIT] WHERE [Part_Number] = @p1;", App.SqlConAsync))
                 {
-                    cmd.Parameters.AddWithValue("p1", $"{partNbr}|01");
+                    cmd.Parameters.AddWithValue("p1", partNbr);
                     return cmd.ExecuteScalar().ToString();
                 }
             }

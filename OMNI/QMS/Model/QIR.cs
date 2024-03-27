@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace OMNI.QMS.Model
@@ -139,6 +140,7 @@ namespace OMNI.QMS.Model
         public double Total { get { return Convert.ToInt32(Lost) * MaterialCost; } }
         public bool LoadM2kData;
         private readonly bool IsNew = true;
+        public static DateTime LastUpdate;
 
         #endregion
 
@@ -318,7 +320,7 @@ namespace OMNI.QMS.Model
                 cmdString += $"LEFT JOIN [qir_revisions] r ON q.[QIRNumber]=r.[QIRNumber] AND q.[QIRDate]=r.[revision_date]";
                 if (update)
                 {
-                    cmdString += $" WHERE [QIRDate]>'{DateTime.Now.AddMinutes(-1).ToString("yyyy-MM-dd HH:mm")}'";
+                    cmdString += $" WHERE [QIRDate]>'{LastUpdate.ToString("yyyy-MM-dd HH:mm")}'";
                 }
                 else if (site == "WCCO")
                 {
@@ -331,6 +333,7 @@ namespace OMNI.QMS.Model
                 using (var adapter = new SqlDataAdapter(cmdString, App.SqlConAsync))
                 {
                     adapter.Fill(table);
+                    LastUpdate = DateTime.Now;
                     return table;
                 }
             }
@@ -575,7 +578,7 @@ namespace OMNI.QMS.Model
                 {
                     foreach (DataRow row in _tempTable.Rows)
                     {
-                        if (!noticeTable.Rows.Contains(row.ItemArray[2]))
+                        if (noticeTable.Select($"[QIRNumber] = '{row.ItemArray[2]}'").Count() == 0)
                         {
                             noticeTable.Rows.Add(row.ItemArray);
                         }
